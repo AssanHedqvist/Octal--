@@ -5,7 +5,7 @@
 
 int main(int argv, char** args){  
 
-    printf("Hello world!\n");
+    printf("Hello Octal--!\n");
     
     return 0;
 }
