@@ -1,3 +1,15 @@
+<<<<<<< HEAD
+
+# Octal--
+
+2D platform game
+Testing 1 2 3 // Damien Hausmanis Carlén
+Looking good som man säger i Amerikat!
+Test igen // Damien Hausmanis Carlén
+test // Sebastian
+Testing git/Shariff
+=======
+
 # Getting started to program with SDL2 in C
 
 - [Getting started to program with SDL2 in C](#getting-started-to-program-with-sdl2-in-c)
@@ -15,14 +27,14 @@ This tutorial assumes that you have installed and are familiar with running a C 
 To summarize, the tutorial assumes that:
 
 1. you are using either Windows (10 or 11), Ubuntu Linux, or Macos.
-2. You have installed GNU C compiler (GCC) using the method described in the tutorial for your operating system. 
+2. You have installed GNU C compiler (GCC) using the method described in the tutorial for your operating system.
 3. You are able able to successfully compile the a program using make.
 
 A program with SDL2 libraries will not only require you to include and call the functions in the SDL2 library but also to provide the runtime libraries during the _linking_ process. The following sections describe how to install a SDL2 library and to tell the compiler to use it and link your program against it, to create the executable that can be run on your machine.
 
 ## Installing SDL2 Libraries
 
-SDL2 contains various libraries based on what type of functions are called. For example, the _SDL2\_mixer_ library contains functions to manage sound when creating games, while _SDL2\_ttf_ library helps in creating fonts. The libraries are separated based on their functions but also to ensure that only the required parts of the libraries are used for building the executable. The size of the library will have a influence on the size of the executable cerated.
+SDL2 contains various libraries based on what type of functions are called. For example, the _SDL2_mixer_ library contains functions to manage sound when creating games, while _SDL2_ttf_ library helps in creating fonts. The libraries are separated based on their functions but also to ensure that only the required parts of the libraries are used for building the executable. The size of the library will have a influence on the size of the executable cerated.
 
 To install the SDL2 libraries follow the instructions as per the operating system:
 
@@ -48,9 +60,9 @@ Answer _Y_ to proceed with the installation.
 
 ## Running the hello program
 
-In order to run the program using Makefile, rename the right makefile for you system. For example, on a Windows computer, rename _Makefile\_win_ to _Makefile_. 
+In order to run the program using Makefile, rename the right makefile for you system. For example, on a Windows computer, rename _Makefile_win_ to _Makefile_.
 
-Open a terminal and point the working directory to the project folder. Refer to the [_c\_programming\_intro_](https://github.com/Makerspace-KTH/c_programing_intro#4-launch-and-run-a-c-program) for details for your operating system.
+Open a terminal and point the working directory to the project folder. Refer to the [_c_programming_intro_](https://github.com/Makerspace-KTH/c_programing_intro#4-launch-and-run-a-c-program) for details for your operating system.
 
 Run the makefile based on your OS to build the _hello_ executable
 
@@ -64,7 +76,7 @@ Linux / macos:
 
 Execute the binary _hello_
 
-    $ ./hello 
+    $ ./hello
 
 or
 
@@ -83,3 +95,6 @@ to remove the binaries.
 ## Bonus
 
 Try to download and compile a full alien game from [here](https://github.com/Makerspace-KTH/alien).
+
+> > > > > > > b6cabc9736f61c24bd945f13fc5901cfc13b55e3
+> > > > > > > Testing git /Shariff.
