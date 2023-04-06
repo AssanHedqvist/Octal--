@@ -1,5 +1,5 @@
 #include <math.h>
-#include "include/vec2.h"
+#include "../include/vec2.h"
 
 //  a+=b
 void vpadd(vec2* pA, vec2 b) 

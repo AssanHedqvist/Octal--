@@ -2,7 +2,7 @@
 #include <math.h>
 #include <stdlib.h> 
 #include <time.h>
-#include "include/vec2.h"
+#include "../include/vec2.h"
 
 int main(int argv, char** args) {  
 
