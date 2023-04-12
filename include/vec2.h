@@ -12,6 +12,8 @@ typedef struct vec2
     float x,y;
 } vec2;
 
+#define vec2(a,b) (vec2){a,b}
+
 //  a+=b
 void vpadd(vec2* pA, vec2 b);
 

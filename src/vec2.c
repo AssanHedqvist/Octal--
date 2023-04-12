@@ -1,5 +1,7 @@
 #include <math.h>
-#include "../include/vec2.h"
+#include "../include/vec2.h" 
+
+#define vec2(a,b) (vec2){a,b}
 
 //  a+=b
 void vpadd(vec2* pA, vec2 b) 
@@ -58,3 +60,4 @@ vec2 normalize(vec2 a)
 
     return (vec2){a.x*length, a.y*length};
 }
+
