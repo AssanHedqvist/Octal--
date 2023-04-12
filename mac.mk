@@ -2,7 +2,7 @@
 #   "make -f mac.mk"
 
 # Location of where main.c is stored in
-SRCDIR=./source
+SRCDIR=./src
 
 # Name of the compiler, GNU GCC in this case
 CC=gcc
