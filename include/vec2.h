@@ -1,11 +1,14 @@
 #ifndef VEC2_H_INCLUDED
 #define VEC2_H_INCLUDED
 
+
 /*
     v stands for vector 
     p stands for pointer
     s stands for scalar
 */
+
+
 
 typedef struct vec2 
 {
@@ -29,10 +32,10 @@ vec2 vdiff(vec2 a, vec2 b);
 //  c = {a.x * t, a.y * t}
 vec2 vsmul(vec2 a, float t);
 
-//  c = a * b
+//  c = a * b (prod for product)
 vec2 vprod(vec2 a, vec2 b);
 
-//  c = a / b
+//  c = a / b 
 vec2 vquo(vec2 a, vec2 b);
 
 //  dot product 

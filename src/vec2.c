@@ -1,7 +1,5 @@
-#include <math.h>
 #include "../include/vec2.h" 
-
-#define vec2(a,b) (vec2){a,b}
+#include <math.h>
 
 //  a+=b
 void vpadd(vec2* pA, vec2 b) 
