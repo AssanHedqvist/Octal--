@@ -3,20 +3,22 @@
 
 SRCDIR=./src
 
-#	can i do this?
-INCLUDE=./include
-
-INCLUDE2 = C:\msys64\mingw64\include
+INCLUDE = C:\msys64\mingw64\include
 
 LIBS = C:\msys64\mingw64\lib
 
-game: main.o vec2.o
-	gcc -o game.exe main.o vec2.o
+LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -mwindows
+
+game: main.o vec2.o verlet.o object.o
+	gcc -o game.exe main.o vec2.o verlet.o object.o -L$(LIBS) -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -mwindows
 main.o: 
-	gcc -c $(SRCDIR)/main.c 
+	gcc -c $(SRCDIR)/main.c -I$(INCLUDE)
 vec2.o: 
 	gcc -c $(SRCDIR)/vec2.c
-	
+verlet.o: 
+	gcc -c $(SRCDIR)/verlet.c	
+object.o:
+	gcc -c $(SRCDIR)/object.c -I$(INCLUDE)
 clean:
-	rm *.exe
 	rm *.o
+	rm *.exe
