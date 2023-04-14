@@ -15,18 +15,24 @@ CFLAGS = -g -I$(INCLUDE) -c
 #CFLAGS = -g -c
 
 # Any libraries to link with
-LIBS = /opt/homebrew/lib
+LIBS = /usr/local/lib
 
 
 # Extra flags to give to compilers when they are supposed to invoke the linker
 #LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -mwindows
 LDFLAGS = -lSDL2main -lSDL2 -lSDL2_image
 
-main:
-	@echo "Building main"
-	$(CC) $(CFLAGS) $(SRCDIR)/main.c -o $@.o 
-	$(CC) main.o -o main $(LDFLAGS) -L$(LIBS)
+game: main.o vec2.o integration.o object.o
+	gcc -o game main.o vec2.o integration.o object.o -L$(LIBS) -lSDL2main -lSDL2 -lSDL2_image
+main.o: 
+	gcc -c $(SRCDIR)/main.c -I$(INCLUDE)
+vec2.o: 
+	gcc -c $(SRCDIR)/vec2.c
+integration.o: 
+	gcc -c $(SRCDIR)/integration.c	
+object.o:
+	gcc -c $(SRCDIR)/object.c -I$(INCLUDE)
 
 clean:
-	rm -f main.o
+	rm -f *.o
 	rm -f main
