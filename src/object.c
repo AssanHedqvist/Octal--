@@ -2,5 +2,32 @@
 
 void renderObject(SDL_Renderer *renderer, Object* objectToRender) 
 {
-    SDL_RenderCopyEx(renderer,objectToRender->texture,&objectToRender->imageExtents,&objectToRender->screenExtents,0.0,NULL,1);
+    SDL_RenderCopyEx(renderer,objectToRender->texture,&objectToRender->imageExtents,&objectToRender->screenExtents,0.0,NULL,0);
+}
+
+void renderObjects(SDL_Renderer *renderer, Object objects[], int length) 
+{
+    SDL_RenderClear(renderer);
+
+    int currentOrder = 0;
+    int doneRendering = 0;
+    
+    while(!doneRendering) 
+    {
+        doneRendering = 1;
+        for (int i = 0; i < length; i++)
+        {
+            if(objects[i].order == currentOrder) 
+            {
+                SDL_RenderCopyEx(renderer,objects[i].texture,&objects[i].imageExtents,&objects[i].screenExtents,0.0,NULL,objects[i].flip);
+            }
+            if(currentOrder <= objects[i].order) 
+            {
+                doneRendering = 0;
+            }     
+        }
+        currentOrder++;
+    }
+
+    SDL_RenderPresent(renderer);
 }

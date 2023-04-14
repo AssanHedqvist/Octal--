@@ -1,14 +1,11 @@
 #ifndef VEC2_H_INCLUDED
 #define VEC2_H_INCLUDED
 
-
 /*
     v stands for vector 
     p stands for pointer
     s stands for scalar
 */
-
-
 
 typedef struct vec2 
 {
