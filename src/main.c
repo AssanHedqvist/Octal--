@@ -20,6 +20,7 @@ int main(int argv, char** args)
     SDL_Event event;
 
     Object objects[3];
+    int amountOfObjects = 3;
 
     objects[2].texture = IMG_LoadTexture(renderer,"resources/haha.png");
     objects[2].imageExtents = (SDL_Rect){0,0,334,340};
@@ -36,7 +37,7 @@ int main(int argv, char** args)
     objects[0].screenExtents = (SDL_Rect){400,300,32,64};
     objects[0].order = 1;
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < amountOfObjects; i++)
     {
         objects[i].flip = 0;
     }
@@ -44,11 +45,13 @@ int main(int argv, char** args)
     int frameCounter = 0;
     while (isRunning)
     {   
+        //  this code can be removed later
         if((frameCounter % 16) == 0) 
         {
             objects[0].screenExtents.x -= 1;
         }
 
+        //  this code can be removed later
         if(objects[0].screenExtents.x == 800) 
         {
             objects[0].screenExtents.x = -31;
@@ -73,12 +76,12 @@ int main(int argv, char** args)
             }
         }
 
-        renderObjects(renderer, objects, 3);
+        renderObjects(renderer, objects, amountOfObjects);
 
         frameCounter++;
     }
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < amountOfObjects; i++)
     {
         SDL_DestroyTexture(objects[i].texture);
     }
