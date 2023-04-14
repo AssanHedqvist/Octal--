@@ -11,7 +11,7 @@ typedef struct PhysicsObject
     unsigned int type; //  for example static objects (immovable objects) and dynamic objects (movable objects)
 } PhysicsObject;
 
-void updateEulerPos(PhysicsObject* obj, float dt);
+void updatePosition(PhysicsObject* obj, float dt);
 
 
 #endif
