@@ -11,7 +11,6 @@ typedef struct RenderObject
     SDL_Rect imageExtents;
     SDL_Rect screenExtents;
     SDL_RendererFlip flip; 
-    unsigned int type; //  for example static objects (immovable objects) and dynamic objects (movable objects)
 } RenderObject;
 
 void renderObject(SDL_Renderer *renderer, RenderObject* objectToRender);
