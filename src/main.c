@@ -84,6 +84,14 @@ int main(int argv, char** args)
             if(player.physics->velocity.x < -10.0f) {
                 player.physics->velocity.x = -10.0f;
             }
+            if(objects[0].imageExtents.x == 32) 
+            {
+                objects[0].imageExtents.x = 64;
+            }
+            else 
+            {
+                objects[0].imageExtents.x = 32;
+            }
         }
         if(states.keyState[SDLK_d]) 
         {
@@ -91,6 +99,14 @@ int main(int argv, char** args)
             player.physics->velocity.x += 1.0f;
             if(player.physics->velocity.x > 10.0f) {
                 player.physics->velocity.x = 10.0f;
+            }
+            if(objects[0].imageExtents.x == 32) 
+            {
+                objects[0].imageExtents.x = 64;
+            }
+            else 
+            {
+                objects[0].imageExtents.x = 32;
             }
         }
 
