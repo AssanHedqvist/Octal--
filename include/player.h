@@ -2,11 +2,13 @@
 #define PLAYER_H_INCLUDED
 
 #include <../include/renderObject.h>
+#include <../include/physicsObject.h>
 #include <../include/keyboard.h>
 
 typedef struct Player
 {
-    RenderObject* object;
+    RenderObject* render;
+    PhysicsObject* physics;
     KeyboardStates keyInputs;
     
     //  add more

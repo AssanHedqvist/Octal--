@@ -7,6 +7,7 @@
 #include "../include/vec2.h"
 #include "../include/physicsObject.h"
 #include "../include/renderObject.h"
+#include "../include/keyboard.h"
 
 int main(int argv, char** args) 
 {     
@@ -37,6 +38,8 @@ int main(int argv, char** args)
     objects[0].screenExtents = (SDL_Rect){400,300,32,64};
     objects[0].order = 1;
 
+    KeyboardStates states;
+
     for (int i = 0; i < amountOfObjects; i++)
     {
         objects[i].flip = 0;
@@ -45,18 +48,6 @@ int main(int argv, char** args)
     int frameCounter = 0;
     while (isRunning)
     {   
-        //  this code can be removed later
-        if((frameCounter % 16) == 0) 
-        {
-            objects[0].screenExtents.x -= 1;
-        }
-
-        //  this code can be removed later
-        if(objects[0].screenExtents.x == 800) 
-        {
-            objects[0].screenExtents.x = -31;
-        }
-       
         while (SDL_PollEvent(&event))
         {
             switch (event.type)
@@ -65,13 +56,17 @@ int main(int argv, char** args)
                     isRunning = 0;
                     break;
                 case SDL_KEYDOWN:
-                    if (event.key.keysym.sym == SDLK_ESCAPE)
-                    {
+                case SDL_KEYUP:
+                    handleKeyboardInputs(&states,event.key.keysym.sym,event.type);
+                    if(states.keyState[SDLK_ESCAPE]) {
                         isRunning = 0;
                     }
-                    break;
-                case SDL_KEYUP:
-                    
+                    if(states.keyState[SDLK_a]) {
+                        objects[0].flip = 1;
+                    }
+                    if(states.keyState[SDLK_d]) {
+                        objects[0].flip = 0;
+                    }
                     break;
             }
         }
