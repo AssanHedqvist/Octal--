@@ -5,7 +5,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "../include/vec2.h"
-#include "../include/integration.h"
+#include "../include/physicsObject.h"
 #include "../include/renderObject.h"
 
 int main(int argv, char** args) 
