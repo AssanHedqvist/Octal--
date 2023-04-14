@@ -6,7 +6,7 @@
 #include <SDL2/SDL_image.h>
 #include "../include/vec2.h"
 #include "../include/integration.h"
-#include "../include/object.h"
+#include "../include/renderObject.h"
 
 int main(int argv, char** args) 
 {     
@@ -19,7 +19,7 @@ int main(int argv, char** args)
     int isRunning = 1;
     SDL_Event event;
 
-    Object objects[3];
+    RenderObject objects[3];
     int amountOfObjects = 3;
 
     objects[2].texture = IMG_LoadTexture(renderer,"resources/haha.png");
@@ -33,7 +33,7 @@ int main(int argv, char** args)
     objects[1].order = 0;
 
     objects[0].texture = IMG_LoadTexture(renderer,"resources/stickmanSprite.png");
-    objects[0].imageExtents = (SDL_Rect){0,0,32,64};
+    objects[0].imageExtents = (SDL_Rect){32,0,32,64};
     objects[0].screenExtents = (SDL_Rect){400,300,32,64};
     objects[0].order = 1;
 

@@ -1,11 +1,11 @@
-#include "../include/object.h"
+#include "../include/renderObject.h"
 
-void renderObject(SDL_Renderer *renderer, Object* objectToRender) 
+void renderObject(SDL_Renderer *renderer, RenderObject* objectToRender) 
 {
     SDL_RenderCopyEx(renderer,objectToRender->texture,&objectToRender->imageExtents,&objectToRender->screenExtents,0.0,NULL,0);
 }
 
-void renderObjects(SDL_Renderer *renderer, Object objects[], int length) 
+void renderObjects(SDL_Renderer *renderer, RenderObject objects[], int length) 
 {
     SDL_RenderClear(renderer);
 
