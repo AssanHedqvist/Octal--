@@ -8,6 +8,7 @@
 #include "../include/physicsObject.h"
 #include "../include/renderObject.h"
 #include "../include/keyboard.h"
+#include "../include/player.h"
 
 int main(int argv, char** args) 
 {     
@@ -20,6 +21,7 @@ int main(int argv, char** args)
     int isRunning = 1;
     SDL_Event event;
 
+    Player player;
     RenderObject objects[3];
     int amountOfObjects = 3;
 
@@ -38,7 +40,14 @@ int main(int argv, char** args)
     objects[0].screenExtents = (SDL_Rect){400,300,32,64};
     objects[0].order = 1;
 
-    KeyboardStates states;
+    player.render = &objects[0];
+    PhysicsObject physicsObjects = {{0.f,0.f},{0.f,0.f},{0.f,0.f},0};
+
+    player.physics = &physicsObjects;
+
+    physicsObjects.position = vec2(400.0f,300.0f);
+
+    KeyboardStates states = {0};
 
     for (int i = 0; i < amountOfObjects; i++)
     {
@@ -48,6 +57,8 @@ int main(int argv, char** args)
     int frameCounter = 0;
     while (isRunning)
     {   
+        //player.physics->acceleration.y = 9.82f;
+
         while (SDL_PollEvent(&event))
         {
             switch (event.type)
@@ -58,18 +69,35 @@ int main(int argv, char** args)
                 case SDL_KEYDOWN:
                 case SDL_KEYUP:
                     handleKeyboardInputs(&states,event.key.keysym.sym,event.type);
-                    if(states.keyState[SDLK_ESCAPE]) {
-                        isRunning = 0;
-                    }
-                    if(states.keyState[SDLK_a]) {
-                        objects[0].flip = 1;
-                    }
-                    if(states.keyState[SDLK_d]) {
-                        objects[0].flip = 0;
-                    }
                     break;
             }
         }
+
+        if(states.keyState[SDLK_ESCAPE]) 
+        {
+            isRunning = 0;
+        }
+        if(states.keyState[SDLK_a]) 
+        {
+            player.render->flip = 1;
+            player.physics->velocity.x -= 1.0f;
+            if(player.physics->velocity.x < -10.0f) {
+                player.physics->velocity.x = -10.0f;
+            }
+        }
+        if(states.keyState[SDLK_d]) 
+        {
+            player.render->flip = 0;
+            player.physics->velocity.x += 1.0f;
+            if(player.physics->velocity.x > 10.0f) {
+                player.physics->velocity.x = 10.0f;
+            }
+        }
+
+        updatePosition(player.physics,1.0f/60.0f);
+
+        player.render->screenExtents.x = (int)player.physics->position.x;
+        player.render->screenExtents.y = (int)player.physics->position.y;
 
         renderObjects(renderer, objects, amountOfObjects);
 
