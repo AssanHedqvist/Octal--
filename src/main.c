@@ -48,8 +48,7 @@ int main(int argv, char **args)
     objects[2].flip = 0;
 
     objects[3].order = 2;
-    //objects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite2.png");
-    objects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite.png");
+    objects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite2.png");
     objects[3].imageExtents = (SDL_Rect){32, 0, 32, 64};
     objects[3].screenExtents = (SDL_Rect){400, 300, 32, 64};
     objects[3].flip = 0;
