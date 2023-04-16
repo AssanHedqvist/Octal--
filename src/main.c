@@ -26,10 +26,9 @@ int main(int argv, char **args)
     int amountOfObjects = 4;
 
     //   ugly animation code made by William
-    int swapAnimation = 0;
+    int swapAnimation = 0; //  <-- is this needed? --Damien
 
     //   Render order: start at 0 continue up.
-
     objects[0].order = 0;
     objects[0].texture = IMG_LoadTexture(renderer, "resources/background.png");
     objects[0].imageExtents = (SDL_Rect){0, 0, 3000, 2000};
@@ -49,28 +48,31 @@ int main(int argv, char **args)
     objects[2].flip = 0;
 
     objects[3].order = 2;
-    objects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite2.png");
+    //objects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite2.png");
+    objects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite.png");
     objects[3].imageExtents = (SDL_Rect){32, 0, 32, 64};
     objects[3].screenExtents = (SDL_Rect){400, 300, 32, 64};
     objects[3].flip = 0;
 
-    player2.render = &objects[3];
+    
     player.render = &objects[2];
-    PhysicsObject physicsObjects = {{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0};
-    PhysicsObject physicsObjects2 = {{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0};
+    player2.render = &objects[3];
 
-    player.physics = &physicsObjects;
-    player2.physics = &physicsObjects2;
+    //  two objects for now...
+    PhysicsObject physicsObjects[2] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0}};
 
-    physicsObjects.position = vec2(400.0f, 300.0f);
-    physicsObjects2.position = vec2(400.0f, 300.0f);
+    player.physics = &physicsObjects[0];
+    player2.physics = &physicsObjects[1];
+
+    physicsObjects[0].position = vec2(400.0f, 300.0f);
+    physicsObjects[1].position = vec2(400.0f, 300.0f);
 
     KeyboardStates states = {0};
 
     int frameCounter = 0;
     while (isRunning)
     {
-        // player.physics->acceleration.y = 9.82f;
+        //player.physics->acceleration.y = 9.82f;
 
         while (SDL_PollEvent(&event))
         {
@@ -160,6 +162,7 @@ int main(int argv, char **args)
             }
         }
 
+        //  we should fix a function to updatePosition of all objects like the function renderObjects
         updatePosition(player.physics, 1.0f / 60.0f);
 
         player.render->screenExtents.x = (int)player.physics->position.x;
