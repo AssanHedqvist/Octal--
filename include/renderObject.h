@@ -6,7 +6,7 @@
 
 typedef struct RenderObject
 {
-    unsigned int order; //  rendering order of the renderObject
+    unsigned int order; //  rendering order of the renderObject starting at 0
     SDL_Texture* texture;
     SDL_Rect imageExtents;
     SDL_Rect screenExtents;
