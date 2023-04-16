@@ -12,7 +12,6 @@
 
 int main(int argv, char **args)
 {
-
     SDL_Init(SDL_INIT_EVERYTHING);
 
     SDL_Window *window = SDL_CreateWindow("Hello SDL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
@@ -31,25 +30,29 @@ int main(int argv, char **args)
 
     //   Render order: start at 0 continue up.
 
-    objects[1].texture = IMG_LoadTexture(renderer, "resources/platform.png");
-    objects[1].imageExtents = (SDL_Rect){0, 0, 1200, 1200};
-    objects[1].screenExtents = (SDL_Rect){100, 300, 600, 150};
-    objects[1].order = 1;
-
+    objects[0].order = 0;
     objects[0].texture = IMG_LoadTexture(renderer, "resources/background.png");
     objects[0].imageExtents = (SDL_Rect){0, 0, 3000, 2000};
     objects[0].screenExtents = (SDL_Rect){0, 0, 800, 600};
-    objects[0].order = 0;
+    objects[0].flip = 0;
 
+    objects[1].order = 1;
+    objects[1].texture = IMG_LoadTexture(renderer, "resources/platform.png");
+    objects[1].imageExtents = (SDL_Rect){0, 0, 1200, 1200};
+    objects[1].screenExtents = (SDL_Rect){100, 300, 600, 150};
+    objects[1].flip = 0;
+
+    objects[2].order = 2;
     objects[2].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite.png");
     objects[2].imageExtents = (SDL_Rect){32, 0, 32, 64};
     objects[2].screenExtents = (SDL_Rect){400, 300, 32, 64};
-    objects[2].order = 2;
+    objects[2].flip = 0;
 
+    objects[3].order = 2;
     objects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite2.png");
     objects[3].imageExtents = (SDL_Rect){32, 0, 32, 64};
     objects[3].screenExtents = (SDL_Rect){400, 300, 32, 64};
-    objects[3].order = 2;
+    objects[3].flip = 0;
 
     player2.render = &objects[3];
     player.render = &objects[2];
@@ -63,11 +66,6 @@ int main(int argv, char **args)
     physicsObjects2.position = vec2(400.0f, 300.0f);
 
     KeyboardStates states = {0};
-
-    for (int i = 0; i < amountOfObjects; i++)
-    {
-        objects[i].flip = 0;
-    }
 
     int frameCounter = 0;
     while (isRunning)
