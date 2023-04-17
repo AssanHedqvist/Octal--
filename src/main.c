@@ -9,6 +9,17 @@
 #include "../include/renderObject.h"
 #include "../include/keyboard.h"
 #include "../include/player.h"
+#define GRAVITY 0.25f //9.82f
+
+int checkCollision(SDL_Rect rect1, SDL_Rect rect2)
+{
+    SDL_bool intersect = SDL_HasIntersection(&rect1, &rect2);
+    if (intersect == SDL_TRUE)
+        return 1;
+    else
+        printf("no intersection\n");
+        return 0;
+}
 
 int main(int argv, char **args)
 {
@@ -59,8 +70,8 @@ int main(int argv, char **args)
     player.physics = &physicsObjects[0];
     player2.physics = &physicsObjects[1];
 
-    physicsObjects[0].position = vec2(400.0f, 300.0f);
-    physicsObjects[1].position = vec2(400.0f, 300.0f);
+    physicsObjects[0].position = vec2(400.0f, 200.0f);
+    physicsObjects[1].position = vec2(400.0f, 200.0f);
 
     KeyboardStates states = {0};
 
@@ -68,6 +79,14 @@ int main(int argv, char **args)
     while (isRunning)
     {
         //player.physics->acceleration.y = 9.82f;
+        
+        if (checkCollision(objects[2].screenExtents, objects[1].screenExtents))
+        {
+            printf("Player 1 collides with platform\n");
+        }
+
+        player.physics->acceleration.y = GRAVITY;
+        player2.physics->acceleration.y = GRAVITY;
 
         while (SDL_PollEvent(&event))
         {
