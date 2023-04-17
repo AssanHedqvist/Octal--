@@ -53,7 +53,7 @@ int main(int argv, char **args)
     objects[3].screenExtents = (SDL_Rect){400, 300, 32, 64};
     objects[3].flip = 0;
 
-    
+
     player.render = &objects[2];
     player2.render = &objects[3];
 
@@ -161,9 +161,8 @@ int main(int argv, char **args)
             }
         }
 
-        //  we should fix a function to updatePosition of all objects like the function renderObjects
+        //  we should fix a function to updatePosition of all objects like the function renderObjects 
         updatePosition(player.physics, 1.0f / 60.0f);
-
         player.render->screenExtents.x = (int)player.physics->position.x;
         player.render->screenExtents.y = (int)player.physics->position.y;
 
