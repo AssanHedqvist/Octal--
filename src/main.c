@@ -25,9 +25,6 @@ int main(int argv, char **args)
     RenderObject objects[4];
     int amountOfObjects = 4;
 
-    //   ugly animation code made by William
-    int swapAnimation = 0; //  <-- is this needed? --Damien
-
     //   Render order: start at 0 continue up.
     objects[0].order = 0;
     objects[0].texture = IMG_LoadTexture(renderer, "resources/background.png");
@@ -52,7 +49,6 @@ int main(int argv, char **args)
     objects[3].imageExtents = (SDL_Rect){32, 0, 32, 64};
     objects[3].screenExtents = (SDL_Rect){400, 300, 32, 64};
     objects[3].flip = 0;
-
 
     player.render = &objects[2];
     player2.render = &objects[3];
