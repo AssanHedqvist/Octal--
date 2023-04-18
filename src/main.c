@@ -127,7 +127,7 @@ int main(int argv, char **args)
                 objects[2].imageExtents.x = spriteHandler(objects[2],1);
             }
         }
-        if (states.keyState[SDLK_d])
+        else if (states.keyState[SDLK_d])
         {
             players[0].render->flip = 0;
             players[0].physics->velocity.x += 1.0f;
@@ -143,6 +143,10 @@ int main(int argv, char **args)
             {
                 objects[2].imageExtents.x = spriteHandler(objects[2],1);
             }
+        }
+        else
+        {
+            players[0].physics->velocity.x = 0.0f;
         }
 
         if (states.keyState[SDLK_j])
@@ -162,7 +166,7 @@ int main(int argv, char **args)
                 objects[3].imageExtents.x = spriteHandler(objects[3],1);
             }
         }
-        if (states.keyState[SDLK_l])
+        else if (states.keyState[SDLK_l])
         {
             players[1].render->flip = 0;
             players[1].physics->velocity.x += 1.0f;
@@ -178,6 +182,10 @@ int main(int argv, char **args)
             {
                 objects[3].imageExtents.x = spriteHandler(objects[3],1);
             }
+        }
+        else
+        {
+            players[1].physics->velocity.x = 0.0f;
         }
 
         //  we should fix a function to updatePosition of all objects like the function renderObjects 
