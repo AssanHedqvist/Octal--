@@ -41,4 +41,8 @@ float dot(vec2 a, vec2 b);
 //  c = a/|a|
 vec2 normalize(vec2 a);
 
+vec2 vmin(vec2 a, vec2 b);
+
+vec2 vmax(vec2 a, vec2 b);
+
 #endif

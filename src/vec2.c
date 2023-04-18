@@ -59,3 +59,12 @@ vec2 normalize(vec2 a)
     return (vec2){a.x*length, a.y*length};
 }
 
+vec2 vmin(vec2 a, vec2 b) 
+{
+    return (vec2){fminf(a.x,b.x),fminf(a.y,b.y)};
+}
+
+vec2 vmax(vec2 a, vec2 b) 
+{
+     return (vec2){fmaxf(a.x,b.x),fmaxf(a.y,b.y)};
+}
