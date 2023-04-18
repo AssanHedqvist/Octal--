@@ -61,7 +61,6 @@ int main(int argv, char **args)
     objects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite2.png");
     objects[3].imageExtents = (SDL_Rect){32, 0, 32, 64};
     objects[3].screenExtents = (SDL_Rect){400, 300, 32, 64};
-    objects[3].sprites = 3;
     objects[3].flip = 0;
 
     players[0].render = &objects[2];
