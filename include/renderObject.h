@@ -10,7 +10,7 @@ typedef struct RenderObject
     SDL_Texture* texture;
     SDL_Rect imageExtents;
     SDL_Rect screenExtents;
-    SDL_RendererFlip flip; 
+    SDL_RendererFlip flip;
 } RenderObject;
 
 void renderObject(SDL_Renderer *renderer, RenderObject* objectToRender);
