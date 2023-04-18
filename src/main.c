@@ -9,6 +9,7 @@
 #include "../include/renderObject.h"
 #include "../include/keyboard.h"
 #include "../include/player.h"
+#include "../include/spriteHandler.h"
 #define GRAVITY 9.82f //9.82f
 
 int isColliding(SDL_Rect rect1, SDL_Rect rect2)
@@ -60,6 +61,7 @@ int main(int argv, char **args)
     objects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite2.png");
     objects[3].imageExtents = (SDL_Rect){32, 0, 32, 64};
     objects[3].screenExtents = (SDL_Rect){400, 300, 32, 64};
+    objects[3].sprites = 3;
     objects[3].flip = 0;
 
     players[0].render = &objects[2];
@@ -117,13 +119,13 @@ int main(int argv, char **args)
             {
                 players[0].physics->velocity.x = -10.0f;
             }
-            if (objects[2].imageExtents.x == 32)
+            if (objects[2].imageExtents.x == spriteHandler(objects[2],1))
             {
-                objects[2].imageExtents.x = 64;
+                objects[2].imageExtents.x = spriteHandler(objects[2],2);
             }
             else
             {
-                objects[2].imageExtents.x = 32;
+                objects[2].imageExtents.x = spriteHandler(objects[2],1);
             }
         }
         if (states.keyState[SDLK_d])
@@ -134,13 +136,13 @@ int main(int argv, char **args)
             {
                 players[0].physics->velocity.x = 10.0f;
             }
-            if (objects[2].imageExtents.x == 32)
+            if (objects[2].imageExtents.x == spriteHandler(objects[2],1))
             {
-                objects[2].imageExtents.x = 64;
+                objects[2].imageExtents.x = spriteHandler(objects[2],2);
             }
             else
             {
-                objects[2].imageExtents.x = 32;
+                objects[2].imageExtents.x = spriteHandler(objects[2],1);
             }
         }
 
@@ -152,13 +154,13 @@ int main(int argv, char **args)
             {
                 players[1].physics->velocity.x = -10.0f;
             }
-            if (objects[3].imageExtents.x == 32)
+            if (objects[3].imageExtents.x == spriteHandler(objects[3],1))
             {
-                objects[3].imageExtents.x = 64;
+                objects[3].imageExtents.x = spriteHandler(objects[3],2);
             }
             else
             {
-                objects[3].imageExtents.x = 32;
+                objects[3].imageExtents.x = spriteHandler(objects[3],1);
             }
         }
         if (states.keyState[SDLK_l])
@@ -169,13 +171,13 @@ int main(int argv, char **args)
             {
                 players[1].physics->velocity.x = 10.0f;
             }
-            if (objects[3].imageExtents.x == 32)
+            if (objects[3].imageExtents.x == spriteHandler(objects[3],1))
             {
-                objects[3].imageExtents.x = 64;
+                objects[3].imageExtents.x = spriteHandler(objects[3],2);
             }
             else
             {
-                objects[3].imageExtents.x = 32;
+                objects[3].imageExtents.x = spriteHandler(objects[3],1);
             }
         }
 
