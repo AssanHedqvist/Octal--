@@ -18,5 +18,4 @@ void renderObject(SDL_Renderer *renderer, RenderObject* objectToRender);
 void renderObjects(SDL_Renderer *renderer, RenderObject objects[], int length);
 
 
-
 #endif

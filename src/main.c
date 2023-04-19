@@ -9,16 +9,14 @@
 #include "../include/renderObject.h"
 #include "../include/keyboard.h"
 #include "../include/player.h"
-#define GRAVITY 0.25f //9.82f
 
-int checkCollision(SDL_Rect rect1, SDL_Rect rect2)
-{
-    SDL_bool intersect = SDL_HasIntersection(&rect1, &rect2);
-    if (intersect == SDL_TRUE)
-        return 1;
-    else
-        printf("no intersection\n");
-        return 0;
+void convertToRenders(RenderObject render[], PhysicsObject physics[], int lengthOfPhysics) {
+    for (int i = 0; i < lengthOfPhysics; i++)
+    {
+        //  
+        render[i+1].screenExtents.x = (int)physics[i].pos.x;
+        render[i+1].screenExtents.y = (int)(600.0f-(physics[i].pos.y+physics[i].extents.y));
+    } 
 }
 
 int main(int argv, char **args)
@@ -35,7 +33,6 @@ int main(int argv, char **args)
     Player player2;
     RenderObject objects[4];
     int amountOfObjects = 4;
-
     //   Render order: start at 0 continue up.
     objects[0].order = 0;
     objects[0].texture = IMG_LoadTexture(renderer, "resources/background.png");
@@ -45,48 +42,51 @@ int main(int argv, char **args)
 
     objects[1].order = 1;
     objects[1].texture = IMG_LoadTexture(renderer, "resources/platform.png");
-    objects[1].imageExtents = (SDL_Rect){0, 0, 1200, 1200};
+    objects[1].imageExtents = (SDL_Rect){0, 0, 334, 339};
     objects[1].screenExtents = (SDL_Rect){100, 300, 600, 150};
     objects[1].flip = 0;
 
     objects[2].order = 2;
     objects[2].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite.png");
-    objects[2].imageExtents = (SDL_Rect){32, 0, 32, 64};
+    objects[2].imageExtents = (SDL_Rect){0, 0, 32, 64};
     objects[2].screenExtents = (SDL_Rect){400, 300, 32, 64};
     objects[2].flip = 0;
 
     objects[3].order = 2;
     objects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite2.png");
-    objects[3].imageExtents = (SDL_Rect){32, 0, 32, 64};
+    objects[3].imageExtents = (SDL_Rect){0, 0, 32, 64};
     objects[3].screenExtents = (SDL_Rect){400, 300, 32, 64};
     objects[3].flip = 0;
 
-    player.render = &objects[2];
-    player2.render = &objects[3];
-
     //  two objects for now...
-    PhysicsObject physicsObjects[2] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0}};
+    int amountOfPhysicalObjects = 3;
+    PhysicsObject physicsObjects[3] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0}};
 
-    player.physics = &physicsObjects[0];
-    player2.physics = &physicsObjects[1];
+    physicsObjects[0].acceleration = vec2(0.f, 0.f);
+    physicsObjects[0].pos = vec2(100, 150);
+    physicsObjects[0].oldPos =  physicsObjects[0].pos;
+    physicsObjects[0].extents = vec2(600, 150);
+    physicsObjects[0].type = STATIC;
 
-    physicsObjects[0].position = vec2(400.0f, 200.0f);
-    physicsObjects[1].position = vec2(400.0f, 200.0f);
+    physicsObjects[1].acceleration = vec2(0.f, -982.0f);
+    physicsObjects[1].pos = vec2(400, 536);
+    physicsObjects[1].oldPos =  physicsObjects[1].pos;
+    physicsObjects[1].extents = vec2(32, 64);
+    physicsObjects[1].type = DYNAMIC;
+    
+    physicsObjects[2].acceleration = vec2(0.f, -982.0f);
+    physicsObjects[2].pos = vec2(300, 536);
+    physicsObjects[2].oldPos =  physicsObjects[2].pos;
+    physicsObjects[2].extents = vec2(32, 64);
+    physicsObjects[2].type = DYNAMIC;
 
+    player.amountOfJumpsLeft = 2;
+    
     KeyboardStates states = {0};
-
     int frameCounter = 0;
+
     while (isRunning)
     {
-        //player.physics->acceleration.y = 9.82f;
-        
-        if (checkCollision(objects[2].screenExtents, objects[1].screenExtents))
-        {
-            printf("Player 1 collides with platform\n");
-        }
-
-        player.physics->acceleration.y = GRAVITY;
-        player2.physics->acceleration.y = GRAVITY;
 
         while (SDL_PollEvent(&event))
         {
@@ -106,88 +106,34 @@ int main(int argv, char **args)
         {
             isRunning = 0;
         }
-        if (states.keyState[SDLK_a])
+        if(states.keyState[SDLK_a]) 
         {
-            player.render->flip = 1;
-            player.physics->velocity.x -= 1.0f;
-            if (player.physics->velocity.x < -10.0f)
-            {
-                player.physics->velocity.x = -10.0f;
-            }
-            if (objects[2].imageExtents.x == 32)
-            {
-                objects[2].imageExtents.x = 64;
-            }
-            else
-            {
-                objects[2].imageExtents.x = 32;
-            }
+            physicsObjects[1].oldPos = vdiff(physicsObjects[1].oldPos, vec2(-1.0,0.0));
         }
-        if (states.keyState[SDLK_d])
+        if(states.keyState[SDLK_d]) 
         {
-            player.render->flip = 0;
-            player.physics->velocity.x += 1.0f;
-            if (player.physics->velocity.x > 10.0f)
-            {
-                player.physics->velocity.x = 10.0f;
-            }
-            if (objects[2].imageExtents.x == 32)
-            {
-                objects[2].imageExtents.x = 64;
-            }
-            else
-            {
-                objects[2].imageExtents.x = 32;
-            }
+            physicsObjects[1].oldPos = vdiff(physicsObjects[1].oldPos, vec2(1.0,0.0));
         }
+        if(states.keyState[SDLK_SPACE] && player.amountOfJumpsLeft > 0) 
+        {
+            physicsObjects[1].oldPos = vdiff(physicsObjects[1].oldPos, vec2(0.0,4.0));
+            player.amountOfJumpsLeft--;
+        }
+        //  we should fix a function to updatePosition of all objects like the function renderObjects
 
-        if (states.keyState[SDLK_j])
+        for (int i = 0; i < 2; i++)
         {
-            player2.render->flip = 1;
-            player2.physics->velocity.x -= 1.0f;
-            if (player2.physics->velocity.x < -10.0f)
-            {
-                player2.physics->velocity.x = -10.0f;
-            }
-            if (objects[3].imageExtents.x == 32)
-            {
-                objects[3].imageExtents.x = 64;
-            }
-            else
-            {
-                objects[3].imageExtents.x = 32;
-            }
+            constraintSolve(physicsObjects, 3);
+            updatePositions(physicsObjects, 3, 1.0f/120.0f);
         }
-        if (states.keyState[SDLK_l])
-        {
-            player2.render->flip = 0;
-            player2.physics->velocity.x += 1.0f;
-            if (player2.physics->velocity.x > 10.0f)
-            {
-                player2.physics->velocity.x = 10.0f;
-            }
-            if (objects[3].imageExtents.x == 32)
-            {
-                objects[3].imageExtents.x = 64;
-            }
-            else
-            {
-                objects[3].imageExtents.x = 32;
-            }
-        }
-
-        //  we should fix a function to updatePosition of all objects like the function renderObjects 
-        updatePosition(player.physics, 1.0f / 60.0f);
-        player.render->screenExtents.x = (int)player.physics->position.x;
-        player.render->screenExtents.y = (int)player.physics->position.y;
-
-        updatePosition(player2.physics, 1.0f / 60.0f);
-        player2.render->screenExtents.x = (int)player2.physics->position.x;
-        player2.render->screenExtents.y = (int)player2.physics->position.y;
+        
+        convertToRenders(objects, physicsObjects, amountOfPhysicalObjects);
 
         renderObjects(renderer, objects, amountOfObjects);
 
         frameCounter++;
+
+        SDL_Delay(15);
     }
 
     for (int i = 0; i < amountOfObjects; i++)
