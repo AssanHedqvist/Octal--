@@ -9,9 +9,9 @@ typedef enum type {
     PLAYER = 0b1000
 } Type;
 
+//  Verlet integration
 typedef struct PhysicsObject
 {
-    
     vec2 acceleration;
     vec2 pos;   //  lower left corner of sprite
     vec2 oldPos;

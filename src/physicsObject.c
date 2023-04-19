@@ -18,7 +18,7 @@ void updatePositions(PhysicsObject objects[], int length, float dt)
     for (int i = 0; i < length; i++)
     {
         if(objects[i].type != STATIC) {
-            vec2 velocity = vsmul(vdiff(objects[i].pos, objects[i].oldPos),0.95f);
+            vec2 velocity = vprod(vdiff(objects[i].pos, objects[i].oldPos),vec2(0.95f,1.0f));
 
             objects[i].oldPos = objects[i].pos;
 
@@ -71,7 +71,7 @@ void constraintSolve(PhysicsObject objects[], int length)
         vec2 maxCorner = vsum(objects[i].pos,objects[i].extents);
         for (int j = 0; j < length; j++)
         {
-            //  dont collide the same objects with itself   
+            //  dont collide the same object with itself   
             if(j != i) //&& !((objects[i].type & PLAYER) == PLAYER && (objects[j].type & PLAYER) == PLAYER)
             {  
                 vec2 maxCorner2 = vsum(objects[j].pos,objects[j].extents);
@@ -89,7 +89,7 @@ void constraintSolve(PhysicsObject objects[], int length)
                     vec2 sign = vdiff(objects[i].pos,objects[j].pos);
                     MTD.x = sign.x >= 0.f ? MTD.x : -MTD.x;
                     MTD.y = sign.y >= 0.f ? MTD.y : -MTD.y;
-
+                    
                     if(objects[i].type == DYNAMIC && objects[j].type == STATIC) 
                     {
                         objects[i].pos = vsum(objects[i].pos, MTD);
