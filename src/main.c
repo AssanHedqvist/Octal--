@@ -68,6 +68,13 @@ int main(int argv, char **args)
     int amountOfPhysicalObjects = 3;
     PhysicsObject physicsObjects[3] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0}};
 
+
+    /*
+    Damien:
+    I am going to make it so that you won't need to set the oldPos yourself
+    that is because im going to make it so it can be calculated 
+    */
+
     //  (platform)
     physicsObjects[0].acceleration = vec2(0.f, 0.f);
     physicsObjects[0].pos = vec2(100, 150);
