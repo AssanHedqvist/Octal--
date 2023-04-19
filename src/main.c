@@ -101,6 +101,9 @@ int main(int argv, char **args)
         {
             isRunning = 0;
         }
+
+        time_t start_time, current_time, jumpStartTime;
+        const double MAX_JUMP_TIME = 0.1;
         if (states.keyState[SDLK_a])
         {
             players[0].render->flip = 1;
@@ -139,6 +142,31 @@ int main(int argv, char **args)
         {
             players[0].physics->velocity.x = 0.0f;
         }
+        if (states.keyState[SDLK_w])
+        {
+            // Check if this is the first frame the key is pressed
+            if (jumpStartTime == 0)
+            {
+                jumpStartTime = time(NULL); // Record the current time
+            }
+        
+            // Check if the maximum jump time has been reached
+            double currentTime = difftime(time(NULL), jumpStartTime); // Get current time
+            if (currentTime >= MAX_JUMP_TIME)
+            {
+                jumpStartTime = 0; // Reset the jump start time
+                continue; // Skip the jump action
+            }
+        
+            // Perform the jump action
+            players[0].physics->velocity.y -= 1.0f;
+        }
+    else
+    {
+        // Reset the jump start time when 'w' key is released
+        jumpStartTime = 0;
+    }
+
 
         if (states.keyState[SDLK_j])
         {
