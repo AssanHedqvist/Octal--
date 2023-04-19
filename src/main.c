@@ -153,26 +153,10 @@ int main(int argv, char **args)
         }
         if (states.keyState[SDLK_w])
         {
-            // Check if this is the first frame the key is pressed
-            if (jumpStartTime == 0)
-            {
-                jumpStartTime = time(NULL); // Record the current time
-            }
-        
-            // Check if the maximum jump time has been reached
-            double currentTime = difftime(time(NULL), jumpStartTime); // Get current time
-            if (currentTime >= MAX_JUMP_TIME)
-            {
-                jumpStartTime = 0; // Reset the jump start time
-                continue; // Skip the jump action
-            }
-        
-            // Perform the jump action
             players[0].physics->velocity.y -= 1.0f;
         }
     else
     {
-        // Reset the jump start time when 'w' key is released
         jumpStartTime = 0;
     }
 
@@ -214,6 +198,10 @@ int main(int argv, char **args)
         else
         {
             players[1].physics->velocity.x = 0.0f;
+        }
+        if (states.keyState[SDLK_w])
+        {
+            players[1].physics->velocity.y += -1.0f;
         }
 
         //  we should fix a function to updatePosition of all objects like the function renderObjects 
