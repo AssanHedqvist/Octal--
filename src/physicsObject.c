@@ -18,7 +18,8 @@ void updatePositions(PhysicsObject objects[], int length, float dt)
     for (int i = 0; i < length; i++)
     {
         if(objects[i].type != STATIC) {
-            vec2 velocity = vprod(vdiff(objects[i].pos, objects[i].oldPos),vec2(0.95f,1.0f));
+            // 0.9740037464253f is a magic value equal to 0.9^(1/4) because we take 4 substeps right now --Damien
+            vec2 velocity = vprod(vdiff(objects[i].pos, objects[i].oldPos),vec2(0.9740037464253f,1.0f));
 
             objects[i].oldPos = objects[i].pos;
 
@@ -89,7 +90,7 @@ void constraintSolve(PhysicsObject objects[], int length)
                     vec2 sign = vdiff(objects[i].pos,objects[j].pos);
                     MTD.x = sign.x >= 0.f ? MTD.x : -MTD.x;
                     MTD.y = sign.y >= 0.f ? MTD.y : -MTD.y;
-                    
+
                     if(objects[i].type == DYNAMIC && objects[j].type == STATIC) 
                     {
                         objects[i].pos = vsum(objects[i].pos, MTD);

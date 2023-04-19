@@ -25,7 +25,7 @@ int main(int argv, char **args)
 {
     SDL_Init(SDL_INIT_EVERYTHING);
 
-    SDL_Window *window = SDL_CreateWindow("Hello SDL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
+    SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
 
     int isRunning = 1;
@@ -198,10 +198,10 @@ int main(int argv, char **args)
             physicsObjects[2].oldPos = vdiff(physicsObjects[2].oldPos, vec2(0.0,1.0));
         }
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 4; i++)
         {
             constraintSolve(physicsObjects, 3);
-            updatePositions(physicsObjects, 3, 1.0f/120.0f);
+            updatePositions(physicsObjects, 3, 1.0f/240.0f);
         }
         
         convertToRenders(objects, physicsObjects, amountOfPhysicalObjects);
