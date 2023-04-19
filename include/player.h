@@ -15,6 +15,5 @@ typedef struct Player
 } Player;
 
 void handlePlayerKeyInputs(Player* player);
-void initPlayers(int amountOfPlayers, Player *players, RenderObject *renderObject, PhysicsObject *physicsObject, float posX, float posY);
 
 #endif

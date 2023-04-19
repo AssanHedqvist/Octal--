@@ -22,8 +22,8 @@ LIBS = /usr/local/lib
 #LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -mwindows
 LDFLAGS = -lSDL2main -lSDL2 -lSDL2_image
 
-game: main.o vec2.o physicsObject.o renderObject.o keyboard.o player.o
-	gcc -o game main.o vec2.o physicsObject.o renderObject.o keyboard.o player.o -L$(LIBS) -lSDL2main -lSDL2 -lSDL2_image
+game: main.o vec2.o physicsObject.o renderObject.o keyboard.o
+	gcc -o game main.o vec2.o physicsObject.o renderObject.o keyboard.o -L$(LIBS) -lSDL2main -lSDL2 -lSDL2_image
 main.o: 
 	gcc -c $(SRCDIR)/main.c -I$(INCLUDE)
 vec2.o: 
@@ -34,8 +34,6 @@ physicsObject.o:
 	gcc -c $(SRCDIR)/physicsObject.c	
 renderObject.o:
 	gcc -c $(SRCDIR)/renderObject.c -I$(INCLUDE)
-player.o: keyboard.o renderObject.o physicsObject.o
-	gcc -c $(SRCDIR)/player.c -I$(INCLUDE)
 
 clean:
 	rm -f *.o
