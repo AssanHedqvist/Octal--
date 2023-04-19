@@ -15,7 +15,7 @@ CFLAGS = -g -I$(INCLUDE) -c
 #CFLAGS = -g -c
 
 # Any libraries to link with
-LIBS = /opt/homebrew/lib
+LIBS = /usr/local/lib
 
 
 # Extra flags to give to compilers when they are supposed to invoke the linker

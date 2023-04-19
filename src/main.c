@@ -32,15 +32,12 @@ int main(int argv, char **args)
 
     // Player player;
     // Player player2;
-    
-    int amountOfPlayers = 2;
-    int amountOfObjects = 2 + amountOfPlayers;
-    Player players[amountOfPlayers];
-    RenderObject objects[amountOfObjects];
-    PhysicsObject physicsObjects[2] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0}};
 
-    initPlayers(amountOfPlayers, players, objects, physicsObjects, 400.0f, 300.0f);
- 
+    Player players[2];
+
+    RenderObject objects[4];
+    int amountOfObjects = 4;
+
     //   Render order: start at 0 continue up.
     objects[0].order = 0;
     objects[0].texture = IMG_LoadTexture(renderer, "resources/background.png");
@@ -65,6 +62,18 @@ int main(int argv, char **args)
     objects[3].imageExtents = (SDL_Rect){32, 0, 32, 64};
     objects[3].screenExtents = (SDL_Rect){400, 300, 32, 64};
     objects[3].flip = 0;
+
+    players[0].render = &objects[2];
+    players[1].render = &objects[3];
+
+    //  two objects for now...
+    PhysicsObject physicsObjects[2] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0}};
+
+    players[0].physics = &physicsObjects[0];
+    players[1].physics = &physicsObjects[1];
+
+    physicsObjects[0].position = vec2(400.0f, 200.0f);
+    physicsObjects[1].position = vec2(400.0f, 200.0f);
 
     KeyboardStates states = {0};
 
