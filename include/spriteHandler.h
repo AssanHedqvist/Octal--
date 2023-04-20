@@ -5,6 +5,9 @@
 #include <SDL2/SDL_image.h>
 #include "../include/renderObject.h"
 
-int spriteHandler(RenderObject object, int spriteToGet);
+int spriteHandler(RenderObject object, int spriteToGet)
+{
+    return object.screenExtents.w * spriteToGet;
+}
 
 #endif
