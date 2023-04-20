@@ -106,11 +106,13 @@ int main(int argv, char **args)
 
     int frameCounter = 0;
 
-    //  I can fix this time thing later --Damien
-    time_t start_time, current_time, jumpStartTime;
-    const double MAX_JUMP_TIME = 0.1;
+    struct timespec t1, t2;
     while (isRunning)
     {
+        clock_gettime(CLOCK_MONOTONIC, &t1);
+
+        t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
+        t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
 
         while (SDL_PollEvent(&event))
         {
@@ -210,8 +212,11 @@ int main(int argv, char **args)
 
         frameCounter++;
 
-        //  will change this later --Damien
-        SDL_Delay(15);
+        do
+        {
+            clock_gettime(CLOCK_MONOTONIC, &t2);
+            //  while we have not passed 16ms in one frame wait till that has happened
+        } while (((t2.tv_sec < t1.tv_sec) | ((t2.tv_sec == t1.tv_sec) & (t2.tv_nsec < t1.tv_nsec))));
     }
 
     for (int i = 0; i < amountOfObjects; i++)
