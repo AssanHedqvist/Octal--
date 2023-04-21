@@ -15,6 +15,7 @@ CFLAGS = -g -I$(INCLUDE) -c
 #CFLAGS = -g -c
 
 # Any libraries to link with
+#	LIBS = /usr/local/lib
 LIBS = /opt/homebrew/lib
 
 
