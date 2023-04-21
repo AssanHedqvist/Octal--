@@ -4,9 +4,10 @@
 #include "../include/vec2.h"
 
 typedef enum type {
-    STATIC = 0b0000,
-    DYNAMIC = 0b0001,
-    PLAYER = 0b1000
+    STATIC = 0b0001,
+    DYNAMIC = 0b0011,
+    NON_PLAYER = 0b0100,
+    PLAYER = 0b1100
 } Type;
 
 //  Verlet integration
@@ -16,7 +17,7 @@ typedef struct PhysicsObject
     vec2 pos;   //  lower left corner of sprite
     vec2 oldPos;
     vec2 extents;   //  width and height of sprite
-    Type type; //  for example static objects (immovable objects) and dynamic objects (movable objects)
+    unsigned char type; //  for example static objects (immovable objects) and dynamic objects (movable objects)
 } PhysicsObject;
 
 void updatePosition(PhysicsObject* obj, float dt);

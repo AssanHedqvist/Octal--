@@ -14,8 +14,7 @@
 #include "../include/spriteHandler.h"
 
 //  bad function name --Damien
-void convertToRenders(RenderObject render[], PhysicsObject physics[], int lengthOfPhysics)
-{
+void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int lengthOfPhysics) {
     for (int i = 0; i < lengthOfPhysics; i++)
     {
         //  just 1 for now because the difference is 1 right now
@@ -23,6 +22,9 @@ void convertToRenders(RenderObject render[], PhysicsObject physics[], int length
         render[i + 1].screenExtents.y = (int)(600.0f - (physics[i].pos.y + physics[i].extents.y));
     }
 }
+
+#define SUB_STEPS 4
+#define DT (1.0f/(60.0f*(float)SUB_STEPS))
 
 int main(int argv, char **args)
 {
@@ -59,16 +61,17 @@ int main(int argv, char **args)
 
     SDL_Init(SDL_INIT_EVERYTHING);
 
-    SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
+    SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_ALWAYS_ON_TOP );
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
 
     int isRunning = 1;
     SDL_Event event;
 
-    Player players[2];
+    Player players[2] = {0,0,{0},0};
 
-    RenderObject objects[4];
     int amountOfObjects = 4;
+    RenderObject objects[4];
+    
 
     //   Render order: start at 0 continue up.
     objects[0].order = 0;
@@ -92,7 +95,7 @@ int main(int argv, char **args)
     objects[3].order = 2;
     objects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite2.png");
     objects[3].imageExtents = (SDL_Rect){0, 0, 32, 64};
-    objects[3].screenExtents = (SDL_Rect){400, 300, 32, 64};
+    objects[3].screenExtents = (SDL_Rect){300, 300, 32, 64};
     objects[3].flip = 0;
 
     players[0].render = &objects[2];
@@ -139,11 +142,14 @@ int main(int argv, char **args)
 
     int frameCounter = 0;
 
+    int thisComputersPlayerIndex = 0;
+
     struct timespec t1, t2;
     while (isRunning)
     {
         clock_gettime(CLOCK_MONOTONIC, &t1);
 
+        //  16638935 = (1/60.1) * 1000000000
         t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
         t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
 
@@ -156,50 +162,19 @@ int main(int argv, char **args)
                 break;
             case SDL_KEYDOWN:
             case SDL_KEYUP:
-                handleKeyboardInputs(&states, event.key.keysym.sym, event.type);
+                handleKeyboardInputs(&players[thisComputersPlayerIndex].keyInputs, event.key.keysym.sym, event.type);
                 break;
             }
         }
 
-        if (states.keyState[SDLK_ESCAPE])
+        if (players[thisComputersPlayerIndex].keyInputs.keyState[SDLK_ESCAPE])
         {
             isRunning = 0;
         }
 
-        if (states.keyState[SDLK_a])
-        {
-            players[0].render->flip = 1;
-            physicsObjects[1].oldPos = vdiff(physicsObjects[1].oldPos, vec2(-1.0, 0.0));
-            if (objects[2].imageExtents.x == spriteHandler(objects[2], 1))
-            {
-                objects[2].imageExtents.x = spriteHandler(objects[2], 2);
-            }
-            else
-            {
-                objects[2].imageExtents.x = spriteHandler(objects[2], 1);
-            }
-        }
+        handlePlayerInputs(&players[0]);
 
-        if (states.keyState[SDLK_d])
-        {
-            players[0].render->flip = 0;
-            physicsObjects[1].oldPos = vdiff(physicsObjects[1].oldPos, vec2(1.0, 0.0));
-            if (objects[2].imageExtents.x == spriteHandler(objects[2], 1))
-            {
-                objects[2].imageExtents.x = spriteHandler(objects[2], 2);
-            }
-            else
-            {
-                objects[2].imageExtents.x = spriteHandler(objects[2], 1);
-            }
-        }
-
-        if (states.keyState[SDLK_w])
-        {
-            physicsObjects[1].oldPos = vdiff(physicsObjects[1].oldPos, vec2(0.0, 1.0));
-        }
-
-        if (states.keyState[SDLK_j])
+        if (players[thisComputersPlayerIndex].keyInputs.keyState[SDLK_j])
         {
             players[1].render->flip = 1;
             physicsObjects[2].oldPos = vdiff(physicsObjects[2].oldPos, vec2(-1.0, 0.0));
@@ -213,7 +188,7 @@ int main(int argv, char **args)
             }
         }
 
-        if (states.keyState[SDLK_l])
+        if (players[thisComputersPlayerIndex].keyInputs.keyState[SDLK_l])
         {
             players[1].render->flip = 0;
             physicsObjects[2].oldPos = vdiff(physicsObjects[2].oldPos, vec2(1.0, 0.0));
@@ -226,16 +201,16 @@ int main(int argv, char **args)
                 objects[3].imageExtents.x = spriteHandler(objects[3], 1);
             }
         }
-
-        if (states.keyState[SDLK_i])
+        
+        if (players[thisComputersPlayerIndex].keyInputs.keyState[SDLK_i])
         {
             physicsObjects[2].oldPos = vdiff(physicsObjects[2].oldPos, vec2(0.0, 1.0));
         }
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < SUB_STEPS; i++)
         {
-            constraintSolve(physicsObjects, 3);
-            updatePositions(physicsObjects, 3, 1.0f / 240.0f);
+            constraintSolve(physicsObjects, amountOfPhysicalObjects);
+            updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
         }
 
         //   Send and retrive positions
@@ -261,8 +236,7 @@ int main(int argv, char **args)
         }*/
 
         
-
-        convertToRenders(objects, physicsObjects, amountOfPhysicalObjects);
+        updateRenderWithPhysics(objects, physicsObjects, amountOfPhysicalObjects);
 
         renderObjects(renderer, objects, amountOfObjects);
 

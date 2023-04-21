@@ -5,6 +5,7 @@
 #include "../include/physicsObject.h"
 #include "../include/keyboard.h"
 
+
 typedef struct Player
 {
     RenderObject* render;
@@ -14,6 +15,8 @@ typedef struct Player
     //  add more
 } Player;
 
-void handlePlayerKeyInputs(Player* player);
+void handlePlayerInputs(Player* player);
+
+void handlePlayerAnimation(Player* player);
 
 #endif
