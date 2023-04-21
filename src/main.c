@@ -14,7 +14,8 @@
 #include "../include/spriteHandler.h"
 
 //  bad function name --Damien
-void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int lengthOfPhysics) {
+void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int lengthOfPhysics)
+{
     for (int i = 0; i < lengthOfPhysics; i++)
     {
         //  just 1 for now because the difference is 1 right now
@@ -24,7 +25,7 @@ void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int
 }
 
 #define SUB_STEPS 4
-#define DT (1.0f/(60.0f*(float)SUB_STEPS))
+#define DT (1.0f / (60.0f * (float)SUB_STEPS))
 
 int main(int argv, char **args)
 {
@@ -53,7 +54,7 @@ int main(int argv, char **args)
         exit(EXIT_FAILURE);
     }
     //   Allocates space for packet
-    if (!((player1 = SDLNet_AllocPacket(144)) && (player2 = SDLNet_AllocPacket(512))))
+    if (!((player1 = SDLNet_AllocPacket(250)) && (player2 = SDLNet_AllocPacket(250))))
     {
         // fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -61,17 +62,16 @@ int main(int argv, char **args)
 
     SDL_Init(SDL_INIT_EVERYTHING);
 
-    SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_ALWAYS_ON_TOP );
+    SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_ALWAYS_ON_TOP);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
 
     int isRunning = 1;
     SDL_Event event;
 
-    Player players[2] = {0,0,{0},0};
+    Player players[2] = {0, 0, {0}, 0};
 
     int amountOfObjects = 4;
     RenderObject objects[4];
-    
 
     //   Render order: start at 0 continue up.
     objects[0].order = 0;
@@ -177,7 +177,7 @@ int main(int argv, char **args)
         if (players[thisComputersPlayerIndex].keyInputs.keyState[SDLK_j])
         {
             players[1].render->flip = 1;
-            physicsObjects[2].oldPos = vdiff(physicsObjects[2].oldPos, vec2(-1.0, 0.0));
+            physicsObjects[2].oldPos = vdiff(physicsObjects[2].oldPos, vec2(-0.5, 0.0));
             if (objects[3].imageExtents.x == spriteHandler(objects[3], 1))
             {
                 objects[3].imageExtents.x = spriteHandler(objects[3], 2);
@@ -191,7 +191,7 @@ int main(int argv, char **args)
         if (players[thisComputersPlayerIndex].keyInputs.keyState[SDLK_l])
         {
             players[1].render->flip = 0;
-            physicsObjects[2].oldPos = vdiff(physicsObjects[2].oldPos, vec2(1.0, 0.0));
+            physicsObjects[2].oldPos = vdiff(physicsObjects[2].oldPos, vec2(0.5, 0.0));
             if (objects[3].imageExtents.x == spriteHandler(objects[3], 1))
             {
                 objects[3].imageExtents.x = spriteHandler(objects[3], 2);
@@ -201,10 +201,10 @@ int main(int argv, char **args)
                 objects[3].imageExtents.x = spriteHandler(objects[3], 1);
             }
         }
-        
+
         if (players[thisComputersPlayerIndex].keyInputs.keyState[SDLK_i])
         {
-            physicsObjects[2].oldPos = vdiff(physicsObjects[2].oldPos, vec2(0.0, 1.0));
+            physicsObjects[2].oldPos = vdiff(physicsObjects[2].oldPos, vec2(0.0, 0.5));
         }
 
         for (int i = 0; i < SUB_STEPS; i++)
@@ -215,9 +215,9 @@ int main(int argv, char **args)
 
         //   Send and retrive positions
         // if (players[0].physics->oldPos.x != players[0].physics->pos.x || players[0].physics->oldPos.y != players[0].render->screenExtents.y)
-        printf("%d %d\n", (int)players[0].physics->pos.x, (int)players[0].physics->pos.y);
-        //sprintf((char *)player1->data, "%d %d\n", (int)players[0].physics->pos, (int)players[0].render->screenExtents.y);
-        memcpy(player1->data, (void*)&players[0], 144);
+        printf("%f %f\n", players[0].physics->pos.x, players[0].physics->pos.y);
+        sprintf((char *)player1->data, "%f %f %d\n", players[0].physics->pos.x, players[0].physics->pos.y, players[0].render->flip);
+        // memcpy(player1->data, (void*)&players[0], 144);
 
         player1->address.host = srvadd.host; /* Set the destination host */
         player1->address.port = srvadd.port; /* And destination port */
@@ -226,16 +226,21 @@ int main(int argv, char **args)
         SDLNet_UDP_Send(sd, -1, player1);
 
         //   Receive data
-       /* if (SDLNet_UDP_Recv(sd, player2))
+        if (SDLNet_UDP_Recv(sd, player2))
         {
-            int a, b;
-            sscanf((char *)player2->data, "%f %d\n", &a, &b);
+            //float a, b;
+            int b;
+            vec2 a;
+            sscanf((char *)player2->data, "%f %f %d\n", &a.x , &a.y, &b);
+            //printf("RECIEVED %f  %f\n", a, b);
+            //players[0].physics->pos.x = a;
+            //players[0].physics->pos.y = b;
             players[1].physics->pos = a;
-            players[1].physics->pos = b;
-            printf("UDP Packet incoming %d %f\n", players[1].physics->pos.x, players[1].physics->pos.y);
-        }*/
-
+            players[1].render->flip = b;
         
+            printf("UDP Packet incoming %f %f\n", players[1].physics->pos.x, players[1].physics->pos.y);
+        }
+
         updateRenderWithPhysics(objects, physicsObjects, amountOfPhysicalObjects);
 
         renderObjects(renderer, objects, amountOfObjects);
