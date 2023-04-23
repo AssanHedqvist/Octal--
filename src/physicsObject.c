@@ -39,7 +39,7 @@ void aabbTest(PhysicsObject* obj, PhysicsObject* obj2)
          obj->pos.x > maxCorner2.x ||
          maxCorner.y < obj2->pos.y ||
          obj->pos.y > maxCorner2.y)) 
-    {
+    {   
         //  MTD stands for minimum translation distance (vector)
         vec2 MTD = vdiff(vmin(maxCorner,maxCorner2),vmax(obj->pos,obj2->pos));
         MTD = MTD.x < MTD.y ? vec2(MTD.x, 0.f) : vec2(0.f, MTD.y);
@@ -70,41 +70,37 @@ void constraintSolve(PhysicsObject objects[], int length)
     for (int i = 0; i < length; i++)
     {
         vec2 maxCorner = vsum(objects[i].pos,objects[i].extents);
-        for (int j = 0; j < length; j++)
+        for (int j = i + 1; j < length; j++)
         {
-            //  dont collide the same object with itself   
-            if(j != i) //&& !((objects[i].type & PLAYER) == PLAYER && (objects[j].type & PLAYER) == PLAYER)
-            {  
-                vec2 maxCorner2 = vsum(objects[j].pos,objects[j].extents);
+            vec2 maxCorner2 = vsum(objects[j].pos,objects[j].extents);
 
-                //  AABB intersection test
-                if(!(maxCorner.x < objects[j].pos.x || 
-                     objects[i].pos.x > maxCorner2.x ||
-                     maxCorner.y < objects[j].pos.y ||
-                     objects[i].pos.y > maxCorner2.y)) 
+            //  AABB intersection test
+            if(!(maxCorner.x < objects[j].pos.x  || 
+                 objects[i].pos.x > maxCorner2.x ||
+                 maxCorner.y < objects[j].pos.y  ||
+                 objects[i].pos.y > maxCorner2.y )) 
+            {
+                //  MTD stands for minimum translation distance (vector)
+                vec2 MTD = vdiff(vmin(maxCorner,maxCorner2),vmax(objects[i].pos,objects[j].pos));
+                MTD = MTD.x < MTD.y ? vec2(MTD.x, 0.f) : vec2(0.f, MTD.y);
+
+                vec2 sign = vdiff(objects[i].pos,objects[j].pos);
+                MTD.x = sign.x >= 0.f ? MTD.x : -MTD.x;
+                MTD.y = sign.y >= 0.f ? MTD.y : -MTD.y;
+
+                if(objects[i].type == DYNAMIC && objects[j].type == STATIC) 
                 {
-                    //  MTD stands for minimum translation distance (vector)
-                    vec2 MTD = vdiff(vmin(maxCorner,maxCorner2),vmax(objects[i].pos,objects[j].pos));
-                    MTD = MTD.x < MTD.y ? vec2(MTD.x, 0.f) : vec2(0.f, MTD.y);
-
-                    vec2 sign = vdiff(objects[i].pos,objects[j].pos);
-                    MTD.x = sign.x >= 0.f ? MTD.x : -MTD.x;
-                    MTD.y = sign.y >= 0.f ? MTD.y : -MTD.y;
-
-                    if(objects[i].type == DYNAMIC && objects[j].type == STATIC) 
-                    {
-                        objects[i].pos = vsum(objects[i].pos, MTD);
-                    }
-                    if(objects[i].type == DYNAMIC && objects[j].type == DYNAMIC) 
-                    {
-                        objects[i].pos = vsum(objects[i].pos, vsmul(MTD,0.5f));
-                        objects[j].pos = vsum(objects[j].pos, vsmul(MTD,-0.5f));
-                    }
-                    if(objects[i].type == STATIC && objects[j].type == DYNAMIC) 
-                    {
-                        objects[j].pos = vdiff(objects[j].pos, MTD);
-                    }  
+                    objects[i].pos = vsum(objects[i].pos, MTD);
                 }
+                if(objects[i].type == DYNAMIC && objects[j].type == DYNAMIC) 
+                {
+                    objects[i].pos = vsum(objects[i].pos, vsmul(MTD,0.5f));
+                    objects[j].pos = vsum(objects[j].pos, vsmul(MTD,-0.5f));
+                }
+                if(objects[i].type == STATIC && objects[j].type == DYNAMIC) 
+                {
+                    objects[j].pos = vdiff(objects[j].pos, MTD);
+                }  
             }
         }
     }
