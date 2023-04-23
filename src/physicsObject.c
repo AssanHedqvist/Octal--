@@ -19,7 +19,10 @@ void updatePositions(PhysicsObject objects[], int length, float dt)
     {
         if(objects[i].type != STATIC) {
             // 0.9740037464253f is a magic value equal to 0.9^(1/4) because we take 4 substeps right now --Damien
-            vec2 velocity = vprod(vdiff(objects[i].pos, objects[i].oldPos),vec2(0.9740037464253f,1.0f));
+            
+            vec2 velocity = vdiff(objects[i].pos, objects[i].oldPos);
+
+            velocity.x *= 0.9740037464253f;
 
             objects[i].oldPos = objects[i].pos;
 
@@ -75,10 +78,10 @@ void constraintSolve(PhysicsObject objects[], int length)
             vec2 maxCorner2 = vsum(objects[j].pos,objects[j].extents);
 
             //  AABB intersection test
-            if(!(maxCorner.x < objects[j].pos.x  || 
-                 objects[i].pos.x > maxCorner2.x ||
-                 maxCorner.y < objects[j].pos.y  ||
-                 objects[i].pos.y > maxCorner2.y )) 
+            if( objects[i].pos.x <= maxCorner2.x &&
+                objects[i].pos.y <= maxCorner2.y &&
+                objects[j].pos.x <= maxCorner.x  && 
+                objects[j].pos.y <= maxCorner.y) 
             {
                 //  MTD stands for minimum translation distance (vector)
                 vec2 MTD = vdiff(vmin(maxCorner,maxCorner2),vmax(objects[i].pos,objects[j].pos));
