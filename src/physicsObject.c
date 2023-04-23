@@ -34,17 +34,17 @@ void updatePositions(PhysicsObject objects[], int length, float dt)
 void aabbTest(PhysicsObject* obj, PhysicsObject* obj2) 
 {   
     //  complicated code ahead!! (truly sorry) --Damien
-    vec2 maxCorner = vsum(obj->pos,obj->extents);
+    vec2 maxCorner1 = vsum(obj->pos,obj->extents);
     vec2 maxCorner2 = vsum(obj2->pos,obj2->extents);
 
     //  AABB intersection test
-    if(!(maxCorner.x < obj2->pos.x || 
+    if(!(maxCorner1.x < obj2->pos.x || 
          obj->pos.x > maxCorner2.x ||
-         maxCorner.y < obj2->pos.y ||
+         maxCorner1.y < obj2->pos.y ||
          obj->pos.y > maxCorner2.y)) 
     {   
         //  MTD stands for minimum translation distance (vector)
-        vec2 MTD = vdiff(vmin(maxCorner,maxCorner2),vmax(obj->pos,obj2->pos));
+        vec2 MTD = vdiff(vmin(maxCorner1,maxCorner2),vmax(obj->pos,obj2->pos));
         MTD = MTD.x < MTD.y ? vec2(MTD.x, 0.f) : vec2(0.f, MTD.y);
 
         vec2 sign = vdiff(obj->pos,obj2->pos);
@@ -72,19 +72,19 @@ void constraintSolve(PhysicsObject objects[], int length)
     //  complicated code ahead!! (truly sorry) --Damien
     for (int i = 0; i < length; i++)
     {
-        vec2 maxCorner = vsum(objects[i].pos,objects[i].extents);
+        vec2 maxCorner1 = vsum(objects[i].pos,objects[i].extents);
         for (int j = i + 1; j < length; j++)
         {
             vec2 maxCorner2 = vsum(objects[j].pos,objects[j].extents);
 
             //  AABB intersection test
-            if( objects[i].pos.x <= maxCorner2.x &&
-                objects[i].pos.y <= maxCorner2.y &&
-                objects[j].pos.x <= maxCorner.x  && 
-                objects[j].pos.y <= maxCorner.y) 
+            if(objects[i].pos.x <= maxCorner2.x &&
+               objects[i].pos.y <= maxCorner2.y &&
+               objects[j].pos.x <= maxCorner1.x && 
+               objects[j].pos.y <= maxCorner1.y) 
             {
                 //  MTD stands for minimum translation distance (vector)
-                vec2 MTD = vdiff(vmin(maxCorner,maxCorner2),vmax(objects[i].pos,objects[j].pos));
+                vec2 MTD = vdiff(vmin(maxCorner1,maxCorner2),vmax(objects[i].pos,objects[j].pos));
                 MTD = MTD.x < MTD.y ? vec2(MTD.x, 0.f) : vec2(0.f, MTD.y);
 
                 vec2 sign = vdiff(objects[i].pos,objects[j].pos);
