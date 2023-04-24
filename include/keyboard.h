@@ -8,6 +8,15 @@ typedef struct KeyboardStates
     unsigned char keyState[123];
 } KeyboardStates;
 
-void handleKeyboardInputs(KeyboardStates* states, SDL_Keycode keycode, int eventType);
+typedef struct KeyboardStatesAlt
+{
+    unsigned int keyState[8];
+} KeyboardStatesAlt;
+
+void handleKeyboardInputs(KeyboardStates* states, SDL_Keycode keyCode, int eventType);
+
+void handleKeyboardInputsAlt(KeyboardStatesAlt* states, SDL_Scancode keyCode, int eventType);
+
+char isKeyDown(KeyboardStatesAlt* states, SDL_Scancode keyCode);
 
 #endif

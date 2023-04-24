@@ -84,12 +84,11 @@ void constraintSolve(PhysicsObject objects[], int length)
             {
                 //  MTD stands for minimum translation distance (vector)
                 vec2 MTD = vdiff(vmin(maxCorner1,maxCorner2),vmax(objects[i].pos,objects[j].pos));
-
+                
                 MTD = MTD.x < MTD.y ? vec2(MTD.x, 0.f) : vec2(0.f, MTD.y);
 
                 MTD.x = objects[j].pos.x <= objects[i].pos.x ? MTD.x : -MTD.x;
                 MTD.y = objects[j].pos.y <= objects[i].pos.y ? MTD.y : -MTD.y;
-
 
                 //  push objects out of each other
                 if(objects[i].type == DYNAMIC && objects[j].type == STATIC) 

@@ -138,8 +138,6 @@ int main(int argv, char **args)
     players[0].amountOfJumpsLeft = 2;
     players[1].amountOfJumpsLeft = 2;
 
-    KeyboardStates states = {0};
-
     int frameCounter = 0;
 
     int thisComputersPlayerIndex = 0;
@@ -152,7 +150,7 @@ int main(int argv, char **args)
         //  16638935 = (1/60.1) * 1000000000
         t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
         t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
-
+        
         while (SDL_PollEvent(&event))
         {
             switch (event.type)
@@ -162,59 +160,44 @@ int main(int argv, char **args)
                 break;
             case SDL_KEYDOWN:
             case SDL_KEYUP:
-                handleKeyboardInputs(&players[thisComputersPlayerIndex].keyInputs, event.key.keysym.sym, event.type);
+                handleKeyboardInputsAlt(&players[thisComputersPlayerIndex].keyInputs, event.key.keysym.scancode, event.type);
                 break;
             }
         }
 
-        if (players[thisComputersPlayerIndex].keyInputs.keyState[SDLK_ESCAPE])
+        if (isKeyDown(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_ESCAPE))
         {
             isRunning = 0;
         }
 
         handlePlayerInputs(&players[0]);
 
-        if (players[thisComputersPlayerIndex].keyInputs.keyState[SDLK_j])
+        if (isKeyDown(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_LEFT))
         {
             players[1].render->flip = 1;
-            physicsObjects[2].oldPos = vdiff(physicsObjects[2].oldPos, vec2(-0.5, 0.0));
-            if (objects[3].imageExtents.x == spriteHandler(objects[3], 1))
-            {
-                objects[3].imageExtents.x = spriteHandler(objects[3], 2);
-            }
-            else
-            {
-                objects[3].imageExtents.x = spriteHandler(objects[3], 1);
-            }
+            physicsObjects[2].oldPos = vsum(physicsObjects[2].oldPos, vec2(0.5, 0.0));
+            handlePlayerAnimation(&players[1]);
         }
 
-        if (players[thisComputersPlayerIndex].keyInputs.keyState[SDLK_l])
+        if (isKeyDown(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_RIGHT))
         {
             players[1].render->flip = 0;
-            physicsObjects[2].oldPos = vdiff(physicsObjects[2].oldPos, vec2(0.5, 0.0));
-            if (objects[3].imageExtents.x == spriteHandler(objects[3], 1))
-            {
-                objects[3].imageExtents.x = spriteHandler(objects[3], 2);
-            }
-            else
-            {
-                objects[3].imageExtents.x = spriteHandler(objects[3], 1);
-            }
+            physicsObjects[2].oldPos = vsum(physicsObjects[2].oldPos, vec2(-0.5, 0.0));
+            handlePlayerAnimation(&players[1]);
         }
 
-        if (players[thisComputersPlayerIndex].keyInputs.keyState[SDLK_i])
+        if (isKeyDown(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_UP))
         {
-            physicsObjects[2].oldPos = vdiff(physicsObjects[2].oldPos, vec2(0.0, 0.5));
+            physicsObjects[2].oldPos = vsum(physicsObjects[2].oldPos, vec2(0.0, -0.5));
         }
-
+        
         for (int i = 0; i < SUB_STEPS; i++)
         {
             constraintSolve(physicsObjects, amountOfPhysicalObjects);
             updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
         }
 
-        //   Send and retrive positions
-        // if (players[0].physics->oldPos.x != players[0].physics->pos.x || players[0].physics->oldPos.y != players[0].render->screenExtents.y)
+        
         printf("%f %f\n", players[0].physics->pos.x, players[0].physics->pos.y);
         sprintf((char *)player1->data, "%f %f %d\n", players[0].physics->pos.x, players[0].physics->pos.y, players[0].render->flip);
         // memcpy(player1->data, (void*)&players[0], 144);

@@ -10,7 +10,7 @@ typedef struct Player
 {
     RenderObject* render;
     PhysicsObject* physics;
-    KeyboardStates keyInputs;
+    KeyboardStatesAlt keyInputs;
     int amountOfJumpsLeft;
     //  add more
 } Player;
