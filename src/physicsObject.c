@@ -1,7 +1,6 @@
 #include "../include/physicsObject.h"
 #include <math.h>
 
-
 void updatePosition(PhysicsObject* obj, float dt) 
 {
     if(obj->type != STATIC) {
@@ -13,7 +12,7 @@ void updatePosition(PhysicsObject* obj, float dt)
     }
 }
 
-void updatePositions(PhysicsObject objects[], int length, float dt) 
+void updatePositions(PhysicsObject objects[], int length, const float dt) 
 {
     for (int i = 0; i < length; i++)
     {
@@ -21,7 +20,7 @@ void updatePositions(PhysicsObject objects[], int length, float dt)
             // 0.9740037464253f is a magic value equal to 0.9^(1/4) because we take 4 substeps right now --Damien
             
             vec2 velocity = vdiff(objects[i].pos, objects[i].oldPos);
-
+            
             velocity.x *= 0.9740037464253f;
 
             objects[i].oldPos = objects[i].pos;
@@ -84,11 +83,18 @@ void constraintSolve(PhysicsObject objects[], int length)
             {
                 //  MTD stands for minimum translation distance (vector)
                 vec2 MTD = vdiff(vmin(maxCorner1,maxCorner2),vmax(objects[i].pos,objects[j].pos));
-                
+
                 MTD = MTD.x < MTD.y ? vec2(MTD.x, 0.f) : vec2(0.f, MTD.y);
 
                 MTD.x = objects[j].pos.x <= objects[i].pos.x ? MTD.x : -MTD.x;
                 MTD.y = objects[j].pos.y <= objects[i].pos.y ? MTD.y : -MTD.y;
+
+                if(MTD.y < 0.0f) {
+                    objects[j].recentCollision = 1;
+                }
+                else if(MTD.y > 0.0f) {
+                    objects[i].recentCollision = 1;
+                }
 
                 //  push objects out of each other
                 if(objects[i].type == DYNAMIC && objects[j].type == STATIC) 

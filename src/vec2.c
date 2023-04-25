@@ -66,5 +66,5 @@ vec2 vmin(vec2 a, vec2 b)
 
 vec2 vmax(vec2 a, vec2 b) 
 {
-     return (vec2){fmaxf(a.x,b.x),fmaxf(a.y,b.y)};
+    return (vec2){fmaxf(a.x,b.x),fmaxf(a.y,b.y)};
 }

@@ -29,7 +29,6 @@ void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int
 
 int main(int argv, char **args)
 {
-
     UDPsocket sd;
     IPaddress srvadd;
     UDPpacket *player1;
@@ -170,7 +169,7 @@ int main(int argv, char **args)
             isRunning = 0;
         }
 
-        handlePlayerInputs(&players[0]);
+        handlePlayerInputs(&players[0], DT);
 
         if (isKeyDown(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_LEFT))
         {
@@ -190,13 +189,17 @@ int main(int argv, char **args)
         {
             physicsObjects[2].oldPos = vsum(physicsObjects[2].oldPos, vec2(0.0, -0.5));
         }
+
+        for (int i = 0; i < amountOfPhysicalObjects; i++)
+        {
+            physicsObjects[i].recentCollision = 0;
+        }
         
         for (int i = 0; i < SUB_STEPS; i++)
         {
             constraintSolve(physicsObjects, amountOfPhysicalObjects);
             updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
         }
-
         
         printf("%f %f\n", players[0].physics->pos.x, players[0].physics->pos.y);
         sprintf((char *)player1->data, "%f %f %d\n", players[0].physics->pos.x, players[0].physics->pos.y, players[0].render->flip);
@@ -234,7 +237,7 @@ int main(int argv, char **args)
         {
             clock_gettime(CLOCK_MONOTONIC, &t2);
             //  while we have not passed 16ms in one frame wait till that has happened
-        } while (((t2.tv_sec < t1.tv_sec) | ((t2.tv_sec == t1.tv_sec) & (t2.tv_nsec < t1.tv_nsec))));
+        } while (((t2.tv_sec < t1.tv_sec) || ((t2.tv_sec == t1.tv_sec) && (t2.tv_nsec < t1.tv_nsec))));
     }
 
     for (int i = 0; i < amountOfObjects; i++)

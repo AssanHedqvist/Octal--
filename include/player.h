@@ -15,7 +15,7 @@ typedef struct Player
     //  add more
 } Player;
 
-void handlePlayerInputs(Player* player);
+void handlePlayerInputs(Player* player, float dt);
 
 void handlePlayerAnimation(Player* player);
 
