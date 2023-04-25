@@ -149,7 +149,7 @@ int main(int argv, char **args)
         //  16638935 = (1/60.1) * 1000000000
         t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
         t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
-        
+
         while (SDL_PollEvent(&event))
         {
             switch (event.type)
@@ -162,43 +162,6 @@ int main(int argv, char **args)
                 handleKeyboardInputsAlt(&players[thisComputersPlayerIndex].keyInputs, event.key.keysym.scancode, event.type);
                 break;
             }
-        }
-        //collision detection with windows boundries
-        if (players[0].physics -> pos.x <= 0 )
-        { 
-            // if you collide reset the position so u dont go out of the screen
-            players[0].physics -> pos.x =0;  
-        }
-         if (players[0].physics -> pos.y <= 0 )
-        {
-            players[0].physics -> pos.y = 0;
-        }
-        // subtract the width of the sprite.
-        if (players[0].physics -> pos.x >= 800 - objects[2].imageExtents.w)
-        {
-            players[0].physics -> pos.x = 800 - objects[2].imageExtents.w;
-        }
-        // subtract the height of the sprite.
-         if (players[0].physics->pos.y >= 600 - objects[2].imageExtents.h)
-        {
-            players[0].physics->pos.y = 600 - objects[2].imageExtents.h;
-        }
-
-        if (players[1].physics -> pos.x <= 0 )
-        {
-            players[1].physics -> pos.x =0;
-        }
-         if (players[1].physics -> pos.y <= 0 )
-        {
-            players[1].physics -> pos.y = 0;
-        }
-        if (players[1].physics -> pos.x >= 800 - objects[3].imageExtents.w)
-        {
-            players[1].physics -> pos.x = 800 - objects[3].imageExtents.w;
-        }
-         if (players[1].physics->pos.y >= 600 - objects[3].imageExtents.h)
-        {
-            players[1].physics->pos.y = 600 - objects[3].imageExtents.h;
         }
 
         if (isKeyDown(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_ESCAPE))
@@ -231,17 +194,54 @@ int main(int argv, char **args)
         {
             physicsObjects[i].recentCollision = 0;
         }
-        
+
         for (int i = 0; i < SUB_STEPS; i++)
         {
+            // collision detection with windows boundries
+            if (players[0].physics->pos.x <= 0)
+            {
+                // if you collide reset the position so u dont go out of the screen
+                players[0].physics->pos.x = 0;
+            }
+            if (players[0].physics->pos.y <= 0)
+            {
+                players[0].physics->pos.y = 0;
+            }
+            // subtract the width of the sprite.
+            if (players[0].physics->pos.x >= 800 - objects[2].imageExtents.w)
+            {
+                players[0].physics->pos.x = 800 - objects[2].imageExtents.w;
+            }
+            // subtract the height of the sprite.
+            if (players[0].physics->pos.y >= 600 - objects[2].imageExtents.h)
+            {
+                players[0].physics->pos.y = 600 - objects[2].imageExtents.h;
+            }
+
+            if (players[1].physics->pos.x <= 0)
+            {
+                players[1].physics->pos.x = 0;
+            }
+            if (players[1].physics->pos.y <= 0)
+            {
+                players[1].physics->pos.y = 0;
+            }
+            if (players[1].physics->pos.x >= 800 - objects[3].imageExtents.w)
+            {
+                players[1].physics->pos.x = 800 - objects[3].imageExtents.w;
+            }
+            if (players[1].physics->pos.y >= 600 - objects[3].imageExtents.h)
+            {
+                players[1].physics->pos.y = 600 - objects[3].imageExtents.h;
+            }
+
             constraintSolve(physicsObjects, amountOfPhysicalObjects);
             updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
         }
-        
+
         printf("%f %f\n", players[0].physics->pos.x, players[0].physics->pos.y);
         sprintf((char *)player1->data, "%f %f %d\n", players[0].physics->pos.x, players[0].physics->pos.y, players[0].render->flip);
         // memcpy(player1->data, (void*)&players[0], 144);
-
         player1->address.host = srvadd.host; /* Set the destination host */
         player1->address.port = srvadd.port; /* And destination port */
         player1->len = strlen((char *)player1->data) + 1;
@@ -251,16 +251,16 @@ int main(int argv, char **args)
         //   Receive data
         if (SDLNet_UDP_Recv(sd, player2))
         {
-            //float a, b;
+            // float a, b;
             int b;
             vec2 a;
-            sscanf((char *)player2->data, "%f %f %d\n", &a.x , &a.y, &b);
-            //printf("RECIEVED %f  %f\n", a, b);
-            //players[0].physics->pos.x = a;
-            //players[0].physics->pos.y = b;
+            sscanf((char *)player2->data, "%f %f %d\n", &a.x, &a.y, &b);
+            // printf("RECIEVED %f  %f\n", a, b);
+            // players[0].physics->pos.x = a;
+            // players[0].physics->pos.y = b;
             players[1].physics->pos = a;
             players[1].render->flip = b;
-        
+
             printf("UDP Packet incoming %f %f\n", players[1].physics->pos.x, players[1].physics->pos.y);
         }
 

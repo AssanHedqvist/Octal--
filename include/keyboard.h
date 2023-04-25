@@ -3,12 +3,12 @@
 
 #include <SDL2/SDL.h>
 
-typedef struct KeyboardStates
+typedef struct 
 {
     unsigned char keyState[123];
 } KeyboardStates;
 
-typedef struct KeyboardStatesAlt
+typedef struct
 {
     unsigned int keyState[8];
 } KeyboardStatesAlt;

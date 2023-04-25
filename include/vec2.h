@@ -7,7 +7,7 @@
     s stands for scalar
 */
 
-typedef struct vec2 
+typedef struct
 {
     float x,y;
 } vec2;

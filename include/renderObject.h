@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-typedef struct RenderObject
+typedef struct
 {
     unsigned int order; //  rendering order of the renderObject starting at 0
     SDL_Texture* texture;

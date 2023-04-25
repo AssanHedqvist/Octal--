@@ -6,7 +6,7 @@
 #include "../include/keyboard.h"
 
 
-typedef struct Player
+typedef struct 
 {
     RenderObject* render;
     PhysicsObject* physics;

@@ -19,7 +19,7 @@ typedef enum {
 } CollisionType;
 
 //  Verlet integration
-typedef struct PhysicsObject
+typedef struct
 {
     vec2 acceleration;
     vec2 pos;   //  lower left corner of sprite
