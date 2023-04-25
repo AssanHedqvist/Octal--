@@ -62,10 +62,17 @@ int main(int argc, char **argv)
 					if(players[i].host == pRecive->address.host && players[i].port == pRecive->address.port) 
 					{
 						newPlayer = 0;
+						pSent->address.host = players[i].host;	/* Set the destination host */
+		            	pSent->address.port = players[i].port;
+                    	sscanf((char * )pRecive->data, "%f %f %d\n", &a, &b, &flip);
+                    	printf("%f %f %d\n", a, b, flip);
+                    	sprintf((char *)pSent->data, "%f %f %d\n", a, b, flip);
+                    	pSent->len = strlen((char *)pSent->data) + 1;
+                    	SDLNet_UDP_Send(sd, -1, pSent);
 					}
 				}
 
-				if(newPlayer) 
+				if(newPlayer == 1) 
 				{
 					players[amountOfPlayers].host = pRecive->address.host;
 					players[amountOfPlayers].port = pRecive->address.port;
@@ -80,39 +87,32 @@ int main(int argc, char **argv)
 			
 
 
-            if(IPclient1 == 0 && portClient1 == 0){
-                printf("Client 1\n");
-                IPclient1 = pRecive->address.host;
-                portClient1 = pRecive->address.port;
-            }else if(pRecive->address.port != portClient1  && IPclient2 == 0){
-                printf("Client 2\n");
-                IPclient2 = pRecive->address.host;
-                portClient2 = pRecive->address.port;
-            }else{
-                if (pRecive->address.port == portClient1){
-                    printf("Recived data\n");
-                    if(IPclient2 != 0){
-                        printf("Send to Client 2\n");
-                        pSent->address.host = IPclient2;	/* Set the destination host */
-		                pSent->address.port = portClient2;
-                        sscanf((char * )pRecive->data, "%f %f %d\n", &a, &b, &flip);
-                        printf("%f %f %d\n", a, b, flip);
-                        sprintf((char *)pSent->data, "%f %f %d\n", a, b, flip);
-                        pSent->len = strlen((char *)pSent->data) + 1;
-                        SDLNet_UDP_Send(sd, -1, pSent);
-                    }
-                } else if (pRecive->address.port == portClient2){
-                    printf("Send to Client 1\n");    
-                    pSent->address.host = IPclient1;	/* Set the destination host */
-		            pSent->address.port = portClient1;
-                    sscanf((char * )pRecive->data, "%f %f %d\n", &a, &b, &flip);
-                    printf("%f %f %d\n", a, b, flip);
-                    sprintf((char *)pSent->data, "%f %f %d\n", a, b, flip);
-                    pSent->len = strlen((char *)pSent->data) + 1;
-                    SDLNet_UDP_Send(sd, -1, pSent);
-                }
+            // if(IPclient1 == 0 && portClient1 == 0){
+            //     printf("Client 1\n");
+            //     IPclient1 = pRecive->address.host;
+            //     portClient1 = pRecive->address.port;
+            // }else if(pRecive->address.port != portClient1  && IPclient2 == 0){
+            //     printf("Client 2\n");
+            //     IPclient2 = pRecive->address.host;
+            //     portClient2 = pRecive->address.port;
+            // }else{
+            //     if (pRecive->address.port == portClient1){
+            //         printf("Recived data\n");
+            //         if(IPclient2 != 0){
+            //             printf("Send to Client 2\n");
+            //             pSent->address.host = IPclient2;	/* Set the destination host */
+		    //             pSent->address.port = portClient2;
+            //             sscanf((char * )pRecive->data, "%f %f %d\n", &a, &b, &flip);
+            //             printf("%f %f %d\n", a, b, flip);
+            //             sprintf((char *)pSent->data, "%f %f %d\n", a, b, flip);
+            //             pSent->len = strlen((char *)pSent->data) + 1;
+            //             SDLNet_UDP_Send(sd, -1, pSent);
+            //         }
+            //     } else if (pRecive->address.port == portClient2){
+                    
+            //     }
                 
-            }
+            // }
             
 
 			/* Quit if packet contains "quit" */
