@@ -50,7 +50,7 @@ int main(int argv, char **args)
     }
 
     //   Resolve server name
-    if (SDLNet_ResolveHost(&srvadd, "130.229.147.228", 15661) == -1)
+    if (SDLNet_ResolveHost(&srvadd, "130.229.188.233", 15661) == -1)
     {
         // fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -62,12 +62,14 @@ int main(int argv, char **args)
         exit(EXIT_FAILURE);
     }
 
+    //  server connecting code 
+
     player1->address.host = srvadd.host; 
     player1->address.port = srvadd.port;
     
     int tmp = 1;
-    memmove(&player1->data, &tmp, 4);
-    player1->len = 1;
+    sprintf((char *)player1->data, "%d\n", tmp);
+    player1->len = strlen((char *)player1->data) + 1;
     
     SDLNet_UDP_Send(sd, -1, player1);
 
@@ -75,9 +77,15 @@ int main(int argv, char **args)
 
     while(thisComputersPlayerIndex == -1) {
         if(SDLNet_UDP_Recv(sd, player2)==1) {
-            memmove(&thisComputersPlayerIndex, &player2->data, 4);
+            sscanf((char * )player2->data, "%d\n", &thisComputersPlayerIndex);
         }
     }
+
+    int otherPlayer = thisComputersPlayerIndex == 1 ? 0 : 1;
+
+    printf("Client: %d\n", thisComputersPlayerIndex);
+
+    //  server connecting code 
 
     SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_ALWAYS_ON_TOP);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
@@ -157,8 +165,6 @@ int main(int argv, char **args)
 
     int frameCounter = 0;
 
-    
-
     struct timespec t1, t2;
     while (isRunning)
     {
@@ -187,26 +193,7 @@ int main(int argv, char **args)
             isRunning = 0;
         }
 
-        handlePlayerInputs(&players[0], DT);
-
-        if (isKeyDown(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_LEFT))
-        {
-            players[1].render->flip = 1;
-            physicsObjects[2].oldPos = vsum(physicsObjects[2].oldPos, vec2(0.5, 0.0));
-            handlePlayerAnimation(&players[1]);
-        }
-
-        if (isKeyDown(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_RIGHT))
-        {
-            players[1].render->flip = 0;
-            physicsObjects[2].oldPos = vsum(physicsObjects[2].oldPos, vec2(-0.5, 0.0));
-            handlePlayerAnimation(&players[1]);
-        }
-
-        if (isKeyDown(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_UP))
-        {
-            physicsObjects[2].oldPos = vsum(physicsObjects[2].oldPos, vec2(0.0, -0.5));
-        }
+        handlePlayerInputs(&players[thisComputersPlayerIndex], DT);
 
         for (int i = 0; i < amountOfPhysicalObjects; i++)
         {
@@ -258,7 +245,7 @@ int main(int argv, char **args)
         }
 
         //printf("%f %f\n", players[0].physics->pos.x, players[0].physics->pos.y);
-        sprintf((char *)player1->data, "%f %f %d\n", players[0].physics->pos.x, players[0].physics->pos.y, players[0].render->flip);
+        sprintf((char *)player1->data, "%f %f %d\n", players[thisComputersPlayerIndex].physics->pos.x, players[thisComputersPlayerIndex].physics->pos.y, players[thisComputersPlayerIndex].render->flip);
         // memcpy(player1->data, (void*)&players[0], 144);
         player1->address.host = srvadd.host; /* Set the destination host */
         player1->address.port = srvadd.port; /* And destination port */
@@ -276,10 +263,8 @@ int main(int argv, char **args)
             // printf("RECIEVED %f  %f\n", a, b);
             // players[0].physics->pos.x = a;
             // players[0].physics->pos.y = b;
-            players[1].physics->pos = a;
-            players[1].render->flip = b;
-
-            printf("UDP Packet incoming %f %f\n", players[1].physics->pos.x, players[1].physics->pos.y);
+            players[otherPlayer].physics->pos = a;
+            players[otherPlayer].render->flip = b;
         }
 
         updateRenderWithPhysics(objects, physicsObjects, amountOfPhysicalObjects);

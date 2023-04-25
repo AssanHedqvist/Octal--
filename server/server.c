@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     Uint32 IPclient2=0;
     Uint32 portClient1=0; 
     Uint32 portClient2=0;
-	IPaddress players[4];
+	IPaddress players[4] = {{0,0}};
 	int amountOfPlayers = 0;
     int quit, flip; 
 	float a, b;
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
-
+	
 
 	/* Main loop */
 	quit = 0;
@@ -62,8 +62,9 @@ int main(int argc, char **argv)
 					if(players[i].host == pRecive->address.host && players[i].port == pRecive->address.port) 
 					{
 						newPlayer = 0;
-						pSent->address.host = players[i].host;	/* Set the destination host */
-		            	pSent->address.port = players[i].port;
+						int index = i == 0 ? 1 : 0;
+						pSent->address.host = players[index].host;	/* Set the destination host */
+		            	pSent->address.port = players[index].port;
                     	sscanf((char * )pRecive->data, "%f %f %d\n", &a, &b, &flip);
                     	printf("%f %f %d\n", a, b, flip);
                     	sprintf((char *)pSent->data, "%f %f %d\n", a, b, flip);
@@ -76,11 +77,11 @@ int main(int argc, char **argv)
 				{
 					players[amountOfPlayers].host = pRecive->address.host;
 					players[amountOfPlayers].port = pRecive->address.port;
-					memmove(&pSent->data, &amountOfPlayers, 4);
+					sprintf((char *)pSent->data, "%d\n", amountOfPlayers);
 					amountOfPlayers++;
 					pSent->address.host = pRecive->address.host;
 					pSent->address.port = pRecive->address.port;
-					pSent->len = 4;
+					pSent->len = strlen((char *)pSent->data) + 1;
 					SDLNet_UDP_Send(sd, -1, pSent);
 				}	
 			}
