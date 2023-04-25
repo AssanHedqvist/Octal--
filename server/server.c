@@ -16,10 +16,13 @@ int main(int argc, char **argv)
 	UDPsocket sd;       /* Socket descriptor */
 	UDPpacket *pRecive;       /* Pointer to packet memory */
 	UDPpacket *pSent;
+
     Uint32 IPclient1=0; 
     Uint32 IPclient2=0;
     Uint32 portClient1=0; 
     Uint32 portClient2=0;
+	IPaddress players[4];
+	int amountOfPlayers = 0;
     int quit, flip; 
 	float a, b;
  
@@ -29,21 +32,22 @@ int main(int argc, char **argv)
 		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
- 
+
 	/* Open a socket */
-	if (!(sd = SDLNet_UDP_Open(2000)))
+	if (!(sd = SDLNet_UDP_Open(15661)))
 	{
 		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
  
 	/* Make space for the packet */
-	if (!((pSent = SDLNet_AllocPacket(512))&&(pRecive = SDLNet_AllocPacket(512))))
+	if (!((pSent = SDLNet_AllocPacket(250))&&(pRecive = SDLNet_AllocPacket(250))))
 	{
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
- 
+
+
 	/* Main loop */
 	quit = 0;
 	while (!quit)
@@ -51,9 +55,31 @@ int main(int argc, char **argv)
 		/* Wait a packet. UDP_Recv returns != 0 if a packet is coming */
 		if (SDLNet_UDP_Recv(sd, pRecive))
 		{
-			//printf("UDP Packet incoming\n");
-			//printf("\tData:    %s\n", (char *)pRecive->data);
-			//printf("\tAddress: %x %x\n", pRecive->address.host, pRecive->address.port);
+			if(amountOfPlayers < 4) {
+				int newPlayer = 1;
+				for (int i = 0; i < amountOfPlayers; i++)
+				{
+					if(players[i].host == pRecive->address.host && players[i].port == pRecive->address.port) 
+					{
+						newPlayer = 0;
+					}
+				}
+
+				if(newPlayer) 
+				{
+					players[amountOfPlayers].host = pRecive->address.host;
+					players[amountOfPlayers].port = pRecive->address.port;
+					memmove(&pSent->data, &amountOfPlayers, 4);
+					amountOfPlayers++;
+					pSent->address.host = pRecive->address.host;
+					pSent->address.port = pRecive->address.port;
+					pSent->len = 4;
+					SDLNet_UDP_Send(sd, -1, pSent);
+				}	
+			}
+			
+
+
             if(IPclient1 == 0 && portClient1 == 0){
                 printf("Client 1\n");
                 IPclient1 = pRecive->address.host;
@@ -94,7 +120,7 @@ int main(int argc, char **argv)
 				quit = 1;
 		}		
 	}
- 
+
 	/* Clean and exit */
 	SDLNet_FreePacket(pSent);
     SDLNet_FreePacket(pRecive);

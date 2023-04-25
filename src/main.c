@@ -34,11 +34,14 @@ int main(int argv, char **args)
     UDPpacket *player1;
     UDPpacket *player2;
 
+    SDL_Init(SDL_INIT_EVERYTHING);
+
     if (SDLNet_Init() < 0)
     {
         // fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
+
     //   open socket
     if (!(sd = SDLNet_UDP_Open(0)))
     {
@@ -47,7 +50,7 @@ int main(int argv, char **args)
     }
 
     //   Resolve server name
-    if (SDLNet_ResolveHost(&srvadd, "127.0.0.1", 2000) == -1)
+    if (SDLNet_ResolveHost(&srvadd, "130.229.147.228", 15661) == -1)
     {
         // fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -59,7 +62,22 @@ int main(int argv, char **args)
         exit(EXIT_FAILURE);
     }
 
-    SDL_Init(SDL_INIT_EVERYTHING);
+    player1->address.host = srvadd.host; 
+    player1->address.port = srvadd.port;
+    
+    int tmp = 1;
+    memmove(&player1->data, &tmp, 4);
+    player1->len = 1;
+    
+    SDLNet_UDP_Send(sd, -1, player1);
+
+    int thisComputersPlayerIndex = -1;
+
+    while(thisComputersPlayerIndex == -1) {
+        if(SDLNet_UDP_Recv(sd, player2)==1) {
+            memmove(&thisComputersPlayerIndex, &player2->data, 4);
+        }
+    }
 
     SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_ALWAYS_ON_TOP);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
@@ -139,7 +157,7 @@ int main(int argv, char **args)
 
     int frameCounter = 0;
 
-    int thisComputersPlayerIndex = 0;
+    
 
     struct timespec t1, t2;
     while (isRunning)
@@ -208,12 +226,12 @@ int main(int argv, char **args)
                 players[0].physics->pos.y = 0;
             }
             // subtract the width of the sprite.
-            if (players[0].physics->pos.x >= 800 - objects[2].imageExtents.w)
+            if (players[0].physics->pos.x + objects[2].imageExtents.w >= 800)
             {
                 players[0].physics->pos.x = 800 - objects[2].imageExtents.w;
             }
             // subtract the height of the sprite.
-            if (players[0].physics->pos.y >= 600 - objects[2].imageExtents.h)
+            if (players[0].physics->pos.y + objects[2].imageExtents.h >= 600)
             {
                 players[0].physics->pos.y = 600 - objects[2].imageExtents.h;
             }
@@ -226,11 +244,11 @@ int main(int argv, char **args)
             {
                 players[1].physics->pos.y = 0;
             }
-            if (players[1].physics->pos.x >= 800 - objects[3].imageExtents.w)
+            if (players[1].physics->pos.x + objects[3].imageExtents.w >= 800)
             {
                 players[1].physics->pos.x = 800 - objects[3].imageExtents.w;
             }
-            if (players[1].physics->pos.y >= 600 - objects[3].imageExtents.h)
+            if (players[1].physics->pos.y + objects[3].imageExtents.h >= 600)
             {
                 players[1].physics->pos.y = 600 - objects[3].imageExtents.h;
             }
@@ -239,15 +257,15 @@ int main(int argv, char **args)
             updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
         }
 
-        printf("%f %f\n", players[0].physics->pos.x, players[0].physics->pos.y);
+        //printf("%f %f\n", players[0].physics->pos.x, players[0].physics->pos.y);
         sprintf((char *)player1->data, "%f %f %d\n", players[0].physics->pos.x, players[0].physics->pos.y, players[0].render->flip);
         // memcpy(player1->data, (void*)&players[0], 144);
         player1->address.host = srvadd.host; /* Set the destination host */
         player1->address.port = srvadd.port; /* And destination port */
         player1->len = strlen((char *)player1->data) + 1;
-
+        
         SDLNet_UDP_Send(sd, -1, player1);
-
+        
         //   Receive data
         if (SDLNet_UDP_Recv(sd, player2))
         {
