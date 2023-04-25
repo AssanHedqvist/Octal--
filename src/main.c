@@ -163,6 +163,43 @@ int main(int argv, char **args)
                 break;
             }
         }
+        //collision detection with windows boundries
+        if (players[0].physics -> pos.x <= 0 )
+        { 
+            // if you collide reset the position so u dont go out of the screen
+            players[0].physics -> pos.x =0;  
+        }
+         if (players[0].physics -> pos.y <= 0 )
+        {
+            players[0].physics -> pos.y = 0;
+        }
+        // subtract the width of the sprite.
+        if (players[0].physics -> pos.x >= 800 - objects[2].imageExtents.w)
+        {
+            players[0].physics -> pos.x = 800 - objects[2].imageExtents.w;
+        }
+        // subtract the height of the sprite.
+         if (players[0].physics->pos.y >= 600 - objects[2].imageExtents.h)
+        {
+            players[0].physics->pos.y = 600 - objects[2].imageExtents.h;
+        }
+
+        if (players[1].physics -> pos.x <= 0 )
+        {
+            players[1].physics -> pos.x =0;
+        }
+         if (players[1].physics -> pos.y <= 0 )
+        {
+            players[1].physics -> pos.y = 0;
+        }
+        if (players[1].physics -> pos.x >= 800 - objects[3].imageExtents.w)
+        {
+            players[1].physics -> pos.x = 800 - objects[3].imageExtents.w;
+        }
+         if (players[1].physics->pos.y >= 600 - objects[3].imageExtents.h)
+        {
+            players[1].physics->pos.y = 600 - objects[3].imageExtents.h;
+        }
 
         if (isKeyDown(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_ESCAPE))
         {
