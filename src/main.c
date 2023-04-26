@@ -118,25 +118,25 @@ int main(int argv, char **args)
     renderObjects[2].imageExtents = (SDL_Rect){0, 0, 32, 64};
     renderObjects[2].screenExtents = (SDL_Rect){400, 300, 32, 64};
     renderObjects[2].flip = 0;
-
+    
     renderObjects[3].order = 2;
     renderObjects[3].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite2.png");
     renderObjects[3].imageExtents = (SDL_Rect){0, 0, 32, 64};
     renderObjects[3].screenExtents = (SDL_Rect){300, 300, 32, 64};
     renderObjects[3].flip = 0;
-
+    
     renderObjects[4].order = 2;
     renderObjects[4].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite3.png");
     renderObjects[4].imageExtents = (SDL_Rect){0, 0, 32, 64};
     renderObjects[4].screenExtents = (SDL_Rect){300, 300, 32, 64};
     renderObjects[4].flip = 0;
-
+    
     renderObjects[5].order = 2;
     renderObjects[5].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite4.png");
     renderObjects[5].imageExtents = (SDL_Rect){0, 0, 32, 64};
     renderObjects[5].screenExtents = (SDL_Rect){300, 300, 32, 64};
     renderObjects[5].flip = 0;
-
+    
 
     players[0].render = &renderObjects[2];
     players[1].render = &renderObjects[3];
@@ -223,6 +223,7 @@ int main(int argv, char **args)
 
         handlePlayerInputs(&players[0], DT);
         handlePlayerAnimation(&players);
+        handlePlayerLives(&players);
 
         for (int i = 0; i < amountOfPhysicalObjects; i++)
         {
