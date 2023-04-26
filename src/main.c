@@ -31,8 +31,8 @@ int main(int argv, char **args)
 {
     UDPsocket sd;
     IPaddress srvadd;
-    UDPpacket *player1;
-    UDPpacket *player2;
+    UDPpacket *toServer;
+    UDPpacket *fromServer;
 
     SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -56,7 +56,7 @@ int main(int argv, char **args)
         exit(EXIT_FAILURE);
     }
     //   Allocates space for packet
-    if (!((player1 = SDLNet_AllocPacket(250)) && (player2 = SDLNet_AllocPacket(250))))
+    if (!((toServer = SDLNet_AllocPacket(250)) && (fromServer = SDLNet_AllocPacket(250))))
     {
         // fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -66,26 +66,24 @@ int main(int argv, char **args)
 
     //  server connecting code 
 
-    player1->address.host = srvadd.host; 
-    player1->address.port = srvadd.port;
+    // toServer->address.host = srvadd.host; 
+    // toServer->address.port = srvadd.port;
     
-    int tmp = 1;
-    sprintf((char *)player1->data, "%d\n", tmp);
-    player1->len = strlen((char *)player1->data) + 1;
-    
-    SDLNet_UDP_Send(sd, -1, player1);
+    // int tmp = 1;
 
-    int thisComputersPlayerIndex = -1;
+    // memmove(toServer->data, (void*)&tmp, 4);
+    // toServer->len = 4;
+    // SDLNet_UDP_Send(sd, -1, toServer);
 
-    while(thisComputersPlayerIndex == -1) {
-        if(SDLNet_UDP_Recv(sd, player2)==1) {
-            sscanf((char * )player2->data, "%d\n", &thisComputersPlayerIndex);
-        }
-    }
+    int thisComputersPlayerIndex = 0;
 
-    int otherPlayer = thisComputersPlayerIndex == 1 ? 0 : 1;
+    // while(thisComputersPlayerIndex == -1) {
+    //     if(SDLNet_UDP_Recv(sd, fromServer)==1) {
+    //         memmove((void*)&thisComputersPlayerIndex, fromServer->data, 4);
+    //     }
+    // }
 
-    printf("Client: %d\n", thisComputersPlayerIndex);
+    // printf("Client: %d\n", thisComputersPlayerIndex);
 
     //  server connecting code 
 
@@ -109,7 +107,7 @@ int main(int argv, char **args)
 
     renderObjects[1].order = 1;
     renderObjects[1].texture = IMG_LoadTexture(renderer, "resources/platform.png");
-    renderObjects[1].imageExtents = (SDL_Rect){0, 0, 1000, 75};
+    renderObjects[1].imageExtents = (SDL_Rect){0, 0, 1054, 289};
     renderObjects[1].screenExtents = (SDL_Rect){100, 300, 600, 150};
     renderObjects[1].flip = 0;
 
@@ -136,7 +134,6 @@ int main(int argv, char **args)
     renderObjects[5].imageExtents = (SDL_Rect){0, 0, 32, 64};
     renderObjects[5].screenExtents = (SDL_Rect){300, 300, 32, 64};
     renderObjects[5].flip = 0;
-
 
     players[0].render = &renderObjects[2];
     players[1].render = &renderObjects[3];
@@ -201,27 +198,26 @@ int main(int argv, char **args)
     while (isRunning)
     {
         clock_gettime(CLOCK_MONOTONIC, &t1);
-
         while (SDL_PollEvent(&event))
         {
             switch (event.type)
             {
             case SDL_QUIT:
-                handleKeyboardInputsAlt(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
+                handleKeyboardInputsAlt(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
                 break;
             case SDL_KEYDOWN:
             case SDL_KEYUP:
-                handleKeyboardInputsAlt(&players[0].keyInputs, event.key.keysym.scancode, event.type);
+                handleKeyboardInputsAlt(&players[thisComputersPlayerIndex].keyInputs, event.key.keysym.scancode, event.type);
                 break;
             }
         }
 
-        if (isKeyDown(&players[0].keyInputs, SDL_SCANCODE_ESCAPE))
+        if (isKeyDown(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_ESCAPE))
         {
             isRunning = 0;
         }
 
-        handlePlayerInputs(&players[0], DT);
+        handlePlayerInputs(&players[thisComputersPlayerIndex], DT);
 
         for (int i = 0; i < amountOfPhysicalObjects; i++)
         {
@@ -259,21 +255,21 @@ int main(int argv, char **args)
         }
 
         // //printf("%f %f\n", players[0].physics->pos.x, players[0].physics->pos.y);
-        // sprintf((char *)player1->data, "%f %f %d\n", players[thisComputersPlayerIndex].physics->pos.x, players[thisComputersPlayerIndex].physics->pos.y, players[thisComputersPlayerIndex].render->flip);
-        // // memcpy(player1->data, (void*)&players[0], 144);
-        // player1->address.host = srvadd.host; /* Set the destination host */
-        // player1->address.port = srvadd.port; /* And destination port */
-        // player1->len = strlen((char *)player1->data) + 1;
+        // sprintf((char *)toServer->data, "%f %f %d\n", players[thisComputersPlayerIndex].physics->pos.x, players[thisComputersPlayerIndex].physics->pos.y, players[thisComputersPlayerIndex].render->flip);
+        // // memcpy(toServer->data, (void*)&players[0], 144);
+        // toServer->address.host = srvadd.host; /* Set the destination host */
+        // toServer->address.port = srvadd.port; /* And destination port */
+        // toServer->len = strlen((char *)toServer->data) + 1;
         
-        // SDLNet_UDP_Send(sd, -1, player1);
+        // SDLNet_UDP_Send(sd, -1, toServer);
         
         // //   Receive data
-        // if (SDLNet_UDP_Recv(sd, player2))
+        // if (SDLNet_UDP_Recv(sd, fromServer))
         // {
         //     // float a, b;
         //     int b;
         //     vec2 a;
-        //     sscanf((char *)player2->data, "%f %f %d\n", &a.x, &a.y, &b);
+        //     sscanf((char *)fromServer->data, "%f %f %d\n", &a.x, &a.y, &b);
         //     // printf("RECIEVED %f  %f\n", a, b);
         //     // players[0].physics->pos.x = a;
         //     // players[0].physics->pos.y = b;
@@ -291,12 +287,18 @@ int main(int argv, char **args)
         t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
         t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
 
+        SDLNet_UDP_Send(sd, -1, toServer);
+
         do
         {
             clock_gettime(CLOCK_MONOTONIC, &t2);
             //  while we have not passed 16ms in one frame wait till that has happened
         } while (((t2.tv_sec < t1.tv_sec) || ((t2.tv_sec == t1.tv_sec) && (t2.tv_nsec < t1.tv_nsec))));
     }
+
+    SDLNet_Quit();
+    SDLNet_FreePacket(toServer);
+    SDLNet_FreePacket(fromServer);
 
     for (int i = 0; i < amountOfRenderObjects; i++)
     {
