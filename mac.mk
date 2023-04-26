@@ -21,10 +21,10 @@ LIBS = /opt/homebrew/lib
 
 # Extra flags to give to compilers when they are supposed to invoke the linker
 #LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -mwindows
-LDFLAGS = -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net
+LDFLAGS = -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_ttf
 
-game: main.o vec2.o physicsObject.o renderObject.o keyboard.o spriteHandler.o player.o
-	gcc -o game main.o vec2.o physicsObject.o renderObject.o keyboard.o spriteHandler.o player.o -L$(LIBS) -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net
+game: main.o vec2.o physicsObject.o renderObject.o keyboard.o spriteHandler.o player.o text.o
+	gcc -o game main.o vec2.o physicsObject.o renderObject.o keyboard.o spriteHandler.o player.o text.o -L$(LIBS) -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net
 main.o: 
 	gcc -c $(SRCDIR)/main.c -I$(INCLUDE)
 vec2.o: 
@@ -39,6 +39,8 @@ spriteHandler.o:
 	gcc -c $(SRCDIR)/spriteHandler.c -I$(INCLUDE)
 player.o: keyboard.o renderObject.o physicsObject.o
 	gcc -c $(SRCDIR)/player.c	
+text.o:
+	gcc -c $(SRCDIR)/text.c -I$(INCLUDE)
 
 
 clean:
