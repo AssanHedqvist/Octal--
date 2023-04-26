@@ -12,11 +12,15 @@ typedef struct
     PhysicsObject* physics;
     KeyboardStatesAlt keyInputs;
     int amountOfJumpsLeft;
+    int lives;
+    float timeSinceLastJump;
     //  add more
 } Player;
 
 void handlePlayerInputs(Player* player, float dt);
 
 void handlePlayerAnimation(Player* player);
+
+void handlePlayerLives(Player* player);
 
 #endif

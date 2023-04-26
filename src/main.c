@@ -6,12 +6,15 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_net.h>
+//#include <SDL2/SDL_ttf.h>
 #include "../include/vec2.h"
 #include "../include/physicsObject.h"
 #include "../include/renderObject.h"
 #include "../include/keyboard.h"
 #include "../include/player.h"
+//#include "../include/text.h"
 #include "../include/spriteHandler.h"
+
 
 //  bad function name --Damien
 void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int lengthOfPhysics)
@@ -33,8 +36,16 @@ int main(int argv, char **args)
     IPaddress srvadd;
     UDPpacket *toServer;
     UDPpacket *fromServer;
+    Player players[4] = {0, 0, {0}, 0, 0, 0};
+    //Text playerHealthText[4];
+   
 
     SDL_Init(SDL_INIT_EVERYTHING);
+
+    // if (TTF_Init() < 0)
+    // {
+    //     exit(EXIT_FAILURE);
+    // }
 
     if (SDLNet_Init() < 0)
     {
@@ -66,24 +77,24 @@ int main(int argv, char **args)
 
     //  server connecting code 
 
-    // toServer->address.host = srvadd.host; 
-    // toServer->address.port = srvadd.port;
+    toServer->address.host = srvadd.host; 
+    toServer->address.port = srvadd.port;
     
-    // int tmp = 1;
+    int tmp = 1;
 
-    // memmove(toServer->data, (void*)&tmp, 4);
-    // toServer->len = 4;
-    // SDLNet_UDP_Send(sd, -1, toServer);
+    memmove(toServer->data, (void*)&tmp, 4);
+    toServer->len = 4;
+    SDLNet_UDP_Send(sd, -1, toServer);
 
     int thisComputersPlayerIndex = 0;
 
-    // while(thisComputersPlayerIndex == -1) {
-    //     if(SDLNet_UDP_Recv(sd, fromServer)==1) {
-    //         memmove((void*)&thisComputersPlayerIndex, fromServer->data, 4);
-    //     }
-    // }
+    while(thisComputersPlayerIndex == -1) {
+        if(SDLNet_UDP_Recv(sd, fromServer)==1) {
+            memmove((void*)&thisComputersPlayerIndex, fromServer->data, 4);
+        }
+    }
 
-    // printf("Client: %d\n", thisComputersPlayerIndex);
+    printf("Client: %d\n", thisComputersPlayerIndex);
 
     //  server connecting code 
 
@@ -93,7 +104,6 @@ int main(int argv, char **args)
     int isRunning = 1;
     SDL_Event event;
 
-    Player players[4] = {0, 0, {0}, 0};
 
     int amountOfRenderObjects = 6;
     RenderObject renderObjects[6];
@@ -112,25 +122,25 @@ int main(int argv, char **args)
     renderObjects[1].flip = 0;
 
     renderObjects[2].order = 2;
-    renderObjects[2].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite.png");
+    renderObjects[2].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite.png");
     renderObjects[2].imageExtents = (SDL_Rect){0, 0, 32, 64};
     renderObjects[2].screenExtents = (SDL_Rect){400, 300, 32, 64};
     renderObjects[2].flip = 0;
-
+    
     renderObjects[3].order = 2;
-    renderObjects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite2.png");
+    renderObjects[3].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite2.png");
     renderObjects[3].imageExtents = (SDL_Rect){0, 0, 32, 64};
     renderObjects[3].screenExtents = (SDL_Rect){300, 300, 32, 64};
     renderObjects[3].flip = 0;
-
+    
     renderObjects[4].order = 2;
-    renderObjects[4].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite3.png");
+    renderObjects[4].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite3.png");
     renderObjects[4].imageExtents = (SDL_Rect){0, 0, 32, 64};
     renderObjects[4].screenExtents = (SDL_Rect){300, 300, 32, 64};
     renderObjects[4].flip = 0;
-
+    
     renderObjects[5].order = 2;
-    renderObjects[5].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite4.png");
+    renderObjects[5].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite4.png");
     renderObjects[5].imageExtents = (SDL_Rect){0, 0, 32, 64};
     renderObjects[5].screenExtents = (SDL_Rect){300, 300, 32, 64};
     renderObjects[5].flip = 0;
@@ -193,7 +203,10 @@ int main(int argv, char **args)
     players[1].amountOfJumpsLeft = 2;
 
     int frameCounter = 0;
-
+    //players->health = 0;
+    //playerHealthText->font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
+    SDL_Color healthColor = (SDL_Color){255,255,255};
+    
     struct timespec t1, t2;
     while (isRunning)
     {
@@ -203,21 +216,27 @@ int main(int argv, char **args)
             switch (event.type)
             {
             case SDL_QUIT:
-                handleKeyboardInputsAlt(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
+                handleKeyboardInputsAlt(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
                 break;
             case SDL_KEYDOWN:
+                if (event.key.keysym.scancode == SDL_SCANCODE_E)
+                {
+                    //players[0].health += 10; // increase health by 10
+                }
             case SDL_KEYUP:
-                handleKeyboardInputsAlt(&players[thisComputersPlayerIndex].keyInputs, event.key.keysym.scancode, event.type);
+                handleKeyboardInputsAlt(&players[0].keyInputs, event.key.keysym.scancode, event.type);
                 break;
             }
         }
 
-        if (isKeyDown(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_ESCAPE))
+        if (isKeyDown(&players[0].keyInputs, SDL_SCANCODE_ESCAPE))
         {
             isRunning = 0;
         }
 
-        handlePlayerInputs(&players[thisComputersPlayerIndex], DT);
+        handlePlayerInputs(&players[0], DT);
+        handlePlayerAnimation(players);
+        //handlePlayerLives(&players);
 
         for (int i = 0; i < amountOfPhysicalObjects; i++)
         {
@@ -260,8 +279,10 @@ int main(int argv, char **args)
         // toServer->address.host = srvadd.host; /* Set the destination host */
         // toServer->address.port = srvadd.port; /* And destination port */
         // toServer->len = strlen((char *)toServer->data) + 1;
-        
-        // SDLNet_UDP_Send(sd, -1, toServer);
+        memmove(toServer->data,(void*)&players[0].keyInputs.keyState,32);
+        toServer->len=32;
+
+        SDLNet_UDP_Send(sd, -1, toServer);
         
         // //   Receive data
         // if (SDLNet_UDP_Recv(sd, fromServer))
@@ -280,6 +301,9 @@ int main(int argv, char **args)
         updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
 
         render(renderer, renderObjects, amountOfRenderObjects);
+        //renderPlayerHealth(players, 4, renderer, playerHealthText->font, healthColor, 100, 550);
+        SDL_RenderPresent(renderer);
+        
 
         frameCounter++;
 
@@ -287,7 +311,7 @@ int main(int argv, char **args)
         t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
         t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
 
-        SDLNet_UDP_Send(sd, -1, toServer);
+        //SDLNet_UDP_Send(sd, -1, toServer);
 
         do
         {

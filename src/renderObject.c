@@ -28,6 +28,4 @@ void render(SDL_Renderer *renderer, RenderObject objects[], int length)
         }
         currentOrder++;
     }
-
-    SDL_RenderPresent(renderer);
 }

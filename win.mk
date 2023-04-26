@@ -7,10 +7,10 @@ INCLUDE = C:\msys64\mingw64\include
 
 LIBS = C:\msys64\mingw64\lib
 
-LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -mwindows
+LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_ttf -mwindows
 
-game: main.o vec2.o physicsObject.o renderObject.o keyboard.o player.o spriteHandler.o
-	gcc -o game.exe main.o vec2.o physicsObject.o renderObject.o keyboard.o player.o spriteHandler.o -L$(LIBS) $(LDFLAGS)
+game: main.o vec2.o physicsObject.o renderObject.o keyboard.o player.o spriteHandler.o text.o
+	gcc -o game.exe main.o vec2.o physicsObject.o renderObject.o keyboard.o player.o spriteHandler.o text.o -L$(LIBS) $(LDFLAGS)
 main.o: 
 	gcc -c $(SRCDIR)/main.c -I$(INCLUDE)
 vec2.o: 
@@ -25,6 +25,8 @@ player.o: keyboard.o renderObject.o physicsObject.o
 	gcc -c $(SRCDIR)/player.c	
 spriteHandler.o: 
 	gcc -c $(SRCDIR)/spriteHandler.c -I$(INCLUDE)
+text.o:
+	gcc -c $(SRCDIR)/text.c -I$(INCLUDE)
 clean:
 	rm *.o
 	rm *.exe
