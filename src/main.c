@@ -6,13 +6,13 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_net.h>
-//#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 #include "../include/vec2.h"
 #include "../include/physicsObject.h"
 #include "../include/renderObject.h"
 #include "../include/keyboard.h"
 #include "../include/player.h"
-//#include "../include/text.h"
+#include "../include/text.h"
 #include "../include/spriteHandler.h"
 
 
@@ -37,7 +37,7 @@ int main(int argv, char **args)
     UDPpacket *toServer;
     UDPpacket *fromServer;
     Player players[4] = {0, 0, {0}, 0, 0, 0};
-    //Text playerHealthText[4];
+    Text playerHealthText[4];
    
 
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -221,7 +221,7 @@ int main(int argv, char **args)
             case SDL_KEYDOWN:
                 if (event.key.keysym.scancode == SDL_SCANCODE_E)
                 {
-                    //players[0].health += 10; // increase health by 10
+                    players[0].health += 10; // increase health by 10
                 }
             case SDL_KEYUP:
                 handleKeyboardInputsAlt(&players[0].keyInputs, event.key.keysym.scancode, event.type);
@@ -236,7 +236,7 @@ int main(int argv, char **args)
 
         handlePlayerInputs(&players[0], DT);
         handlePlayerAnimation(players);
-        //handlePlayerLives(&players);
+        handlePlayerLives(&players);
 
         for (int i = 0; i < amountOfPhysicalObjects; i++)
         {
@@ -301,17 +301,14 @@ int main(int argv, char **args)
         updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
 
         render(renderer, renderObjects, amountOfRenderObjects);
-        //renderPlayerHealth(players, 4, renderer, playerHealthText->font, healthColor, 100, 550);
-        SDL_RenderPresent(renderer);
-        
+        renderPlayerHealth(players, 4, renderer, playerHealthText->font, healthColor, 100, 550);
+        SDL_RenderPresent(renderer);        
 
         frameCounter++;
 
         //  16638935 = (1/60.1) * 1000000000
         t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
         t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
-
-        //SDLNet_UDP_Send(sd, -1, toServer);
 
         do
         {
