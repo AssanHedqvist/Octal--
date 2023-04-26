@@ -101,7 +101,7 @@ int main(int argv, char **args)
     //   Render order: start at 0 continue up.
     objects[0].order = 0;
     objects[0].texture = IMG_LoadTexture(renderer, "resources/background.png");
-    objects[0].imageExtents = (SDL_Rect){0, 0, 3000, 2000};
+    objects[0].imageExtents = (SDL_Rect){0, 0, 6000, 3000};
     objects[0].screenExtents = (SDL_Rect){0, 0, 800, 600};
     objects[0].flip = 0;
 
