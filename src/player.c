@@ -1,11 +1,11 @@
 #include "../include/player.h"
 #include "../include/spriteHandler.h"
-#include <time.h>
 
 #define totSprites 3
 int latestJumpFromPlattform; // den här behövs för att annars kan man hoppa 3 gånger i rad
 static float timeSinceLastJump = 0.f;
 const float jumpCooldown = 0.1f;
+
 void handlePlayerInputs(Player *player, const float dt)
 {
     if (isKeyDown(&player->keyInputs,SDL_SCANCODE_A))
