@@ -222,6 +222,7 @@ int main(int argv, char **args)
         }
 
         handlePlayerInputs(&players[0], DT);
+        handlePlayerAnimation(&players);
 
         for (int i = 0; i < amountOfPhysicalObjects; i++)
         {
