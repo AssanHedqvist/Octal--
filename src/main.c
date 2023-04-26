@@ -6,12 +6,15 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_net.h>
+#include <SDL2/SDL_ttf.h>
 #include "../include/vec2.h"
 #include "../include/physicsObject.h"
 #include "../include/renderObject.h"
 #include "../include/keyboard.h"
 #include "../include/player.h"
+#include "../include/text.h"
 #include "../include/spriteHandler.h"
+
 
 //  bad function name --Damien
 void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int lengthOfPhysics)
@@ -33,9 +36,16 @@ int main(int argv, char **args)
     IPaddress srvadd;
     UDPpacket *player1;
     UDPpacket *player2;
+    Player players[4] = {0, 0, {0}, 0};
+    Text playerHealthText[4];
+   
 
     SDL_Init(SDL_INIT_EVERYTHING);
 
+    if (TTF_Init() < 0)
+    {
+        exit(EXIT_FAILURE);
+    }
     if (SDLNet_Init() < 0)
     {
         // fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
@@ -95,7 +105,6 @@ int main(int argv, char **args)
     int isRunning = 1;
     SDL_Event event;
 
-    Player players[4] = {0, 0, {0}, 0};
 
     int amountOfRenderObjects = 6;
     RenderObject renderObjects[6];
@@ -196,7 +205,10 @@ int main(int argv, char **args)
     players[1].amountOfJumpsLeft = 2;
 
     int frameCounter = 0;
-
+    players->health = 0;
+    playerHealthText->font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
+    SDL_Color healthColor = (SDL_Color){255,255,255};
+    
     struct timespec t1, t2;
     while (isRunning)
     {
@@ -210,6 +222,10 @@ int main(int argv, char **args)
                 handleKeyboardInputsAlt(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
                 break;
             case SDL_KEYDOWN:
+                if (event.key.keysym.scancode == SDL_SCANCODE_E)
+                {
+                    players[0].health += 10; // increase health by 10
+                }
             case SDL_KEYUP:
                 handleKeyboardInputsAlt(&players[0].keyInputs, event.key.keysym.scancode, event.type);
                 break;
@@ -286,6 +302,9 @@ int main(int argv, char **args)
         updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
 
         render(renderer, renderObjects, amountOfRenderObjects);
+        renderPlayerHealth(players, 4, renderer, playerHealthText->font, healthColor, 100, 550);
+        SDL_RenderPresent(renderer);
+        
 
         frameCounter++;
 
