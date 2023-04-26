@@ -103,13 +103,13 @@ int main(int argv, char **args)
     //   Render order: start at 0 continue up.
     renderObjects[0].order = 0;
     renderObjects[0].texture = IMG_LoadTexture(renderer, "resources/background.png");
-    renderObjects[0].imageExtents = (SDL_Rect){0, 0, 3000, 2000};
+    renderObjects[0].imageExtents = (SDL_Rect){0, 0, 6000, 3000};
     renderObjects[0].screenExtents = (SDL_Rect){0, 0, 800, 600};
     renderObjects[0].flip = 0;
 
     renderObjects[1].order = 1;
     renderObjects[1].texture = IMG_LoadTexture(renderer, "resources/platform.png");
-    renderObjects[1].imageExtents = (SDL_Rect){0, 0, 1054, 289};
+    renderObjects[1].imageExtents = (SDL_Rect){0, 0, 1000, 75};
     renderObjects[1].screenExtents = (SDL_Rect){100, 300, 600, 150};
     renderObjects[1].flip = 0;
 
