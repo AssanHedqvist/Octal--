@@ -107,8 +107,8 @@ int main(int argv, char **args)
 
     objects[1].order = 1;
     objects[1].texture = IMG_LoadTexture(renderer, "resources/platform.png");
-    objects[1].imageExtents = (SDL_Rect){0, 0, 1054, 289};
-    objects[1].screenExtents = (SDL_Rect){100, 300, 600, 150};
+    objects[1].imageExtents = (SDL_Rect){0, 0, 1000, 75};
+    objects[1].screenExtents = (SDL_Rect){100, 300, 600, 50};
     objects[1].flip = 0;
 
     objects[2].order = 2;
