@@ -42,10 +42,10 @@ int main(int argv, char **args)
 
     SDL_Init(SDL_INIT_EVERYTHING);
 
-    // if (TTF_Init() < 0)
-    // {
-    //     exit(EXIT_FAILURE);
-    // }
+    if (TTF_Init() < 0)
+    {
+        exit(EXIT_FAILURE);
+    }
 
     if (SDLNet_Init() < 0)
     {
@@ -66,6 +66,7 @@ int main(int argv, char **args)
         // fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
+
     //   Allocates space for packet
     if (!((toServer = SDLNet_AllocPacket(250)) && (fromServer = SDLNet_AllocPacket(250))))
     {
