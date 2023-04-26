@@ -50,7 +50,7 @@ int main(int argv, char **args)
     }
 
     //   Resolve server name
-    if (SDLNet_ResolveHost(&srvadd, "130.229.188.233", 15661) == -1)
+    if (SDLNet_ResolveHost(&srvadd, "127.0.0.1", 15661) == -1)
     {
         // fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -61,6 +61,8 @@ int main(int argv, char **args)
         // fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
+    
+    //printf("%u.%u.%u.%u\n", address->host & 0xFF, (( address->host >> 8) & 0xFF),  (( address->host >> 16) & 0xFF), ((address->host >> 24) & 0xFF));
 
     //  server connecting code 
 
@@ -93,42 +95,57 @@ int main(int argv, char **args)
     int isRunning = 1;
     SDL_Event event;
 
-    Player players[2] = {0, 0, {0}, 0};
+    Player players[4] = {0, 0, {0}, 0};
 
-    int amountOfObjects = 4;
-    RenderObject objects[4];
+    int amountOfRenderObjects = 6;
+    RenderObject renderObjects[6];
 
     //   Render order: start at 0 continue up.
-    objects[0].order = 0;
-    objects[0].texture = IMG_LoadTexture(renderer, "resources/background.png");
-    objects[0].imageExtents = (SDL_Rect){0, 0, 3000, 2000};
-    objects[0].screenExtents = (SDL_Rect){0, 0, 800, 600};
-    objects[0].flip = 0;
+    renderObjects[0].order = 0;
+    renderObjects[0].texture = IMG_LoadTexture(renderer, "resources/background.png");
+    renderObjects[0].imageExtents = (SDL_Rect){0, 0, 3000, 2000};
+    renderObjects[0].screenExtents = (SDL_Rect){0, 0, 800, 600};
+    renderObjects[0].flip = 0;
 
-    objects[1].order = 1;
-    objects[1].texture = IMG_LoadTexture(renderer, "resources/platform.png");
-    objects[1].imageExtents = (SDL_Rect){0, 0, 1054, 289};
-    objects[1].screenExtents = (SDL_Rect){100, 300, 600, 150};
-    objects[1].flip = 0;
+    renderObjects[1].order = 1;
+    renderObjects[1].texture = IMG_LoadTexture(renderer, "resources/platform.png");
+    renderObjects[1].imageExtents = (SDL_Rect){0, 0, 1054, 289};
+    renderObjects[1].screenExtents = (SDL_Rect){100, 300, 600, 150};
+    renderObjects[1].flip = 0;
 
-    objects[2].order = 2;
-    objects[2].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite.png");
-    objects[2].imageExtents = (SDL_Rect){0, 0, 32, 64};
-    objects[2].screenExtents = (SDL_Rect){400, 300, 32, 64};
-    objects[2].flip = 0;
+    renderObjects[2].order = 2;
+    renderObjects[2].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite.png");
+    renderObjects[2].imageExtents = (SDL_Rect){0, 0, 32, 64};
+    renderObjects[2].screenExtents = (SDL_Rect){400, 300, 32, 64};
+    renderObjects[2].flip = 0;
 
-    objects[3].order = 2;
-    objects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite2.png");
-    objects[3].imageExtents = (SDL_Rect){0, 0, 32, 64};
-    objects[3].screenExtents = (SDL_Rect){300, 300, 32, 64};
-    objects[3].flip = 0;
+    renderObjects[3].order = 2;
+    renderObjects[3].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite2.png");
+    renderObjects[3].imageExtents = (SDL_Rect){0, 0, 32, 64};
+    renderObjects[3].screenExtents = (SDL_Rect){300, 300, 32, 64};
+    renderObjects[3].flip = 0;
 
-    players[0].render = &objects[2];
-    players[1].render = &objects[3];
+    renderObjects[4].order = 2;
+    renderObjects[4].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite3.png");
+    renderObjects[4].imageExtents = (SDL_Rect){0, 0, 32, 64};
+    renderObjects[4].screenExtents = (SDL_Rect){300, 300, 32, 64};
+    renderObjects[4].flip = 0;
 
-    //  three objects for now...
-    int amountOfPhysicalObjects = 3;
-    PhysicsObject physicsObjects[3] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0}};
+    renderObjects[5].order = 2;
+    renderObjects[5].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite4.png");
+    renderObjects[5].imageExtents = (SDL_Rect){0, 0, 32, 64};
+    renderObjects[5].screenExtents = (SDL_Rect){300, 300, 32, 64};
+    renderObjects[5].flip = 0;
+
+
+    players[0].render = &renderObjects[2];
+    players[1].render = &renderObjects[3];
+    players[2].render = &renderObjects[4];
+    players[3].render = &renderObjects[5];
+
+    //  three renderObjects for now...
+    int amountOfPhysicalObjects = 5;
+    PhysicsObject physicsObjects[5] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0}};
 
     /*
     Damien:
@@ -145,20 +162,35 @@ int main(int argv, char **args)
 
     //  (player 0)
     physicsObjects[1].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[1].pos = vec2(400, 536);
+    physicsObjects[1].pos = vec2(150, 536);
     physicsObjects[1].oldPos = physicsObjects[1].pos;
     physicsObjects[1].extents = vec2(32, 64);
     physicsObjects[1].type = DYNAMIC;
-
     //  (player 1)
     physicsObjects[2].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[2].pos = vec2(300, 536);
+    physicsObjects[2].pos = vec2(316.6666666666666666666666666666f, 536);
     physicsObjects[2].oldPos = physicsObjects[2].pos;
     physicsObjects[2].extents = vec2(32, 64);
     physicsObjects[2].type = DYNAMIC;
 
+    //  (player 2)
+    physicsObjects[3].acceleration = vec2(0.f, -982.0f);
+    physicsObjects[3].pos = vec2(483.33333333333333333333333333334f, 536);
+    physicsObjects[3].oldPos = physicsObjects[3].pos;
+    physicsObjects[3].extents = vec2(32, 64);
+    physicsObjects[3].type = DYNAMIC;
+
+    //  (player 3)
+    physicsObjects[4].acceleration = vec2(0.f, -982.0f);
+    physicsObjects[4].pos = vec2(650, 536);
+    physicsObjects[4].oldPos = physicsObjects[4].pos;
+    physicsObjects[4].extents = vec2(32, 64);
+    physicsObjects[4].type = DYNAMIC;
+
     players[0].physics = &physicsObjects[1];
     players[1].physics = &physicsObjects[2];
+    players[2].physics = &physicsObjects[3];
+    players[3].physics = &physicsObjects[4];
 
     players[0].amountOfJumpsLeft = 2;
     players[1].amountOfJumpsLeft = 2;
@@ -170,30 +202,26 @@ int main(int argv, char **args)
     {
         clock_gettime(CLOCK_MONOTONIC, &t1);
 
-        //  16638935 = (1/60.1) * 1000000000
-        t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
-        t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
-
         while (SDL_PollEvent(&event))
         {
             switch (event.type)
             {
             case SDL_QUIT:
-                isRunning = 0;
+                handleKeyboardInputsAlt(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
                 break;
             case SDL_KEYDOWN:
             case SDL_KEYUP:
-                handleKeyboardInputsAlt(&players[thisComputersPlayerIndex].keyInputs, event.key.keysym.scancode, event.type);
+                handleKeyboardInputsAlt(&players[0].keyInputs, event.key.keysym.scancode, event.type);
                 break;
             }
         }
 
-        if (isKeyDown(&players[thisComputersPlayerIndex].keyInputs, SDL_SCANCODE_ESCAPE))
+        if (isKeyDown(&players[0].keyInputs, SDL_SCANCODE_ESCAPE))
         {
             isRunning = 0;
         }
 
-        handlePlayerInputs(&players[thisComputersPlayerIndex], DT);
+        handlePlayerInputs(&players[0], DT);
 
         for (int i = 0; i < amountOfPhysicalObjects; i++)
         {
@@ -202,76 +230,66 @@ int main(int argv, char **args)
 
         for (int i = 0; i < SUB_STEPS; i++)
         {
-            // collision detection with windows boundries
-            if (players[0].physics->pos.x <= 0)
+            for (int i = 0; i < 4; i++)
             {
-                // if you collide reset the position so u dont go out of the screen
-                players[0].physics->pos.x = 0;
-            }
-            if (players[0].physics->pos.y <= 0)
-            {
-                players[0].physics->pos.y = 0;
-            }
-            // subtract the width of the sprite.
-            if (players[0].physics->pos.x + objects[2].imageExtents.w >= 800)
-            {
-                players[0].physics->pos.x = 800 - objects[2].imageExtents.w;
-            }
-            // subtract the height of the sprite.
-            if (players[0].physics->pos.y + objects[2].imageExtents.h >= 600)
-            {
-                players[0].physics->pos.y = 600 - objects[2].imageExtents.h;
-            }
-
-            if (players[1].physics->pos.x <= 0)
-            {
-                players[1].physics->pos.x = 0;
-            }
-            if (players[1].physics->pos.y <= 0)
-            {
-                players[1].physics->pos.y = 0;
-            }
-            if (players[1].physics->pos.x + objects[3].imageExtents.w >= 800)
-            {
-                players[1].physics->pos.x = 800 - objects[3].imageExtents.w;
-            }
-            if (players[1].physics->pos.y + objects[3].imageExtents.h >= 600)
-            {
-                players[1].physics->pos.y = 600 - objects[3].imageExtents.h;
+                // collision detection with windows boundries
+                if (players[i].physics->pos.x <= 0.f)
+                {
+                    // if you collide reset the position so u dont go out of the screen
+                    players[i].physics->pos.x = 0.f;
+                }
+                if (players[i].physics->pos.y <= 0.f)
+                {
+                    players[i].physics->pos.y = 0.f;
+                }
+                // subtract the width of the sprite.
+                if (players[i].physics->pos.x + players[i].physics->extents.x >= 800.0f)
+                {
+                    players[i].physics->pos.x = 800.0f - players[i].physics->extents.x;
+                }
+                // subtract the height of the sprite.
+                if (players[i].physics->pos.y + players[i].physics->extents.y >= 600.0f)
+                {
+                    players[i].physics->pos.y = 600.0f - players[i].physics->extents.y;
+                }
             }
 
             constraintSolve(physicsObjects, amountOfPhysicalObjects);
             updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
         }
 
-        //printf("%f %f\n", players[0].physics->pos.x, players[0].physics->pos.y);
-        sprintf((char *)player1->data, "%f %f %d\n", players[thisComputersPlayerIndex].physics->pos.x, players[thisComputersPlayerIndex].physics->pos.y, players[thisComputersPlayerIndex].render->flip);
-        // memcpy(player1->data, (void*)&players[0], 144);
-        player1->address.host = srvadd.host; /* Set the destination host */
-        player1->address.port = srvadd.port; /* And destination port */
-        player1->len = strlen((char *)player1->data) + 1;
+        // //printf("%f %f\n", players[0].physics->pos.x, players[0].physics->pos.y);
+        // sprintf((char *)player1->data, "%f %f %d\n", players[thisComputersPlayerIndex].physics->pos.x, players[thisComputersPlayerIndex].physics->pos.y, players[thisComputersPlayerIndex].render->flip);
+        // // memcpy(player1->data, (void*)&players[0], 144);
+        // player1->address.host = srvadd.host; /* Set the destination host */
+        // player1->address.port = srvadd.port; /* And destination port */
+        // player1->len = strlen((char *)player1->data) + 1;
         
-        SDLNet_UDP_Send(sd, -1, player1);
+        // SDLNet_UDP_Send(sd, -1, player1);
         
-        //   Receive data
-        if (SDLNet_UDP_Recv(sd, player2))
-        {
-            // float a, b;
-            int b;
-            vec2 a;
-            sscanf((char *)player2->data, "%f %f %d\n", &a.x, &a.y, &b);
-            // printf("RECIEVED %f  %f\n", a, b);
-            // players[0].physics->pos.x = a;
-            // players[0].physics->pos.y = b;
-            players[otherPlayer].physics->pos = a;
-            players[otherPlayer].render->flip = b;
-        }
+        // //   Receive data
+        // if (SDLNet_UDP_Recv(sd, player2))
+        // {
+        //     // float a, b;
+        //     int b;
+        //     vec2 a;
+        //     sscanf((char *)player2->data, "%f %f %d\n", &a.x, &a.y, &b);
+        //     // printf("RECIEVED %f  %f\n", a, b);
+        //     // players[0].physics->pos.x = a;
+        //     // players[0].physics->pos.y = b;
+        //     players[otherPlayer].physics->pos = a;
+        //     players[otherPlayer].render->flip = b;
+        // }
 
-        updateRenderWithPhysics(objects, physicsObjects, amountOfPhysicalObjects);
+        updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
 
-        renderObjects(renderer, objects, amountOfObjects);
+        render(renderer, renderObjects, amountOfRenderObjects);
 
         frameCounter++;
+
+        //  16638935 = (1/60.1) * 1000000000
+        t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
+        t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
 
         do
         {
@@ -280,9 +298,9 @@ int main(int argv, char **args)
         } while (((t2.tv_sec < t1.tv_sec) || ((t2.tv_sec == t1.tv_sec) && (t2.tv_nsec < t1.tv_nsec))));
     }
 
-    for (int i = 0; i < amountOfObjects; i++)
+    for (int i = 0; i < amountOfRenderObjects; i++)
     {
-        SDL_DestroyTexture(objects[i].texture);
+        SDL_DestroyTexture(renderObjects[i].texture);
     }
 
     SDL_DestroyRenderer(renderer);

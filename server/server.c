@@ -55,26 +55,22 @@ int main(int argc, char **argv)
 		/* Wait a packet. UDP_Recv returns != 0 if a packet is coming */
 		if (SDLNet_UDP_Recv(sd, pRecive))
 		{
-			if(amountOfPlayers < 4) {
-				int newPlayer = 1;
-				for (int i = 0; i < amountOfPlayers; i++)
+			int newPlayer = 1;
+			int ifNotNewWhichIndex = 0;
+			for (int i = 0; i < amountOfPlayers; i++)
+			{
+				if(players[i].host == pRecive->address.host && players[i].port == pRecive->address.port) 
 				{
-					if(players[i].host == pRecive->address.host && players[i].port == pRecive->address.port) 
-					{
-						newPlayer = 0;
-						int index = i == 0 ? 1 : 0;
-						pSent->address.host = players[index].host;	/* Set the destination host */
-		            	pSent->address.port = players[index].port;
-                    	sscanf((char * )pRecive->data, "%f %f %d\n", &a, &b, &flip);
-                    	printf("%f %f %d\n", a, b, flip);
-                    	sprintf((char *)pSent->data, "%f %f %d\n", a, b, flip);
-                    	pSent->len = strlen((char *)pSent->data) + 1;
-                    	SDLNet_UDP_Send(sd, -1, pSent);
-					}
+					newPlayer = 0;
+					ifNotNewWhichIndex = i;
 				}
+			}
 
-				if(newPlayer == 1) 
+			if(newPlayer) {
+				if(amountOfPlayers < 4) 
 				{
+					printf("Connecting player...");
+					printf(" assigned number: %d\n", amountOfPlayers);
 					players[amountOfPlayers].host = pRecive->address.host;
 					players[amountOfPlayers].port = pRecive->address.port;
 					sprintf((char *)pSent->data, "%d\n", amountOfPlayers);
@@ -83,9 +79,29 @@ int main(int argc, char **argv)
 					pSent->address.port = pRecive->address.port;
 					pSent->len = strlen((char *)pSent->data) + 1;
 					SDLNet_UDP_Send(sd, -1, pSent);
-				}	
+				}
+				else 
+				{
+					printf("Lobby is full couldn't connect new player\n");
+				}		
 			}
-			
+
+			if(!newPlayer) 
+			{
+				sscanf((char * )pRecive->data, "%f %f %d\n", &a, &b, &flip);
+				sprintf((char *)pSent->data, "%f %f %d\n", a, b, flip);
+				pSent->len = strlen((char *)pSent->data) + 1;
+				printf("%f %f %d\n", a, b, flip);
+				for (int i = 0; i < amountOfPlayers; i++)
+				{
+					if(amountOfPlayers != ifNotNewWhichIndex) 
+					{
+						pSent->address.host = players[i].host;	/* Set the destination host */
+		    			pSent->address.port = players[i].port;
+            			SDLNet_UDP_Send(sd, -1, pSent);	
+					}	
+				}			
+			}	
 
 
             // if(IPclient1 == 0 && portClient1 == 0){

@@ -5,7 +5,7 @@ void renderObject(SDL_Renderer *renderer, RenderObject* objectToRender)
     SDL_RenderCopyEx(renderer,objectToRender->texture,&objectToRender->imageExtents,&objectToRender->screenExtents,0.0,NULL,0);
 }
 
-void renderObjects(SDL_Renderer *renderer, RenderObject objects[], int length) 
+void render(SDL_Renderer *renderer, RenderObject objects[], int length) 
 {
     SDL_RenderClear(renderer);
 
