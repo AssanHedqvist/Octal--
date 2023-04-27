@@ -236,10 +236,10 @@ int main(int argv, char **args)
                 textRect.y = 600/2 - textRect.h/2;
                 Text MenuText;
                 MenuText.font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
-                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
                 SDL_RenderClear(renderer);
 
-                SDL_Color textColor = {255, 255, 255, 0};
+                SDL_Color textColor = {255, 255, 255, 155};
                 SDL_Surface* menuMessage = TTF_RenderText_Solid(MenuText.font, "Press Space to start game, Esc to exit", textColor);
                 SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, menuMessage);
                 SDL_RenderCopyEx(renderer, texture, NULL, &textRect,0.0,NULL,0);
@@ -282,7 +282,6 @@ int main(int argv, char **args)
                     {
                         case SDL_QUIT:
                             handleKeyboardInputs(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
-                            currentGameState = CLOSED;
                             break;
                         case SDL_KEYDOWN:
                         case SDL_KEYUP:
