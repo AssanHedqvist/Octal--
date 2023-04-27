@@ -228,21 +228,19 @@ int main(int argv, char **args)
         {
             case MENU:
             {
-                //KeyboardStates user;
-                SDL_Rect textRect;
-                textRect.w = 700;
-                textRect.h = 100;
-                textRect.x = 800/2 - textRect.w/2;
-                textRect.y = 600/2 - textRect.h/2;
+                SDL_Rect backRect = {0,0,800,600};
+                SDL_Rect textRect = {50, 250, 700, 100};
                 Text MenuText;
                 MenuText.font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
-                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-                SDL_RenderClear(renderer);
+
+                SDL_Texture* texture = IMG_LoadTexture(renderer, "resources/menu/menu.png");
+                SDL_RenderCopyEx(renderer, texture, NULL, &backRect, 0.0, NULL, 0);
+                SDL_DestroyTexture(texture);
 
                 SDL_Color textColor = {255, 255, 255, 155};
                 SDL_Surface* menuMessage = TTF_RenderText_Solid(MenuText.font, "Press Space to start game, Esc to exit", textColor);
-                SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, menuMessage);
-                SDL_RenderCopyEx(renderer, texture, NULL, &textRect,0.0,NULL,0);
+                texture = SDL_CreateTextureFromSurface(renderer, menuMessage);
+                SDL_RenderCopyEx(renderer, texture, NULL, &textRect, 0.0, NULL, 0);
                 SDL_FreeSurface(menuMessage);
                 SDL_DestroyTexture(texture);
 
@@ -266,8 +264,8 @@ int main(int argv, char **args)
                                     break;
                             }
                             break;
-                            default:
-                                break;
+                        default:
+                            break;
                     }
                 }
                 SDL_RenderPresent(renderer);
