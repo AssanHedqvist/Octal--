@@ -213,8 +213,6 @@ int main(int argv, char **args)
 
     playerHealthText->font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
 
-    SDL_Color healthColor = (SDL_Color){255,255,255}; //  <-- this can be removed right? -- Damien
-    
     struct timespec t1, t2;
     while (isRunning)
     {
@@ -304,7 +302,7 @@ int main(int argv, char **args)
         updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
 
         render(renderer, renderObjects, amountOfRenderObjects);
-        renderPlayerHealth(players, 4, renderer, playerHealthText->font, healthColor, 100, 550);
+        renderPlayerHealth(players, 4, renderer, playerHealthText->font, 100, 550);
         SDL_RenderPresent(renderer);        
 
         frameCounter++;

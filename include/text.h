@@ -8,10 +8,10 @@
 typedef struct text
 {
     TTF_Font *font;
-    char* string;
+    //char* string;
 }Text;
 
-void renderPlayerHealth(Player players[], int amountOfPlayers, SDL_Renderer* renderer, TTF_Font* font, SDL_Color color, int x, int y);
+void renderPlayerHealth(Player players[], int amountOfPlayers, SDL_Renderer* renderer, TTF_Font* font, int x, int y);
 
 #endif
 
