@@ -51,10 +51,7 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 	
-	KeyboardStatesAlt states[4];
-
-
-	
+	KeyboardStates states[4];
 	
 	/* Main loop */
 	quit = 0;
@@ -87,8 +84,7 @@ int main(int argc, char **argv)
 						}
 					}
 					int tmp = 0;
-					printf("Connecting player...");
-					printf(" assigned number: %d\n", ifNewWhichIndex);
+					printf("player connected assgined number: %d\n", ifNewWhichIndex);
 					freePlayerSlots[ifNewWhichIndex] = 1;
 
 					players[ifNewWhichIndex].host = pReceive->address.host;

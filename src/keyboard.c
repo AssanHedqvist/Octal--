@@ -1,15 +1,6 @@
 #include "../include/keyboard.h"
 
-void handleKeyboardInputs(KeyboardStates* states, SDL_Keycode keyCode, int eventType) 
-{
-    //  this works because SDL_KEYUP - SDL_KEYUP = 0 and SDL_KEYUP - SDL_KEYDOWN = 1 
-    if(keyCode < 123) //  if true ignore that input
-    { 
-        states->keyState[keyCode] = SDL_KEYUP - eventType;
-    }
-}
-
-void handleKeyboardInputsAlt(KeyboardStatesAlt* states, SDL_Scancode keyCode, int eventType) 
+void handleKeyboardInputs(KeyboardStates* states, SDL_Scancode keyCode, int eventType) 
 {
     //  this works because SDL_KEYUP - SDL_KEYUP = 0 and SDL_KEYUP - SDL_KEYDOWN = 1 
     if(keyCode <= 230) //  if false ignore that input
@@ -23,7 +14,7 @@ void handleKeyboardInputsAlt(KeyboardStatesAlt* states, SDL_Scancode keyCode, in
     }
 }
 
-char isKeyDown(KeyboardStatesAlt* states, SDL_Scancode keyCode) 
+char isKeyDown(KeyboardStates* states, SDL_Scancode keyCode) 
 {
     return (states->keyState[keyCode >> 5u] & (1u << (keyCode & 31u))) > 0;
 }

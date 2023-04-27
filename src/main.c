@@ -42,7 +42,7 @@ int main(int argv, char **args)
    
 
     SDL_Init(SDL_INIT_EVERYTHING);
-
+   
     if (TTF_Init() < 0)
     {
         exit(EXIT_FAILURE);
@@ -205,9 +205,15 @@ int main(int argv, char **args)
     players[1].amountOfJumpsLeft = 2;
 
     int frameCounter = 0;
-    //players->health = 0;
+
+    players[0].health = 0;
+    players[1].health = 0;
+    players[2].health = 0;
+    players[3].health = 0;
+
     playerHealthText->font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
-    SDL_Color healthColor = (SDL_Color){255,255,255};
+
+    SDL_Color healthColor = (SDL_Color){255,255,255}; //  <-- this can be removed right? -- Damien
     
     struct timespec t1, t2;
     while (isRunning)
@@ -218,17 +224,22 @@ int main(int argv, char **args)
             switch (event.type)
             {
             case SDL_QUIT:
-                handleKeyboardInputsAlt(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
+                handleKeyboardInputs(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
                 break;
             case SDL_KEYDOWN:
-                if (event.key.keysym.scancode == SDL_SCANCODE_E)
-                {
-                    players[0].health += 10; // increase health by 10
-                }
             case SDL_KEYUP:
-                handleKeyboardInputsAlt(&players[0].keyInputs, event.key.keysym.scancode, event.type);
+                handleKeyboardInputs(&players[0].keyInputs, event.key.keysym.scancode, event.type);
                 break;
             }
+        }
+
+        memmove(toServer->data,(void*)&players[0].keyInputs.keyState,32);
+        toServer->len=32;
+
+        SDLNet_UDP_Send(sd, -1, toServer);
+
+        if (isKeyDown(&players[0].keyInputs, SDL_SCANCODE_E)) {
+            players[0].health += 10; 
         }
 
         if (isKeyDown(&players[0].keyInputs, SDL_SCANCODE_ESCAPE))
@@ -238,8 +249,8 @@ int main(int argv, char **args)
         
         handlePlayerAnimation(players);
         handlePlayerInputs(&players[0], DT);
-        handlePlayerLives(&players);
-        lightPunch(&players, 4);
+        handlePlayerLives(&players[0]); //  did (&players) work for anybody? -- Damien
+        lightPunch(players, 4);  //  did (&players) work for anybody? -- Damien
 
         for (int i = 0; i < amountOfPhysicalObjects; i++)
         {
@@ -275,17 +286,6 @@ int main(int argv, char **args)
             constraintSolve(physicsObjects, amountOfPhysicalObjects);
             updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
         }
-
-        // //printf("%f %f\n", players[0].physics->pos.x, players[0].physics->pos.y);
-        // sprintf((char *)toServer->data, "%f %f %d\n", players[thisComputersPlayerIndex].physics->pos.x, players[thisComputersPlayerIndex].physics->pos.y, players[thisComputersPlayerIndex].render->flip);
-        // // memcpy(toServer->data, (void*)&players[0], 144);
-        // toServer->address.host = srvadd.host; /* Set the destination host */
-        // toServer->address.port = srvadd.port; /* And destination port */
-        // toServer->len = strlen((char *)toServer->data) + 1;
-        memmove(toServer->data,(void*)&players[0].keyInputs.keyState,32);
-        toServer->len=32;
-
-        SDLNet_UDP_Send(sd, -1, toServer);
         
         // //   Receive data
         // if (SDLNet_UDP_Recv(sd, fromServer))
@@ -319,6 +319,8 @@ int main(int argv, char **args)
             //  while we have not passed 16ms in one frame wait till that has happened
         } while (((t2.tv_sec < t1.tv_sec) || ((t2.tv_sec == t1.tv_sec) && (t2.tv_nsec < t1.tv_nsec))));
     }
+
+    TTF_Quit();
 
     SDLNet_Quit();
     SDLNet_FreePacket(toServer);
