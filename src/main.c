@@ -249,8 +249,8 @@ int main(int argv, char **args)
         
         handlePlayerAnimation(players);
         handlePlayerInputs(&players[0], DT);
-        handlePlayerLives(&players[0]);
-        lightPunch(&players, 4);
+        handlePlayerLives(&players[0]); //  did (&players) work for anybody? -- Damien
+        lightPunch(players, 4);  //  did (&players) work for anybody? -- Damien
 
         for (int i = 0; i < amountOfPhysicalObjects; i++)
         {
