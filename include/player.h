@@ -10,10 +10,11 @@ typedef struct
 {
     RenderObject* render;
     PhysicsObject* physics;
-    KeyboardStatesAlt keyInputs;
+    KeyboardStates keyInputs;
     int amountOfJumpsLeft;
     int lives;
     float timeSinceLastJump;
+    int health;
     //  add more
 } Player;
 
