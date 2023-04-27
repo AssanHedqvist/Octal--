@@ -30,16 +30,16 @@ void handlePlayerInputs(Player *player, const float dt)
         {
 
             player->physics->oldPos = vsum(player->physics->oldPos, vsmul(vec2(0.f, -450.f), dt));
-            vec2 velocity = vdiff(player->physics->pos, player->physics->oldPos);
+            //vec2 velocity = vdiff(player->physics->pos, player->physics->oldPos);
 
-            //  may have to do it so that it only adds velocity.y when it is negative 
+            //  may have to do it so that it only adds velocity.y when it is negative (try bouncing off a player then jumping off the platform)
             //player->physics->oldPos = vsum(vsum(player->physics->oldPos, vsmul(vec2(0.f, -396.4f), dt)), vec2(0.f, velocity.y));
 
             player->amountOfJumpsLeft--;
             player->timeSinceLastJump = 0.f;
         }
     }
-    player->timeSinceLastJump += (1.0f/60.1);
+    player->timeSinceLastJump += (1.0f/60.f);
 }
 
 void handlePlayerLives(Player *player)
