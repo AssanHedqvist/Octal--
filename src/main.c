@@ -14,6 +14,7 @@
 #include "../include/player.h"
 #include "../include/text.h"
 #include "../include/spriteHandler.h"
+#include "../include/attacks.h"
 
 
 //  bad function name --Damien
@@ -123,7 +124,7 @@ int main(int argv, char **args)
     renderObjects[1].flip = 0;
 
     renderObjects[2].order = 2;
-    renderObjects[2].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite.png");
+    renderObjects[2].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite.png");
     renderObjects[2].imageExtents = (SDL_Rect){0, 0, 32, 64};
     renderObjects[2].screenExtents = (SDL_Rect){400, 300, 32, 64};
     renderObjects[2].flip = 0;
@@ -205,7 +206,7 @@ int main(int argv, char **args)
 
     int frameCounter = 0;
     //players->health = 0;
-    //playerHealthText->font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
+    playerHealthText->font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
     SDL_Color healthColor = (SDL_Color){255,255,255};
     
     struct timespec t1, t2;
@@ -234,10 +235,11 @@ int main(int argv, char **args)
         {
             isRunning = 0;
         }
-
-        handlePlayerInputs(&players[0], DT);
+        
         handlePlayerAnimation(players);
+        handlePlayerInputs(&players[0], DT);
         handlePlayerLives(&players);
+        lightPunch(&players, 4);
 
         for (int i = 0; i < amountOfPhysicalObjects; i++)
         {

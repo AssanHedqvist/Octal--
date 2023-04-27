@@ -13,6 +13,7 @@ typedef struct
     KeyboardStatesAlt keyInputs;
     int amountOfJumpsLeft;
     int lives;
+    int health;
     float timeSinceLastJump;
     //  add more
 } Player;
