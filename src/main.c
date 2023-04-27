@@ -16,7 +16,6 @@
 #include "../include/spriteHandler.h"
 #include "../include/attacks.h"
 
-
 //  bad function name --Damien
 void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int lengthOfPhysics)
 {
@@ -31,6 +30,13 @@ void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int
 #define SUB_STEPS 4
 #define DT (1.0f / (60.0f * (float)SUB_STEPS))
 
+enum GameStates
+{
+    MENU,
+    RUNNING,
+    CLOSED
+};
+
 int main(int argv, char **args)
 {
     UDPsocket sd;
@@ -39,10 +45,9 @@ int main(int argv, char **args)
     UDPpacket *fromServer;
     Player players[4] = {0, 0, {0}, 0, 0, 0};
     Text playerHealthText[4];
-   
 
     SDL_Init(SDL_INIT_EVERYTHING);
-   
+
     if (TTF_Init() < 0)
     {
         exit(EXIT_FAILURE);
@@ -74,38 +79,39 @@ int main(int argv, char **args)
         // fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
-    
-    //printf("%u.%u.%u.%u\n", address->host & 0xFF, (( address->host >> 8) & 0xFF),  (( address->host >> 16) & 0xFF), ((address->host >> 24) & 0xFF));
 
-    //  server connecting code 
+    // printf("%u.%u.%u.%u\n", address->host & 0xFF, (( address->host >> 8) & 0xFF),  (( address->host >> 16) & 0xFF), ((address->host >> 24) & 0xFF));
 
-    toServer->address.host = srvadd.host; 
+    //  server connecting code
+
+    toServer->address.host = srvadd.host;
     toServer->address.port = srvadd.port;
-    
+
     int tmp = 1;
 
-    memmove(toServer->data, (void*)&tmp, 4);
+    memmove(toServer->data, (void *)&tmp, 4);
     toServer->len = 4;
     SDLNet_UDP_Send(sd, -1, toServer);
 
     int thisComputersPlayerIndex = 0;
 
-    while(thisComputersPlayerIndex == -1) {
-        if(SDLNet_UDP_Recv(sd, fromServer)==1) {
-            memmove((void*)&thisComputersPlayerIndex, fromServer->data, 4);
+    while (thisComputersPlayerIndex == -1)
+    {
+        if (SDLNet_UDP_Recv(sd, fromServer) == 1)
+        {
+            memmove((void *)&thisComputersPlayerIndex, fromServer->data, 4);
         }
     }
 
     printf("Client: %d\n", thisComputersPlayerIndex);
 
-    //  server connecting code 
+    //  server connecting code
 
     SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_ALWAYS_ON_TOP);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
 
     int isRunning = 1;
     SDL_Event event;
-
 
     int amountOfRenderObjects = 6;
     RenderObject renderObjects[6];
@@ -128,19 +134,19 @@ int main(int argv, char **args)
     renderObjects[2].imageExtents = (SDL_Rect){0, 0, 32, 64};
     renderObjects[2].screenExtents = (SDL_Rect){400, 300, 32, 64};
     renderObjects[2].flip = 0;
-    
+
     renderObjects[3].order = 2;
     renderObjects[3].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite2.png");
     renderObjects[3].imageExtents = (SDL_Rect){0, 0, 32, 64};
     renderObjects[3].screenExtents = (SDL_Rect){300, 300, 32, 64};
     renderObjects[3].flip = 0;
-    
+
     renderObjects[4].order = 2;
     renderObjects[4].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite3.png");
     renderObjects[4].imageExtents = (SDL_Rect){0, 0, 32, 64};
     renderObjects[4].screenExtents = (SDL_Rect){300, 300, 32, 64};
     renderObjects[4].flip = 0;
-    
+
     renderObjects[5].order = 2;
     renderObjects[5].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite4.png");
     renderObjects[5].imageExtents = (SDL_Rect){0, 0, 32, 64};
@@ -214,108 +220,165 @@ int main(int argv, char **args)
     playerHealthText->font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
 
     struct timespec t1, t2;
-    while (isRunning)
+  
+    int currentGameState = MENU;
+    while (currentGameState != CLOSED)
     {
-        clock_gettime(CLOCK_MONOTONIC, &t1);
-        while (SDL_PollEvent(&event))
+        switch (currentGameState)
         {
-            switch (event.type)
+            case MENU:
             {
-            case SDL_QUIT:
-                handleKeyboardInputs(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
+                //KeyboardStates user;
+                SDL_Rect textRect;
+                textRect.w = 700;
+                textRect.h = 100;
+                textRect.x = 800/2 - textRect.w/2;
+                textRect.y = 600/2 - textRect.h/2;
+                Text MenuText;
+                MenuText.font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_RenderClear(renderer);
+
+                SDL_Color textColor = {255, 255, 255, 0};
+                SDL_Surface* menuMessage = TTF_RenderText_Solid(MenuText.font, "Press Space to start game, Esc to exit", textColor);
+                SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, menuMessage);
+                SDL_RenderCopyEx(renderer, texture, NULL, &textRect,0.0,NULL,0);
+                SDL_FreeSurface(menuMessage);
+                SDL_DestroyTexture(texture);
+
+                while(SDL_PollEvent(&event))
+                {   
+                    //we probably want it to handle mouseinputs rather
+                    switch(event.type)
+                    {
+                        case SDL_QUIT:
+                            currentGameState = CLOSED;
+                            break;
+                        case SDL_KEYDOWN:
+                            //Behöver fråga Damien om "IsKeyDown och HandleKeyboardInputs"
+                            switch(event.key.keysym.sym)
+                            {
+                                case SDLK_SPACE:
+                                    currentGameState = RUNNING;
+                                    break;
+                                case SDLK_ESCAPE:
+                                    currentGameState = CLOSED;
+                                    break;
+                            }
+                            break;
+                            default:
+                                break;
+                    }
+                }
+                SDL_RenderPresent(renderer);
                 break;
-            case SDL_KEYDOWN:
-            case SDL_KEYUP:
-                handleKeyboardInputs(&players[0].keyInputs, event.key.keysym.scancode, event.type);
+            }
+            case RUNNING:
+            {
+                clock_gettime(CLOCK_MONOTONIC, &t1);
+                while (SDL_PollEvent(&event))
+                {
+                    switch (event.type)
+                    {
+                        case SDL_QUIT:
+                            handleKeyboardInputs(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
+                            currentGameState = CLOSED;
+                            break;
+                        case SDL_KEYDOWN:
+                        case SDL_KEYUP:
+                            handleKeyboardInputs(&players[0].keyInputs, event.key.keysym.scancode, event.type);
+                            break;
+                    }
+                }   
+
+                memmove(toServer->data, (void *)&players[0].keyInputs.keyState, 32);
+                toServer->len = 32;
+
+                SDLNet_UDP_Send(sd, -1, toServer);
+
+                if (isKeyDown(&players[0].keyInputs, SDL_SCANCODE_E))
+                {
+                    players[0].health += 10;
+                }
+                if (isKeyDown(&players[0].keyInputs, SDL_SCANCODE_ESCAPE))
+                {
+                    currentGameState = CLOSED;
+                }
+
+                handlePlayerAnimation(players);
+                handlePlayerInputs(&players[0], DT);
+                handlePlayerLives(&players[0]); //  did (&players) work for anybody? -- Damien
+                lightPunch(players, 4);         //  did (&players) work for anybody? -- Damien
+
+                for (int i = 0; i < amountOfPhysicalObjects; i++)
+                {
+                    physicsObjects[i].recentCollision = 0;
+                }
+
+                for (int i = 0; i < SUB_STEPS; i++)
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        // collision detection with windows boundries
+                        if (players[i].physics->pos.x <= 0.f)
+                        {
+                            // if you collide reset the position so u dont go out of the screen
+                            players[i].physics->pos.x = 0.f;
+                        }
+                        if (players[i].physics->pos.y <= 0.f)
+                        {
+                            players[i].physics->pos.y = 0.f;
+                        }
+                        // subtract the width of the sprite.
+                        if (players[i].physics->pos.x + players[i].physics->extents.x >= 800.0f)
+                        {
+                            players[i].physics->pos.x = 800.0f - players[i].physics->extents.x;
+                        }
+                        // subtract the height of the sprite.
+                        if (players[i].physics->pos.y + players[i].physics->extents.y >= 600.0f)
+                        {
+                            players[i].physics->pos.y = 600.0f - players[i].physics->extents.y;
+                        }
+                    }
+
+                    constraintSolve(physicsObjects, amountOfPhysicalObjects);
+                    updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
+                }
+
+            // //   Receive data
+            // if (SDLNet_UDP_Recv(sd, fromServer))
+            // {
+            //     // float a, b;
+            //     int b;
+            //     vec2 a;
+            //     sscanf((char *)fromServer->data, "%f %f %d\n", &a.x, &a.y, &b);
+            //     // printf("RECIEVED %f  %f\n", a, b);
+            //     // players[0].physics->pos.x = a;
+            //     // players[0].physics->pos.y = b;
+            //     players[otherPlayer].physics->pos = a;
+            //     players[otherPlayer].render->flip = b;
+            // }
+
+                updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
+
+                render(renderer, renderObjects, amountOfRenderObjects);
+                renderPlayerHealth(players, 4, renderer, playerHealthText->font, 100, 550);
+                SDL_RenderPresent(renderer);
+
+                frameCounter++;
+
+                //  16638935 = (1/60.1) * 1000000000
+                t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
+                t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
+
+                do
+                {
+                    clock_gettime(CLOCK_MONOTONIC, &t2);
+                    //  while we have not passed 16ms in one frame wait till that has happened
+                } while (((t2.tv_sec < t1.tv_sec) || ((t2.tv_sec == t1.tv_sec) && (t2.tv_nsec < t1.tv_nsec))));
                 break;
             }
         }
-
-        memmove(toServer->data,(void*)&players[0].keyInputs.keyState,32);
-        toServer->len=32;
-
-        SDLNet_UDP_Send(sd, -1, toServer);
-
-        if (isKeyDown(&players[0].keyInputs, SDL_SCANCODE_E)) {
-            players[0].health += 10; 
-        }
-
-        if (isKeyDown(&players[0].keyInputs, SDL_SCANCODE_ESCAPE))
-        {
-            isRunning = 0;
-        }
-        
-        handlePlayerAnimation(players);
-        handlePlayerInputs(&players[0], DT);
-        handlePlayerLives(&players[0]); //  did (&players) work for anybody? -- Damien
-        lightPunch(players, 4);  //  did (&players) work for anybody? -- Damien
-
-        for (int i = 0; i < amountOfPhysicalObjects; i++)
-        {
-            physicsObjects[i].recentCollision = 0;
-        }
-
-        for (int i = 0; i < SUB_STEPS; i++)
-        {
-            for (int i = 0; i < 4; i++)
-            {
-                // collision detection with windows boundries
-                if (players[i].physics->pos.x <= 0.f)
-                {
-                    // if you collide reset the position so u dont go out of the screen
-                    players[i].physics->pos.x = 0.f;
-                }
-                if (players[i].physics->pos.y <= 0.f)
-                {
-                    players[i].physics->pos.y = 0.f;
-                }
-                // subtract the width of the sprite.
-                if (players[i].physics->pos.x + players[i].physics->extents.x >= 800.0f)
-                {
-                    players[i].physics->pos.x = 800.0f - players[i].physics->extents.x;
-                }
-                // subtract the height of the sprite.
-                if (players[i].physics->pos.y + players[i].physics->extents.y >= 600.0f)
-                {
-                    players[i].physics->pos.y = 600.0f - players[i].physics->extents.y;
-                }
-            }
-
-            constraintSolve(physicsObjects, amountOfPhysicalObjects);
-            updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
-        }
-        
-        // //   Receive data
-        // if (SDLNet_UDP_Recv(sd, fromServer))
-        // {
-        //     // float a, b;
-        //     int b;
-        //     vec2 a;
-        //     sscanf((char *)fromServer->data, "%f %f %d\n", &a.x, &a.y, &b);
-        //     // printf("RECIEVED %f  %f\n", a, b);
-        //     // players[0].physics->pos.x = a;
-        //     // players[0].physics->pos.y = b;
-        //     players[otherPlayer].physics->pos = a;
-        //     players[otherPlayer].render->flip = b;
-        // }
-
-        updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
-
-        render(renderer, renderObjects, amountOfRenderObjects);
-        renderPlayerHealth(players, 4, renderer, playerHealthText->font, 100, 550);
-        SDL_RenderPresent(renderer);        
-
-        frameCounter++;
-
-        //  16638935 = (1/60.1) * 1000000000
-        t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
-        t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
-
-        do
-        {
-            clock_gettime(CLOCK_MONOTONIC, &t2);
-            //  while we have not passed 16ms in one frame wait till that has happened
-        } while (((t2.tv_sec < t1.tv_sec) || ((t2.tv_sec == t1.tv_sec) && (t2.tv_nsec < t1.tv_nsec))));
     }
 
     TTF_Quit();
