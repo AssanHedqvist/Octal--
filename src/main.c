@@ -7,6 +7,7 @@
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_net.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include "../include/vec2.h"
 #include "../include/physicsObject.h"
 #include "../include/renderObject.h"
@@ -15,6 +16,7 @@
 #include "../include/text.h"
 #include "../include/spriteHandler.h"
 #include "../include/attacks.h"
+#include "../include/sounds.h"
 
 //  bad function name --Damien
 void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int lengthOfPhysics)
@@ -112,6 +114,10 @@ int main(int argv, char **args)
 
     int isRunning = 1;
     SDL_Event event;
+
+    //initialize SDL_mixer
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+    Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/tempMusicWhatIsLove.mp3");
 
     int amountOfRenderObjects = 6;
     RenderObject renderObjects[6];
@@ -220,7 +226,6 @@ int main(int argv, char **args)
     playerHealthText->font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
 
     struct timespec t1, t2;
-  
     int currentGameState = MENU;
     while (currentGameState != CLOSED)
     {
@@ -258,6 +263,7 @@ int main(int argv, char **args)
                             {
                                 case SDLK_SPACE:
                                     currentGameState = RUNNING;
+                                    Mix_PlayMusic(backgroundMusic,-1); // music plays when game starts
                                     break;
                                 case SDLK_ESCAPE:
                                     currentGameState = CLOSED;
@@ -282,6 +288,10 @@ int main(int argv, char **args)
                             handleKeyboardInputs(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
                             break;
                         case SDL_KEYDOWN:
+                            if (event.key.keysym.sym == SDLK_p)
+                            {
+                                togglePlay();                           //press p to toggle music
+                            }
                         case SDL_KEYUP:
                             handleKeyboardInputs(&players[0].keyInputs, event.key.keysym.scancode, event.type);
                             break;
@@ -383,6 +393,9 @@ int main(int argv, char **args)
     SDLNet_Quit();
     SDLNet_FreePacket(toServer);
     SDLNet_FreePacket(fromServer);
+
+    Mix_FreeMusic(backgroundMusic);
+    Mix_CloseAudio();
 
     for (int i = 0; i < amountOfRenderObjects; i++)
     {
