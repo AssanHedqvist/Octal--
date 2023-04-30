@@ -266,7 +266,7 @@ int main(int argv, char **args)
                                     Mix_PlayMusic(backgroundMusic,-1); // music plays when game starts
                                     break;
                                 case SDLK_ESCAPE:
-                                    currentGameState = CLOSED;
+                                    currentGameState = MENU;
                                     break;
                             }
                             break;
@@ -285,13 +285,18 @@ int main(int argv, char **args)
                     switch (event.type)
                     {
                         case SDL_QUIT:
-                            handleKeyboardInputs(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
+                           handleKeyboardInputs(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
                             break;
                         case SDL_KEYDOWN:
                             if (event.key.keysym.sym == SDLK_p)
                             {
                                 togglePlay();                           //press p to toggle music
                             }
+                            if (event.key.keysym.sym == SDLK_ESCAPE)
+                            {
+                                currentGameState =MENU;                // pressing esc takes you back to menu.
+                            }
+                            
                         case SDL_KEYUP:
                             handleKeyboardInputs(&players[0].keyInputs, event.key.keysym.scancode, event.type);
                             break;
@@ -307,10 +312,7 @@ int main(int argv, char **args)
                 {
                     players[0].health += 10;
                 }
-                if (isKeyDown(&players[0].keyInputs, SDL_SCANCODE_ESCAPE))
-                {
-                    currentGameState = CLOSED;
-                }
+                
 
                 handlePlayerAnimation(players);
                 handlePlayerInputs(&players[0], DT);
