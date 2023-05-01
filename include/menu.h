@@ -7,6 +7,6 @@
 #include "../include/text.h"
 
 
-SDL_Rect* renderMenu(SDL_Renderer* renderer, Text MenuText);
+void renderMenu(SDL_Renderer* renderer, Text menuText, SDL_Rect* buttons);
 
 #endif

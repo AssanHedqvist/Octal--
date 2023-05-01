@@ -235,11 +235,11 @@ int main(int argv, char **args)
             case MENU:
             {
                 Text menuText;
-                SDL_Rect* buttonRects = renderMenu(renderer, menuText);
+                SDL_Rect buttonRects[3];
+                renderMenu(renderer, menuText, buttonRects);
 
                 while(SDL_PollEvent(&event))
                 {   
-                    //we probably want it to handle mouseinputs rather
                     switch(event.type)
                     {
                         case SDL_QUIT:
@@ -319,7 +319,6 @@ int main(int argv, char **args)
                 {
                     players[0].health += 10;
                 }
-                
 
                 handlePlayerAnimation(players);
                 handlePlayerInputs(&players[0], DT);
