@@ -21,10 +21,10 @@ LIBS = /opt/homebrew/lib
 
 # Extra flags to give to compilers when they are supposed to invoke the linker
 #LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -mwindows
-LDFLAGS = -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_ttf
+LDFLAGS = -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_ttf -lSDL2_mixer
 
-game: main.o vec2.o physicsObject.o renderObject.o keyboard.o spriteHandler.o player.o text.o attacks.o
-	gcc -o game main.o vec2.o physicsObject.o renderObject.o keyboard.o spriteHandler.o player.o text.o attacks.o -L$(LIBS) -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_ttf
+game: main.o vec2.o physicsObject.o renderObject.o keyboard.o spriteHandler.o player.o text.o attacks.o sounds.o menu.o
+	gcc -o game main.o vec2.o physicsObject.o renderObject.o keyboard.o spriteHandler.o player.o text.o attacks.o sounds.o menu.o -L$(LIBS) -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_ttf
 main.o: 
 	gcc -c $(SRCDIR)/main.c -I$(INCLUDE)
 vec2.o: 
@@ -43,6 +43,10 @@ text.o:
 	gcc -c $(SRCDIR)/text.c -I$(INCLUDE)
 attacks.o:
 	gcc -c $(SRCDIR)/attacks.c -I$(INCLUDE)
+sounds.o:
+	gcc -c $(SRCDIR)/sounds.c -I$(INCLUDE)
+menu.o:
+	gcc -c $(SRCDIR)/menu.c -I$(INCLUDE)
 
 
 clean:
