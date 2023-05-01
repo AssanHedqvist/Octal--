@@ -17,6 +17,7 @@
 #include "../include/spriteHandler.h"
 #include "../include/attacks.h"
 #include "../include/sounds.h"
+#include "../include/menu.h"
 
 //  bad function name --Damien
 void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int lengthOfPhysics)
@@ -233,21 +234,8 @@ int main(int argv, char **args)
         {
             case MENU:
             {
-                SDL_Rect backRect = {0,0,800,600};
-                SDL_Rect textRect = {50, 250, 700, 100};
-                Text MenuText;
-                MenuText.font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
-
-                SDL_Texture* texture = IMG_LoadTexture(renderer, "resources/menu/menu.png");
-                SDL_RenderCopyEx(renderer, texture, NULL, &backRect, 0.0, NULL, 0);
-                SDL_DestroyTexture(texture);
-
-                SDL_Color textColor = {255, 255, 255, 155};
-                SDL_Surface* menuMessage = TTF_RenderText_Solid(MenuText.font, "Press Space to start game, Esc to exit", textColor);
-                texture = SDL_CreateTextureFromSurface(renderer, menuMessage);
-                SDL_RenderCopyEx(renderer, texture, NULL, &textRect, 0.0, NULL, 0);
-                SDL_FreeSurface(menuMessage);
-                SDL_DestroyTexture(texture);
+                Text menuText;
+                SDL_Rect* buttonRects = renderMenu(renderer, menuText);
 
                 while(SDL_PollEvent(&event))
                 {   
@@ -257,17 +245,35 @@ int main(int argv, char **args)
                         case SDL_QUIT:
                             currentGameState = CLOSED;
                             break;
-                        case SDL_KEYDOWN:
-                            //Behöver fråga Damien om "IsKeyDown och HandleKeyboardInputs"
-                            switch(event.key.keysym.sym)
+                        case SDL_MOUSEBUTTONDOWN:
+                            if (event.button.button == SDL_BUTTON_LEFT) 
                             {
-                                case SDLK_SPACE:
-                                    currentGameState = RUNNING;
-                                    Mix_PlayMusic(backgroundMusic,-1); // music plays when game starts
-                                    break;
-                                case SDLK_ESCAPE:
-                                    currentGameState = MENU;
-                                    break;
+                                int mouseX = event.button.x;
+                                int mouseY = event.button.y;
+                                
+                                for (int i = 0; i < 3; i++) 
+                                {
+                                    if(mouseX >= buttonRects[i].x &&
+                                    mouseX < buttonRects[i].x + buttonRects[i].w &&
+                                    mouseY >= buttonRects[i].y &&
+                                    mouseY < buttonRects[i].y + buttonRects[i].h) 
+                                    {
+                                        switch (i)
+                                        {
+                                            case 0:
+                                                currentGameState = RUNNING;
+                                                Mix_PlayMusic(backgroundMusic,-1); // music plays when game starts
+                                                break;
+                                            case 1:
+                                                break;
+                                            case 2:
+                                                currentGameState = CLOSED;
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                }
                             }
                             break;
                         default:
@@ -285,7 +291,8 @@ int main(int argv, char **args)
                     switch (event.type)
                     {
                         case SDL_QUIT:
-                           handleKeyboardInputs(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
+                            handleKeyboardInputs(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
+                            currentGameState = CLOSED;
                             break;
                         case SDL_KEYDOWN:
                             if (event.key.keysym.sym == SDLK_p)
@@ -294,7 +301,7 @@ int main(int argv, char **args)
                             }
                             if (event.key.keysym.sym == SDLK_ESCAPE)
                             {
-                                currentGameState =MENU;                // pressing esc takes you back to menu.
+                                currentGameState = MENU;                // pressing esc takes you back to menu.
                             }
                             
                         case SDL_KEYUP:
@@ -391,7 +398,7 @@ int main(int argv, char **args)
     }
 
     TTF_Quit();
-
+    
     SDLNet_Quit();
     SDLNet_FreePacket(toServer);
     SDLNet_FreePacket(fromServer);
