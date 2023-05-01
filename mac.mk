@@ -24,7 +24,7 @@ LIBS = /opt/homebrew/lib
 LDFLAGS = -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_ttf -lSDL2_mixer
 
 game: main.o vec2.o physicsObject.o renderObject.o keyboard.o spriteHandler.o player.o text.o attacks.o sounds.o menu.o
-	gcc -o game main.o vec2.o physicsObject.o renderObject.o keyboard.o spriteHandler.o player.o text.o attacks.o sounds.o menu.o -L$(LIBS) -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_ttf
+	gcc -o game main.o vec2.o physicsObject.o renderObject.o keyboard.o spriteHandler.o player.o text.o attacks.o sounds.o menu.o -L$(LIBS) -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_ttf -lSDL2_mixer
 main.o: 
 	gcc -c $(SRCDIR)/main.c -I$(INCLUDE)
 vec2.o: 
