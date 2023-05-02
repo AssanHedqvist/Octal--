@@ -2,46 +2,41 @@
 #define BUTTON_Y 210
 #define BUTTON_WIDTH 120
 #define BUTTON_HEIGHT 40
+#define BUTTON_GAP 60
 
 #include "../include/menu.h"
 
 
-void renderMenu(SDL_Renderer* renderer, Text menuText, SDL_Rect* buttons)
+void renderMenu(SDL_Renderer* renderer, SDL_Texture* backgroundTexture, SDL_Rect backgroundRect, MenuButton* buttons)
 {
-    buttons[0] = (SDL_Rect){BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT};
-    buttons[1] = (SDL_Rect){BUTTON_X, BUTTON_Y+60, BUTTON_WIDTH, BUTTON_HEIGHT};
-    buttons[2] = (SDL_Rect){BUTTON_X, BUTTON_Y+120, BUTTON_WIDTH, BUTTON_HEIGHT};
+    SDL_RenderCopyEx(renderer, backgroundTexture, NULL, &backgroundRect, 0.0, NULL, 0);
 
-    SDL_Color textColor = {255, 255, 255, 155};
-    menuText.font = TTF_OpenFont("./resources/fonts/LuckiestGuy.ttf", 100);
+    for(int i = 0; i < 3; i++)
+    {
+        SDL_RenderCopyEx(renderer, buttons[i].texture, NULL, &buttons[i].rect, 0.0, NULL, 0);
+    }
+}
 
-    //render background
-    SDL_Texture* texture = IMG_LoadTexture(renderer, "resources/menu/menu.png");
-    SDL_Rect backgroundRect = {0, 0, 800, 600};
-    SDL_RenderCopyEx(renderer, texture, NULL, &backgroundRect, 0.0, NULL, 0);
-    SDL_DestroyTexture(texture);
 
-    //render button1
-    SDL_Surface* button1 = TTF_RenderText_Solid(menuText.font, "Play", textColor);
-    texture = SDL_CreateTextureFromSurface(renderer, button1);
-    SDL_RenderCopyEx(renderer, texture, NULL, &buttons[0], 0.0, NULL, 0);
-    SDL_FreeSurface(button1);
-    SDL_DestroyTexture(texture);
+void createButtons(SDL_Renderer* renderer, MenuButton* buttons)
+{   
+    buttons[0].text.string = "Play";
+    buttons[0].text.font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
 
-    //render button2
-    SDL_Surface* button2 = TTF_RenderText_Solid(menuText.font, "EMPTY", textColor);
-    texture = SDL_CreateTextureFromSurface(renderer, button2);
-    SDL_RenderCopyEx(renderer, texture, NULL, &buttons[1], 0.0, NULL, 0);
-    SDL_FreeSurface(button2);
-    SDL_DestroyTexture(texture);
+    buttons[1].text.string = "Connect";
+    buttons[1].text.font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
 
-    //render button3
-    SDL_Surface* button3 = TTF_RenderText_Solid(menuText.font, "Quit", textColor);
-    texture = SDL_CreateTextureFromSurface(renderer, button3);
-    SDL_RenderCopyEx(renderer, texture, NULL, &buttons[2], 0.0, NULL, 0);
-    SDL_FreeSurface(button3);
-    SDL_DestroyTexture(texture);
+    buttons[2].text.string = "Quit";
+    buttons[2].text.font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
+    
+    SDL_Color textColor = {255, 255, 255, 155};     
 
-    TTF_CloseFont(menuText.font);
+    for(int i = 0; i < 3; i++)
+    {
+       buttons[i].rect = (SDL_Rect){BUTTON_X, BUTTON_Y + i * BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT};
+       buttons[i].surface = TTF_RenderText_Solid(buttons[i].text.font, buttons[i].text.string, textColor);
+       buttons[i].texture = SDL_CreateTextureFromSurface(renderer, buttons[i].surface);
+       SDL_FreeSurface(buttons[i].surface);
+    }
 }
 

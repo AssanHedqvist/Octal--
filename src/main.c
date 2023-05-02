@@ -222,8 +222,15 @@ int main(int argv, char **args)
     players[1].health = 0;
     players[2].health = 0;
     players[3].health = 0;
-
+    
+    //might remove
     playerHealthText->font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
+
+    SDL_Texture* backgroundTexture = IMG_LoadTexture(renderer, "resources/menu/menu.png");
+    SDL_Rect backgroundRect = {0, 0, 800, 600};
+
+    MenuButton buttons[3];
+    createButtons(renderer, buttons);
 
     struct timespec t1, t2;
     int currentGameState = MENU;
@@ -233,10 +240,8 @@ int main(int argv, char **args)
         {
             case MENU:
             {
-                Text menuText;
-                SDL_Rect buttonRects[3];
-                renderMenu(renderer, menuText, buttonRects);
-
+                
+                renderMenu(renderer, backgroundTexture, backgroundRect, buttons);
                 while(SDL_PollEvent(&event))
                 {   
                     switch(event.type)
@@ -252,10 +257,10 @@ int main(int argv, char **args)
                                 
                                 for (int i = 0; i < 3; i++) 
                                 {
-                                    if(mouseX >= buttonRects[i].x &&
-                                    mouseX < buttonRects[i].x + buttonRects[i].w &&
-                                    mouseY >= buttonRects[i].y &&
-                                    mouseY < buttonRects[i].y + buttonRects[i].h) 
+                                    if(mouseX >= buttons[i].rect.x &&
+                                    mouseX < buttons[i].rect.x + buttons[i].rect.w &&
+                                    mouseY >= buttons[i].rect.y &&
+                                    mouseY < buttons[i].rect.y + buttons[i].rect.h) 
                                     {
                                         switch (i)
                                         {
@@ -408,7 +413,12 @@ int main(int argv, char **args)
     {
         SDL_DestroyTexture(renderObjects[i].texture);
     }
+    for (int i = 0; i < 3; i++)
+    {
+        SDL_DestroyTexture(buttons[i].texture);
+    }
 
+    SDL_DestroyTexture(backgroundTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

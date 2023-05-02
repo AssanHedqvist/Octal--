@@ -6,7 +6,16 @@
 #include <SDL2/SDL_ttf.h>
 #include "../include/text.h"
 
+typedef struct buttons
+{
+    SDL_Texture* texture;
+    SDL_Surface* surface;
+    SDL_Rect rect;
+    Text text;
 
-void renderMenu(SDL_Renderer* renderer, Text menuText, SDL_Rect* buttons);
+}MenuButton;
+
+void renderMenu(SDL_Renderer* renderer, SDL_Texture* backgroundTexture, SDL_Rect backgroundRect, MenuButton* buttons);
+void createButtons(SDL_Renderer* renderer, MenuButton* buttons);
 
 #endif
