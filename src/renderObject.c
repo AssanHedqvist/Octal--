@@ -12,8 +12,6 @@ void renderObject(SDL_Renderer *renderer, RenderObject* objectToRender)
 
 void render(SDL_Renderer *renderer, RenderObject objects[], int length) 
 {
-    SDL_RenderClear(renderer);
-
     int currentOrder = 0;
     int doneRendering = 0;
     

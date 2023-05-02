@@ -2,9 +2,10 @@
 #include "../include/keyboard.h"
 #include "../include/player.h"
 
-void lightPunch(Player players[], int amountOfPlayers)
+//  server shall handle this function later when that is done change keyboardStates to a array instead of pointer 
+void lightPunch(Player players[], int amountOfPlayers, KeyboardStates*  keyboardInputs)
 {
-    if (isKeyDown(&players->keyInputs, SDL_SCANCODE_J))
+    if (isKeyDown(keyboardInputs, SDL_SCANCODE_J))
     {
         for (int i = 1; i < 4; i++)
         {

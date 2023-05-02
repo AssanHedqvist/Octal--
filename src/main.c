@@ -17,6 +17,7 @@
 #include "../include/attacks.h"
 #include "../include/sounds.h"
 #include "../include/menu.h"
+#include "../include/mouse.h"
 
 //  bad function name --Damien
 void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int lengthOfPhysics)
@@ -31,6 +32,11 @@ void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int
 
 #define SUB_STEPS 4
 #define DT (1.0f / (60.0f * (float)SUB_STEPS))
+#define BUTTON_X 140
+#define BUTTON_Y 210
+#define BUTTON_WIDTH 120
+#define BUTTON_HEIGHT 40
+#define BUTTON_GAP 60
 
 enum GameStates
 {
@@ -43,41 +49,8 @@ void ingameMenu(SDL_Renderer *renderer, SDL_Event *event, int *currentGameState,
 {
     Text menuText;
     SDL_Rect buttonRects[2];
-    renderIngameMenu(renderer, menuText, buttonRects);
 
-    while(SDL_PollEvent(event))
-    {   
-        switch(event->type)
-        {
-            case SDL_MOUSEBUTTONDOWN:
-                if (event->button.button == SDL_BUTTON_LEFT) 
-                {
-                    int mouseX = event->button.x;
-                    int mouseY = event->button.y;
-                                
-                    for(int i = 0; i < 2; i++)
-                    {
-                        if(mouseX >= buttonRects[i].x &&
-                        mouseX < buttonRects[i].x + buttonRects[i].w &&
-                        mouseY >= buttonRects[i].y &&
-                        mouseY < buttonRects[i].y + buttonRects[i].h) 
-                        switch (i)
-                        {
-                            case 0:
-                                *inGameMenuOpen = 0;
-                                break;
-                            case 1:
-                                *inGameMenuOpen = 0;
-                                *currentGameState = MENU;
-                            default:
-                                break;
-                        }
-                    }
-                }
-                break;
-        }
-    }
-    SDL_RenderPresent(renderer);
+    renderIngameMenu(renderer, menuText, buttonRects);
 }
 
 int main(int argv, char **args)
@@ -86,7 +59,7 @@ int main(int argv, char **args)
     IPaddress srvadd;
     UDPpacket *toServer;
     UDPpacket *fromServer;
-    Player players[4] = {0, 0, {0}, 0, 0, 0};
+    Player players[4] = {0, 0, 0, 0, 0};
     Text playerHealthText[4];
 
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -273,105 +246,138 @@ int main(int argv, char **args)
     MenuButton buttons[3];
     createButtons(renderer, buttons);
 
+    SDL_Rect buttonRects[2] = {
+        {BUTTON_X, BUTTON_Y - 100, BUTTON_WIDTH + 400, BUTTON_HEIGHT + 200},
+        {BUTTON_X, BUTTON_Y + 100, BUTTON_WIDTH + 400, BUTTON_HEIGHT + 200}
+    };
+
+    KeyboardStates keyboardInputs = {{0}};
+    MouseState mouseInputs = {0,0,0};
+
     struct timespec t1, t2;
     int currentGameState = MENU;
     int inGameMenuOpen = 0;
     while (currentGameState != CLOSED)
     {
+        clock_gettime(CLOCK_MONOTONIC, &t1);
+        while (SDL_PollEvent(&event))
+        {
+            switch (event.type)
+            {
+                case SDL_QUIT:
+                    //handleKeyboardInputs(&keyboardInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
+                    if(currentGameState == MENU) 
+                    {
+                        currentGameState = CLOSED;
+                    }
+                   
+                    break;
+                case SDL_KEYDOWN:             
+                case SDL_KEYUP:
+                    handleKeyboardInputs(&keyboardInputs, event.key.keysym.scancode, event.type);
+                    break;
+                case SDL_MOUSEMOTION: 
+                    updateMousePos(&mouseInputs);
+                    break;
+                case SDL_MOUSEBUTTONDOWN: 
+                case SDL_MOUSEBUTTONUP: 
+                    handleMouseInputs(&mouseInputs, event.button.button, event.type);
+                    break;
+                    
+            }
+        } 
         switch (currentGameState)
         {
             case MENU:
             {
-                
-                renderMenu(renderer, backgroundTexture, backgroundRect, buttons);
-                while(SDL_PollEvent(&event))
-                {   
-                    switch(event.type)
-                    {
-                        case SDL_QUIT:
-                            currentGameState = CLOSED;
-                            break;
-                        case SDL_MOUSEBUTTONDOWN:
-                            if (event.button.button == SDL_BUTTON_LEFT) 
-                            {
-                                int mouseX = event.button.x;
-                                int mouseY = event.button.y;
+                if(isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT)) {
                                 
-                                for (int i = 0; i < 3; i++) 
-                                {
-                                    if(mouseX >= buttons[i].rect.x &&
-                                    mouseX < buttons[i].rect.x + buttons[i].rect.w &&
-                                    mouseY >= buttons[i].rect.y &&
-                                    mouseY < buttons[i].rect.y + buttons[i].rect.h) 
-                                    {
-                                        switch (i)
-                                        {
-                                            case 0:
-                                                currentGameState = RUNNING;
-                                                Mix_PlayMusic(backgroundMusic,-1); // music plays when game starts
-                                                break;
-                                            case 1:
-                                                break;
-                                            case 2:
-                                                currentGameState = CLOSED;
-                                                break;
-                                            default:
-                                                break;
-                                        }
-                                    }
-                                }
+                    for (int i = 0; i < 3; i++) 
+                    {
+                        if(mouseInputs.x >= buttons[i].rect.x &&
+                        mouseInputs.x < buttons[i].rect.x + buttons[i].rect.w &&
+                        mouseInputs.y >= buttons[i].rect.y &&
+                        mouseInputs.y < buttons[i].rect.y + buttons[i].rect.h) 
+                        {
+                            switch (i)
+                            {
+                                case 0:
+                                    currentGameState = RUNNING;
+                                    //Mix_PlayMusic(backgroundMusic,-1); // music plays when game starts
+                                    break;
+                                case 1:
+                                    break;
+                                case 2:
+                                    currentGameState = CLOSED;
+                                    break;
+                                default:
+                                    break;
                             }
-                            break;
-                        default:
-                            break;
+                        }
                     }
                 }
+
+                SDL_RenderClear(renderer);
+                renderMenu(renderer, backgroundTexture, backgroundRect, buttons);
                 SDL_RenderPresent(renderer);
                 break;
             }
             case RUNNING:
-            {
-                clock_gettime(CLOCK_MONOTONIC, &t1);
-                while (SDL_PollEvent(&event))
-                {
-                    switch (event.type)
-                    {
-                        case SDL_QUIT:
-                            handleKeyboardInputs(&players[0].keyInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
-                            currentGameState = CLOSED;
-                            break;
-                        case SDL_KEYDOWN:
-                            if (event.key.keysym.sym == SDLK_p)
-                            {
-                                togglePlay();                           //press p to toggle music
-                            }
-                            if (event.key.keysym.sym == SDLK_ESCAPE)
-                            {
-                                inGameMenuOpen = !inGameMenuOpen;
-                                // currentGameState = MENU;                // pressing esc takes you back to menu.
-                            }
-                            
-                        case SDL_KEYUP:
-                            handleKeyboardInputs(&players[0].keyInputs, event.key.keysym.scancode, event.type);
-                            break;
-                    }
-                }   
-
-                memmove(toServer->data, (void *)&players[0].keyInputs.keyState, 32);
+            {  
+                
+                memmove(toServer->data, (void *)&keyboardInputs.keyState, 32);
                 toServer->len = 32;
 
                 SDLNet_UDP_Send(sd, -1, toServer);
 
-                if (isKeyDown(&players[0].keyInputs, SDL_SCANCODE_E))
+                if (isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT) && inGameMenuOpen) 
+                {
+                                
+                    for(int i = 0; i < 2; i++)
+                    {
+                        if(mouseInputs.x >= buttonRects[i].x &&
+                        mouseInputs.x < buttonRects[i].x + buttonRects[i].w &&
+                        mouseInputs.y >= buttonRects[i].y &&
+                        mouseInputs.y < buttonRects[i].y + buttonRects[i].h) 
+                        switch (i)
+                        {
+                            case 0:
+                                inGameMenuOpen = 0;
+                                break;
+                            case 1:
+                                inGameMenuOpen = 0;
+                                currentGameState = MENU;
+                            default:
+                                break;
+                        }
+                    }
+                }
+
+                if (isKeyDown(&keyboardInputs, SDL_SCANCODE_P))
+                {
+                    //togglePlay();                           //press p to toggle music
+                }
+
+                if (isKeyDown(&keyboardInputs, SDL_SCANCODE_ESCAPE)) 
+                {
+                    inGameMenuOpen = !inGameMenuOpen;
+                    //currentGameState = CLOSED;
+                }
+
+                if (isKeyDown(&keyboardInputs, SDL_SCANCODE_E))
                 {
                     players[0].health += 10;
                 }
 
                 handlePlayerAnimation(players);
-                if (!inGameMenuOpen)
-                    handlePlayerInputs(&players[0], DT);
+
+                if (!inGameMenuOpen) 
+                {
+                    handlePlayerInputs(&players[0], DT, &keyboardInputs);
+                }
+
                 handlePlayerLives(&players[0]); //  did (&players) work for anybody? -- Damien
-                lightPunch(players, 4);         //  did (&players) work for anybody? -- Damien
+                lightPunch(players, 4, &keyboardInputs);         //  did (&players) work for anybody? -- Damien
 
                 for (int i = 0; i < amountOfPhysicalObjects; i++)
                 {
@@ -380,71 +386,36 @@ int main(int argv, char **args)
 
                 for (int i = 0; i < SUB_STEPS; i++)
                 {
-                    for (int i = 0; i < 4; i++)
-                    {
-                        // collision detection with windows boundries
-                        if (players[i].physics->pos.x <= 0.f)
-                        {
-                            // if you collide reset the position so u dont go out of the screen
-                            players[i].physics->pos.x = 0.f;
-                        }
-                        if (players[i].physics->pos.y <= 0.f)
-                        {
-                            players[i].physics->pos.y = 0.f;
-                        }
-                        // subtract the width of the sprite.
-                        if (players[i].physics->pos.x + players[i].physics->extents.x >= 800.0f)
-                        {
-                            players[i].physics->pos.x = 800.0f - players[i].physics->extents.x;
-                        }
-                        // subtract the height of the sprite.
-                        if (players[i].physics->pos.y + players[i].physics->extents.y >= 600.0f)
-                        {
-                            players[i].physics->pos.y = 600.0f - players[i].physics->extents.y;
-                        }
-                    }
-
+                    boundarySolve(players);
                     constraintSolve(physicsObjects, amountOfPhysicalObjects);
                     updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
                 }
 
-            // //   Receive data
-            // if (SDLNet_UDP_Recv(sd, fromServer))
-            // {
-            //     // float a, b;
-            //     int b;
-            //     vec2 a;
-            //     sscanf((char *)fromServer->data, "%f %f %d\n", &a.x, &a.y, &b);
-            //     // printf("RECIEVED %f  %f\n", a, b);
-            //     // players[0].physics->pos.x = a;
-            //     // players[0].physics->pos.y = b;
-            //     players[otherPlayer].physics->pos = a;
-            //     players[otherPlayer].render->flip = b;
-            // }
-
                 updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
 
+                SDL_RenderClear(renderer);
                 render(renderer, renderObjects, amountOfRenderObjects);
                 renderPlayerHealth(players, 4, renderer, playerHealthText->font, 100, 550);
-                if (!inGameMenuOpen)
-                    SDL_RenderPresent(renderer);
-                else
-                    ingameMenu(renderer, &event, &currentGameState, &inGameMenuOpen);
-
-                frameCounter++;
-
-                //  16638935 = (1/60.1) * 1000000000
-                t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
-                t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
-
-                do
+                if (inGameMenuOpen) 
                 {
-                    clock_gettime(CLOCK_MONOTONIC, &t2);
-                    //  while we have not passed 16ms in one frame wait till that has happened
-                } while (((t2.tv_sec < t1.tv_sec) || ((t2.tv_sec == t1.tv_sec) && (t2.tv_nsec < t1.tv_nsec))));
+                    ingameMenu(renderer, &event, &currentGameState, &inGameMenuOpen);
+                }
+
+                SDL_RenderPresent(renderer);
                 break;
             }
         }
+        frameCounter++;
+
+        //  16638935 = (1/60.1) * 1000000000
+        t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
+        t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
+
+        do
+        {
+            clock_gettime(CLOCK_MONOTONIC, &t2);
+            //  while we have not passed 16ms in one frame wait till that has happened
+        } while (((t2.tv_sec < t1.tv_sec) || ((t2.tv_sec == t1.tv_sec) && (t2.tv_nsec < t1.tv_nsec))));
     }
 
     TTF_Quit();
@@ -460,6 +431,7 @@ int main(int argv, char **args)
     {
         SDL_DestroyTexture(renderObjects[i].texture);
     }
+
     for (int i = 0; i < 3; i++)
     {
         SDL_DestroyTexture(buttons[i].texture);
