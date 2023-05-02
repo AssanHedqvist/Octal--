@@ -14,6 +14,7 @@ typedef struct
     int lives;
     float timeSinceLastJump;
     int health;
+    float timeSinceLastPunch;
     //  add more
 } Player;
 
