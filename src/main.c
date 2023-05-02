@@ -4,7 +4,6 @@
 #include <time.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_net.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
@@ -83,7 +82,7 @@ int main(int argv, char **args)
     }
 
     //   Resolve server name
-    if (SDLNet_ResolveHost(&srvadd, "127.0.0.1", 15661) == -1)
+    if (SDLNet_ResolveHost(&srvadd, "127.0.0.1", 31929) == -1)
     {
         // fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -98,30 +97,31 @@ int main(int argv, char **args)
 
     // printf("%u.%u.%u.%u\n", address->host & 0xFF, (( address->host >> 8) & 0xFF),  (( address->host >> 16) & 0xFF), ((address->host >> 24) & 0xFF));
 
-    //  server connecting code
-
-    toServer->address.host = srvadd.host;
-    toServer->address.port = srvadd.port;
-
-    int tmp = 1;
-
-    memmove(toServer->data, (void *)&tmp, 4);
-    toServer->len = 4;
-    SDLNet_UDP_Send(sd, -1, toServer);
-
     int thisComputersPlayerIndex = 0;
 
-    while (thisComputersPlayerIndex == -1)
-    {
-        if (SDLNet_UDP_Recv(sd, fromServer) == 1)
-        {
-            memmove((void *)&thisComputersPlayerIndex, fromServer->data, 4);
-        }
-    }
-
-    printf("Client: %d\n", thisComputersPlayerIndex);
 
     //  server connecting code
+                                    
+                                    toServer->address.host = srvadd.host;
+                                    toServer->address.port = srvadd.port;
+
+                                    int tmp = 1;
+
+                                    memmove(toServer->data, (void *)&tmp, 4);
+                                    toServer->len = 4;
+                                    SDLNet_UDP_Send(sd, -1, toServer);
+
+                                    while (thisComputersPlayerIndex == -1)
+                                    {
+                                        if (SDLNet_UDP_Recv(sd, fromServer) == 1)
+                                        {
+                                            memmove((void *)&thisComputersPlayerIndex, fromServer->data, 4);
+                                        }
+                                    }
+
+                                    printf("Client: %d\n", thisComputersPlayerIndex);
+
+                                    //  server connecting code
 
     SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_ALWAYS_ON_TOP);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
@@ -253,6 +253,7 @@ int main(int argv, char **args)
 
     KeyboardStates keyboardInputs = {{0}};
     MouseState mouseInputs = {0,0,0};
+    unsigned char disconnecting = 0;
 
     struct timespec t1, t2;
     int currentGameState = MENU;
@@ -269,8 +270,9 @@ int main(int argv, char **args)
                     if(currentGameState == MENU) 
                     {
                         currentGameState = CLOSED;
+                        disconnecting = 1;
                     }
-                   
+                    
                     break;
                 case SDL_KEYDOWN:             
                 case SDL_KEYUP:
@@ -290,14 +292,14 @@ int main(int argv, char **args)
         {
             case MENU:
             {
-                if(isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT)) {
-                                
+                if(isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT)) 
+                {           
                     for (int i = 0; i < 3; i++) 
                     {
-                        if(mouseInputs.x >= buttons[i].rect.x &&
-                        mouseInputs.x < buttons[i].rect.x + buttons[i].rect.w &&
-                        mouseInputs.y >= buttons[i].rect.y &&
-                        mouseInputs.y < buttons[i].rect.y + buttons[i].rect.h) 
+                        if( mouseInputs.x >= buttons[i].rect.x &&
+                            mouseInputs.x <= buttons[i].rect.x + buttons[i].rect.w &&
+                            mouseInputs.y >= buttons[i].rect.y &&
+                            mouseInputs.y <= buttons[i].rect.y + buttons[i].rect.h) 
                         {
                             switch (i)
                             {
@@ -306,9 +308,11 @@ int main(int argv, char **args)
                                     //Mix_PlayMusic(backgroundMusic,-1); // music plays when game starts
                                     break;
                                 case 1:
+                                    
                                     break;
                                 case 2:
                                     currentGameState = CLOSED;
+                                    disconnecting = 1;
                                     break;
                                 default:
                                     break;
@@ -326,7 +330,8 @@ int main(int argv, char **args)
             {  
                 
                 memmove(toServer->data, (void *)&keyboardInputs.keyState, 32);
-                toServer->len = 32;
+                memmove(toServer->data+32, (void *)&disconnecting, 1);
+                toServer->len = 33;
 
                 SDLNet_UDP_Send(sd, -1, toServer);
 
@@ -335,20 +340,22 @@ int main(int argv, char **args)
                                 
                     for(int i = 0; i < 2; i++)
                     {
-                        if(mouseInputs.x >= buttonRects[i].x &&
-                        mouseInputs.x < buttonRects[i].x + buttonRects[i].w &&
-                        mouseInputs.y >= buttonRects[i].y &&
-                        mouseInputs.y < buttonRects[i].y + buttonRects[i].h) 
-                        switch (i)
+                        if( mouseInputs.x >= buttonRects[i].x &&
+                            mouseInputs.x <= buttonRects[i].x + buttonRects[i].w &&
+                            mouseInputs.y >= buttonRects[i].y &&
+                            mouseInputs.y <= buttonRects[i].y + buttonRects[i].h) 
                         {
-                            case 0:
-                                inGameMenuOpen = 0;
-                                break;
-                            case 1:
-                                inGameMenuOpen = 0;
-                                currentGameState = MENU;
-                            default:
-                                break;
+                            switch (i)
+                            {
+                                case 0:
+                                    inGameMenuOpen = 0;
+                                    break;
+                                case 1:
+                                    inGameMenuOpen = 0;
+                                    currentGameState = MENU;
+                                default:
+                                    break;
+                            }
                         }
                     }
                 }
@@ -373,7 +380,7 @@ int main(int argv, char **args)
 
                 if (!inGameMenuOpen) 
                 {
-                    handlePlayerInputs(&players[0], DT, &keyboardInputs);
+                    handlePlayerInputs(&players[thisComputersPlayerIndex], DT, &keyboardInputs);
                 }
 
                 handlePlayerLives(&players[0]); //  did (&players) work for anybody? -- Damien
@@ -389,6 +396,15 @@ int main(int argv, char **args)
                     boundarySolve(players);
                     constraintSolve(physicsObjects, amountOfPhysicalObjects);
                     updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
+                }
+
+                if (SDLNet_UDP_Recv(sd, fromServer) == 1)
+                {
+                    memmove((void*)&physicsObjects, fromServer->data, 180);
+                    for (int i = 0; i < amountOfPhysicalObjects; i++)
+                    {
+			        	printf("%d %f %f\n", i, physicsObjects[i].pos.x, physicsObjects[i].pos.y);
+                    }
                 }
 
                 updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
@@ -417,6 +433,12 @@ int main(int argv, char **args)
             //  while we have not passed 16ms in one frame wait till that has happened
         } while (((t2.tv_sec < t1.tv_sec) || ((t2.tv_sec == t1.tv_sec) && (t2.tv_nsec < t1.tv_nsec))));
     }
+
+    memmove(toServer->data, (void *)&keyboardInputs.keyState, 32);
+    memmove(toServer->data+32, (void *)&disconnecting, 1);
+    toServer->len = 33;
+
+    SDLNet_UDP_Send(sd, -1, toServer);
 
     TTF_Quit();
     
