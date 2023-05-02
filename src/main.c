@@ -14,7 +14,6 @@
 #include "../include/keyboard.h"
 #include "../include/player.h"
 #include "../include/text.h"
-#include "../include/spriteHandler.h"
 #include "../include/attacks.h"
 #include "../include/sounds.h"
 #include "../include/menu.h"

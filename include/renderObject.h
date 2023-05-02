@@ -13,6 +13,8 @@ typedef struct
     SDL_RendererFlip flip;
 } RenderObject;
 
+int spriteHandler(RenderObject object, int spriteToGet);
+
 void renderObject(SDL_Renderer *renderer, RenderObject* objectToRender);
 
 void render(SDL_Renderer *renderer, RenderObject objects[], int length);

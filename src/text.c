@@ -6,7 +6,7 @@ void renderPlayerHealth(Player players[], int amountOfPlayers, SDL_Renderer* ren
     for(int i = 0; i < amountOfPlayers; i++)
     {
         snprintf(stringBuffer, sizeof(stringBuffer), "P%d% d%%", i+1, players[i].health);
-       
+        
         SDL_Color color = {255, 255-players[i].health, 255- 2*players[i].health};
         SDL_Surface* surface = TTF_RenderText_Solid(font, stringBuffer, color);
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);

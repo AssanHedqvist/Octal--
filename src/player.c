@@ -1,5 +1,4 @@
 #include "../include/player.h"
-#include "../include/spriteHandler.h"
 
 #define totSprites 3
 #define JUMP_COOLDOWN 0.1f
