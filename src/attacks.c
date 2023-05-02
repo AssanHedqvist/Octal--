@@ -2,9 +2,11 @@
 #include "../include/keyboard.h"
 #include "../include/player.h"
 
+#define PUNCH_COOLDOWN 0.1f
+
 void lightPunch(Player players[], int amountOfPlayers)
 {
-    if (isKeyDown(&players->keyInputs, SDL_SCANCODE_J))
+    if (isKeyDown(&players->keyInputs, SDL_SCANCODE_J) && players[0].timeSinceLastPunch >= PUNCH_COOLDOWN)
     {
         for (int i = 1; i < 4; i++)
         {
@@ -38,7 +40,9 @@ void lightPunch(Player players[], int amountOfPlayers)
             }
         }
         players->render->imageExtents.x = 96;
+        players[0].timeSinceLastPunch = 0.0f;
     }
+    players[0].timeSinceLastPunch += 1.0f / (60.0f * 4); // DT = (1.0f / (60.0f * (float)SUB_STEPS)), SUB_Steps = 4
 }
 
 
