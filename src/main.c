@@ -39,6 +39,47 @@ enum GameStates
     CLOSED
 };
 
+void ingameMenu(SDL_Renderer *renderer, SDL_Event *event, int *currentGameState, int *inGameMenuOpen)
+{
+    Text menuText;
+    SDL_Rect buttonRects[2];
+    renderIngameMenu(renderer, menuText, buttonRects);
+
+    while(SDL_PollEvent(event))
+    {   
+        switch(event->type)
+        {
+            case SDL_MOUSEBUTTONDOWN:
+                if (event->button.button == SDL_BUTTON_LEFT) 
+                {
+                    int mouseX = event->button.x;
+                    int mouseY = event->button.y;
+                                
+                    for(int i = 0; i < 2; i++)
+                    {
+                        if(mouseX >= buttonRects[i].x &&
+                        mouseX < buttonRects[i].x + buttonRects[i].w &&
+                        mouseY >= buttonRects[i].y &&
+                        mouseY < buttonRects[i].y + buttonRects[i].h) 
+                        switch (i)
+                        {
+                            case 0:
+                                *inGameMenuOpen = 0;
+                                break;
+                            case 1:
+                                *inGameMenuOpen = 0;
+                                *currentGameState = MENU;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                break;
+        }
+    }
+    SDL_RenderPresent(renderer);
+}
+
 int main(int argv, char **args)
 {
     UDPsocket sd;
@@ -234,6 +275,7 @@ int main(int argv, char **args)
 
     struct timespec t1, t2;
     int currentGameState = MENU;
+    int inGameMenuOpen = 0;
     while (currentGameState != CLOSED)
     {
         switch (currentGameState)
@@ -305,7 +347,8 @@ int main(int argv, char **args)
                             }
                             if (event.key.keysym.sym == SDLK_ESCAPE)
                             {
-                                currentGameState = MENU;                // pressing esc takes you back to menu.
+                                inGameMenuOpen = !inGameMenuOpen;
+                                // currentGameState = MENU;                // pressing esc takes you back to menu.
                             }
                             
                         case SDL_KEYUP:
@@ -325,7 +368,8 @@ int main(int argv, char **args)
                 }
 
                 handlePlayerAnimation(players);
-                handlePlayerInputs(&players[0], DT);
+                if (!inGameMenuOpen)
+                    handlePlayerInputs(&players[0], DT);
                 handlePlayerLives(&players[0]); //  did (&players) work for anybody? -- Damien
                 lightPunch(players, 4);         //  did (&players) work for anybody? -- Damien
 
@@ -382,7 +426,10 @@ int main(int argv, char **args)
 
                 render(renderer, renderObjects, amountOfRenderObjects);
                 renderPlayerHealth(players, 4, renderer, playerHealthText->font, 100, 550);
-                SDL_RenderPresent(renderer);
+                if (!inGameMenuOpen)
+                    SDL_RenderPresent(renderer);
+                else
+                    ingameMenu(renderer, &event, &currentGameState, &inGameMenuOpen);
 
                 frameCounter++;
 

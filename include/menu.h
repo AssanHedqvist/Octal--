@@ -17,5 +17,6 @@ typedef struct buttons
 
 void renderMenu(SDL_Renderer* renderer, SDL_Texture* backgroundTexture, SDL_Rect backgroundRect, MenuButton* buttons);
 void createButtons(SDL_Renderer* renderer, MenuButton* buttons);
+void renderIngameMenu(SDL_Renderer* renderer, Text menuText, SDL_Rect* buttons);
 
 #endif

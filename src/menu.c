@@ -41,3 +41,33 @@ void createButtons(SDL_Renderer* renderer, MenuButton* buttons)
     }
 }
 
+void renderIngameMenu(SDL_Renderer* renderer, Text menuText, SDL_Rect* buttons)
+{
+    buttons[0] = (SDL_Rect){BUTTON_X, BUTTON_Y - 100, BUTTON_WIDTH + 400, BUTTON_HEIGHT + 200};
+    buttons[1] = (SDL_Rect){BUTTON_X, BUTTON_Y + 100, BUTTON_WIDTH + 400, BUTTON_HEIGHT + 200};
+
+    SDL_Color textColor = {255, 255, 255, 255};
+
+    menuText.font = TTF_OpenFont("./resources/fonts/moiser.ttf", 100);
+
+    //render background
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 60);
+    SDL_Rect rect = {0, 0, 800, 600};
+    SDL_RenderFillRect(renderer, &rect);
+
+    SDL_Surface* button0 = TTF_RenderText_Solid(menuText.font, "Return To Game", textColor);
+    SDL_Texture* textTexture0 = SDL_CreateTextureFromSurface(renderer, button0);
+
+    SDL_Surface* button1 = TTF_RenderText_Solid(menuText.font, "Main Menu", textColor);
+    SDL_Texture* textTexture1 = SDL_CreateTextureFromSurface(renderer, button1);
+
+    SDL_RenderCopyEx(renderer, textTexture0, NULL, &buttons[0], 0.0, NULL, 0);
+    SDL_RenderCopyEx(renderer, textTexture1, NULL, &buttons[1], 0.0, NULL, 0);
+
+    SDL_FreeSurface(button0);
+    SDL_DestroyTexture(textTexture0);
+    SDL_FreeSurface(button1);
+    SDL_DestroyTexture(textTexture1);
+    TTF_CloseFont(menuText.font);
+}
