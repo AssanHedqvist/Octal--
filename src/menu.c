@@ -22,19 +22,20 @@ void createButtons(SDL_Renderer* renderer, MenuButton* buttons)
 {   
     buttons[0].text.string = "Play";
     buttons[0].text.font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
+    buttons[0].text.color = (SDL_Color){255, 255, 255, 155};
 
     buttons[1].text.string = "Connect";
     buttons[1].text.font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
+    buttons[1].text.color = (SDL_Color){255, 255, 255, 155};
 
     buttons[2].text.string = "Quit";
     buttons[2].text.font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
-    
-    SDL_Color textColor = {255, 255, 255, 155};     
+    buttons[2].text.color = (SDL_Color){255, 255, 255, 155};
 
     for(int i = 0; i < 3; i++)
     {
        buttons[i].rect = (SDL_Rect){BUTTON_X, BUTTON_Y + i * BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT};
-       buttons[i].surface = TTF_RenderText_Solid(buttons[i].text.font, buttons[i].text.string, textColor);
+       buttons[i].surface = TTF_RenderText_Solid(buttons[i].text.font, buttons[i].text.string, buttons[i].text.color);
        buttons[i].texture = SDL_CreateTextureFromSurface(renderer, buttons[i].surface);
        SDL_FreeSurface(buttons[i].surface);
     }

@@ -8,7 +8,8 @@
 typedef struct text
 {
     TTF_Font *font;
-    //char* string;
+    char* string;
+    SDL_Color color;
 }Text;
 
 void renderPlayerHealth(Player players[], int amountOfPlayers, SDL_Renderer* renderer, TTF_Font* font, int x, int y);
