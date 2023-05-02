@@ -46,6 +46,8 @@ void handlePlayerLives(Player *player)
     if (player->physics->pos.y < 0)
     {
         player->lives -= 1;
+        player->physics->oldPos = vec2(400,450);
+        player->physics->pos = vec2(400,450);
     }
 }
 
