@@ -16,7 +16,7 @@ typedef struct
     int recentlyHit;
     float timeSinceLastJump;
     float timeSinceLastPunch;
-    float timeSinceHit
+    float timeSinceHit;
     //  add more
 } Player;
 
