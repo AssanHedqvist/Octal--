@@ -118,7 +118,7 @@ int main(int argv, char **args)
 
     SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_ALWAYS_ON_TOP);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
-    TTF_Font* font = TTF_OpenFont("./resources/fonts/arial.ttf", 100);
+    TTF_Font* font = TTF_OpenFont("./resources/fonts/moiser.ttf", 100);
 
     int isRunning = 1;
     SDL_Event event;
