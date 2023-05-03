@@ -242,7 +242,7 @@ int main(int argv, char **args)
     MouseState mouseInputs = {0,0,0};
     unsigned char disconnecting = 0;
 
-    struct timespec t1, t2;
+    struct timespec t1, t2, timeCheck;
     int currentGameState = MENU;
     int inGameMenuOpen = 0;
     while (currentGameState != CLOSED)
@@ -278,7 +278,6 @@ int main(int argv, char **args)
         switch (currentGameState)
         {
             case MENU:
-            {
                 if(isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT)) 
                 {           
                     for (int i = 0; i < 3; i++) 
@@ -312,15 +311,16 @@ int main(int argv, char **args)
                 renderMenu(renderer, backgroundTexture, backgroundRect, buttons);
                 SDL_RenderPresent(renderer);
                 break;
-            }
+            break;
             case RUNNING:
-            {  
-                
                 memmove(toServer->data, (void *)&keyboardInputs.keyState, 32);
                 memmove(toServer->data+32, (void *)&disconnecting, 1);
                 toServer->len = 33;
 
                 SDLNet_UDP_Send(sd, -1, toServer);
+
+                clock_gettime(CLOCK_MONOTONIC, &timeCheck);
+                printf("Time Sent: %d,%09d\n", timeCheck.tv_sec, timeCheck.tv_nsec);
 
                 if (isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT) && inGameMenuOpen) 
                 {
@@ -384,10 +384,13 @@ int main(int argv, char **args)
                     constraintSolve(physicsObjects, amountOfPhysicalObjects);
                     updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
                 }
-
-                if (SDLNet_UDP_Recv(sd, fromServer) == 1)
+                
+                while (SDLNet_UDP_Recv(sd, fromServer) == 1)
                 {
+                    //clock_gettime(CLOCK_MONOTONIC, &timeCheck);
+                    //printf("Time received: %d,%09d\n", timeCheck.tv_sec, timeCheck.tv_nsec);
                     memmove((void*)&physicsObjects, fromServer->data, 180);
+                    
                 }
 
                 updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
@@ -401,8 +404,7 @@ int main(int argv, char **args)
                 }
 
                 SDL_RenderPresent(renderer);
-                break;
-            }
+            break;
         }
         frameCounter++;
 

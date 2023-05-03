@@ -35,9 +35,9 @@ void doWeNeedToSimulatePhysics(struct timespec* before, struct timespec* after, 
 	}
 }
 
-float getTime(struct timespec after, struct timespec before) {
-    return ((float)after.tv_sec + ((float)after.tv_nsec * 1e-9f)) -
-           ((float)before.tv_sec + ((float)before.tv_nsec * 1e-9f));
+double getTime(struct timespec after, struct timespec before) {
+    return ((double)after.tv_sec + ((double)after.tv_nsec * 1e-9)) -
+           ((double)before.tv_sec + ((double)before.tv_nsec * 1e-9));
 }
  
 int main(int argc, char **argv)
@@ -126,14 +126,14 @@ int main(int argc, char **argv)
 
 	KeyboardStates states[4] = {{0}};
 	
-	struct timespec t1, t2, timeLeft;
+	struct timespec t1, t2, timeLeft, timeCheck;
 
 	int executePhysicsAmountOfTimes = 0;
 	quit = 0;
 
 	clock_gettime(CLOCK_MONOTONIC, &t1);
 
-	float timer;
+	double timer;
 	
 	/* Main loop */
 	
@@ -143,6 +143,7 @@ int main(int argc, char **argv)
 
 		if(amountOfPlayers > 0) {
 			timer += getTime(t2, t1);
+			//printf("Timer: %lf\n", timer);
 		}
 		t1 = t2;
 
@@ -213,7 +214,7 @@ int main(int argc, char **argv)
 			}	
 		}	
 
-		if(timer >= 0.0166666666666666666666666666666f)
+		if(timer >= 0.0166666666666666666666666666666)
 		{
 			for (int i = 0; i < amountOfPhysicalObjects; i++)
             {
@@ -232,7 +233,7 @@ int main(int argc, char **argv)
 
 			for (int i = 0; i < 4; i++)
 			{
-				if(takenPlayerSlots[i]) 
+				if(takenPlayerSlots[i] == 1) 
 				{
 					
 					pSent->address.host = playersIP[i].host;
@@ -242,8 +243,9 @@ int main(int argc, char **argv)
 				}
 			}
 
-			printf("Test1\n");
-			timer -= 0.0166666666666666666666666666666f;
+			//clock_gettime(CLOCK_MONOTONIC, &timeCheck);
+			//printf("Time sent: %d,%09d\n", timeCheck.tv_sec, timeCheck.tv_nsec);
+			timer -= 0.0166666666666666666666666666666;
 		}
 		
 
@@ -255,3 +257,4 @@ int main(int argc, char **argv)
 	SDLNet_Quit();
 	return EXIT_SUCCESS;
 } 
+
