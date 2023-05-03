@@ -31,6 +31,7 @@ void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int
 
 #define SUB_STEPS 4
 #define DT (1.0f / (60.0f * (float)SUB_STEPS))
+
 #define BUTTON_X 140
 #define BUTTON_Y 210
 #define BUTTON_WIDTH 120
@@ -55,7 +56,7 @@ void ingameMenu(SDL_Renderer *renderer, SDL_Event *event, int *currentGameState,
 int main(int argv, char **args)
 {
     UDPsocket sd;
-    IPaddress srvadd;
+    IPaddress serverAddress;
     UDPpacket *toServer;
     UDPpacket *fromServer;
     Player players[4] = {{0, 0, 0, 0, 0, 0, 0}};
@@ -82,7 +83,7 @@ int main(int argv, char **args)
     }
 
     //   Resolve server name
-    if (SDLNet_ResolveHost(&srvadd, "127.0.0.1", 31929) == -1)
+    if (SDLNet_ResolveHost(&serverAddress, "127.0.0.1", 31929) == -1)
     {
         // fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -97,13 +98,12 @@ int main(int argv, char **args)
 
     // printf("%u.%u.%u.%u\n", address->host & 0xFF, (( address->host >> 8) & 0xFF),  (( address->host >> 16) & 0xFF), ((address->host >> 24) & 0xFF));
 
-    int thisComputersPlayerIndex = 0;
-
+    int thisComputersPlayerIndex = -1;
 
     //  server connecting code
                                     
-                                    toServer->address.host = srvadd.host;
-                                    toServer->address.port = srvadd.port;
+                                    toServer->address.host = serverAddress.host;
+                                    toServer->address.port = serverAddress.port;
 
                                     int tmp = 1;
 
@@ -123,16 +123,14 @@ int main(int argv, char **args)
 
                                     //  server connecting code
 
-    SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_ALWAYS_ON_TOP);
+    SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
-
-    int isRunning = 1;
+    
     SDL_Event event;
 
     //initialize SDL_mixer
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
     Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/tempMusicWhatIsLove.mp3");
-
     int amountOfRenderObjects = 6;
     RenderObject renderObjects[6];
 
@@ -148,7 +146,7 @@ int main(int argv, char **args)
     renderObjects[1].imageExtents = (SDL_Rect){0, 0, 1054, 289};
     renderObjects[1].screenExtents = (SDL_Rect){100, 300, 600, 150};
     renderObjects[1].flip = 0;
-
+    
     renderObjects[2].order = 2;
     renderObjects[2].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite.png");
     renderObjects[2].imageExtents = (SDL_Rect){0, 0, 32, 64};
@@ -193,34 +191,34 @@ int main(int argv, char **args)
     physicsObjects[0].pos = vec2(100, 150);
     physicsObjects[0].oldPos = physicsObjects[0].pos;
     physicsObjects[0].extents = vec2(600, 150);
-    physicsObjects[0].type = STATIC;
+    physicsObjects[0].flags = 0;
 
     //  (player 0)
     physicsObjects[1].acceleration = vec2(0.f, -982.0f);
     physicsObjects[1].pos = vec2(150, 536);
     physicsObjects[1].oldPos = physicsObjects[1].pos;
     physicsObjects[1].extents = vec2(32, 64);
-    physicsObjects[1].type = DYNAMIC;
+    physicsObjects[1].flags = (DYNAMIC | PLAYER);
     //  (player 1)
     physicsObjects[2].acceleration = vec2(0.f, -982.0f);
     physicsObjects[2].pos = vec2(316.6666666666666666666666666666f, 536);
     physicsObjects[2].oldPos = physicsObjects[2].pos;
     physicsObjects[2].extents = vec2(32, 64);
-    physicsObjects[2].type = DYNAMIC;
+    physicsObjects[2].flags = (DYNAMIC | PLAYER);
 
     //  (player 2)
     physicsObjects[3].acceleration = vec2(0.f, -982.0f);
     physicsObjects[3].pos = vec2(483.33333333333333333333333333334f, 536);
     physicsObjects[3].oldPos = physicsObjects[3].pos;
     physicsObjects[3].extents = vec2(32, 64);
-    physicsObjects[3].type = DYNAMIC;
+    physicsObjects[3].flags = (DYNAMIC | PLAYER);
 
     //  (player 3)
     physicsObjects[4].acceleration = vec2(0.f, -982.0f);
     physicsObjects[4].pos = vec2(650, 536);
     physicsObjects[4].oldPos = physicsObjects[4].pos;
     physicsObjects[4].extents = vec2(32, 64);
-    physicsObjects[4].type = DYNAMIC;
+    physicsObjects[4].flags = (DYNAMIC | PLAYER);
 
     players[0].physics = &physicsObjects[1];
     players[1].physics = &physicsObjects[2];
@@ -255,7 +253,7 @@ int main(int argv, char **args)
     MouseState mouseInputs = {0,0,0};
     unsigned char disconnecting = 0;
 
-    struct timespec t1, t2, timeCheck;
+    struct timespec t1, t2;
     int currentGameState = MENU;
     int inGameMenuOpen = 0;
     while (currentGameState != CLOSED)
@@ -267,11 +265,9 @@ int main(int argv, char **args)
             {
                 case SDL_QUIT:
                     //handleKeyboardInputs(&keyboardInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
-                    if(currentGameState == MENU) 
-                    {
-                        currentGameState = CLOSED;
-                        disconnecting = 1;
-                    }
+                    
+                    currentGameState = CLOSED;
+                    disconnecting = 1;
                     
                     break;
                 case SDL_KEYDOWN:             
@@ -332,9 +328,6 @@ int main(int argv, char **args)
 
                 SDLNet_UDP_Send(sd, -1, toServer);
 
-                clock_gettime(CLOCK_MONOTONIC, &timeCheck);
-                printf("Time Sent: %d,%09d\n", timeCheck.tv_sec, timeCheck.tv_nsec);
-
                 if (isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT) && inGameMenuOpen) 
                 {
                                 
@@ -388,16 +381,16 @@ int main(int argv, char **args)
 
                 for (int i = 0; i < amountOfPhysicalObjects; i++)
                 {
-                    physicsObjects[i].recentCollision = 0;
+                    physicsObjects[i].flags &= 0b00001111;
                 }
 
                 for (int i = 0; i < SUB_STEPS; i++)
                 {
-                    boundarySolve(players);
+                    boundarySolve(physicsObjects, amountOfPhysicalObjects);
                     constraintSolve(physicsObjects, amountOfPhysicalObjects);
                     updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
                 }
-                
+
                 while (SDLNet_UDP_Recv(sd, fromServer) == 1)
                 {
                     //clock_gettime(CLOCK_MONOTONIC, &timeCheck);

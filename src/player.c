@@ -17,7 +17,7 @@ void handlePlayerInputs(Player *player, const float dt, KeyboardStates* keyboard
         player->physics->oldPos = vsum(player->physics->oldPos, vsmul(vec2(-100.0f, 0.f), dt));
     }
 
-    if (player->physics->recentCollision == 1 && player->timeSinceLastJump >= JUMP_COOLDOWN)
+    if (flagSet(player->physics->flags,DOWN) && player->timeSinceLastJump >= JUMP_COOLDOWN)
     {
         player->amountOfJumpsLeft = 2;
     }
@@ -68,31 +68,5 @@ void handlePlayerAnimation(Player *player)
     {
         player->render->imageExtents.x = 0;
         
-    }
-}
-
-void boundarySolve(Player players[4]) {
-    for (int i = 0; i < 4; i++)
-    {
-        // collision detection with windows boundries
-        if (players[i].physics->pos.x <= 0.f)
-        {
-            // if you collide reset the position so u dont go out of the screen
-            players[i].physics->pos.x = 0.f;
-        }
-        if (players[i].physics->pos.y <= 0.f)
-        {
-            players[i].physics->pos.y = 0.f;
-        }
-        // subtract the width of the sprite.
-        if (players[i].physics->pos.x + players[i].physics->extents.x >= 800.0f)
-        {
-            players[i].physics->pos.x = 800.0f - players[i].physics->extents.x;
-        }
-        // subtract the height of the sprite.
-        if (players[i].physics->pos.y + players[i].physics->extents.y >= 600.0f)
-        {
-            players[i].physics->pos.y = 600.0f - players[i].physics->extents.y;
-        }
     }
 }

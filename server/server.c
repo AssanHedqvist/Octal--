@@ -16,28 +16,23 @@ exit
 #include "../include/player.h"
 #include "../include/renderObject.h"
 
-void doWeNeedToSimulatePhysics(struct timespec* before, struct timespec* after, struct timespec* remainingTime) {
-	struct timespec immediateTime;
+void getTimeDifference(struct timespec* before, struct timespec* after, struct timespec* remainingTime) {
+	struct timespec tmpTime;
 	if(after->tv_sec >= before->tv_sec) {
-		immediateTime.tv_sec = after->tv_sec - before->tv_sec;
-		if(immediateTime.tv_sec > 0) 
+		tmpTime.tv_sec = after->tv_sec - before->tv_sec;
+		if(tmpTime.tv_sec > 0) 
 		{
-			immediateTime.tv_nsec = (1000000000 + after->tv_nsec) - before->tv_nsec;
-			immediateTime.tv_sec = immediateTime.tv_sec > 1 ? immediateTime.tv_sec - 1 : immediateTime.tv_sec;
+			tmpTime.tv_nsec = (1000000000 + after->tv_nsec) - before->tv_nsec;
+			tmpTime.tv_sec = tmpTime.tv_sec > 1llu ? tmpTime.tv_sec - 1llu : tmpTime.tv_sec;
 		}
-		else if(immediateTime.tv_sec == 0) 
+		else if(tmpTime.tv_sec == 0) 
 		{
-			immediateTime.tv_nsec = after->tv_nsec - before->tv_nsec;
+			tmpTime.tv_nsec = after->tv_nsec - before->tv_nsec;
 		}
 
-		remainingTime->tv_sec += immediateTime.tv_sec + ((remainingTime->tv_nsec + immediateTime.tv_nsec) / 1000000000);
-        remainingTime->tv_nsec = ((remainingTime->tv_nsec + immediateTime.tv_nsec) % 1000000000);
+		remainingTime->tv_sec +=  ((remainingTime->tv_nsec - tmpTime.tv_sec *  1000000000 + tmpTime.tv_nsec) / 1000000000);
+        remainingTime->tv_nsec = ((remainingTime->tv_nsec + tmpTime.tv_nsec) % 1000000000);
 	}
-}
-
-double getTime(struct timespec after, struct timespec before) {
-    return ((double)after.tv_sec + ((double)after.tv_nsec * 1e-9)) -
-           ((double)before.tv_sec + ((double)before.tv_nsec * 1e-9));
 }
  
 int main(int argc, char **argv)
@@ -46,23 +41,50 @@ int main(int argc, char **argv)
 	UDPsocket sd;       /* Socket descriptor */
 	UDPpacket *pReceive;       /* Pointer to packet memory */
 	UDPpacket *pSent;
-
-    Uint32 IPclient1=0; 
-    Uint32 IPclient2=0;
-    Uint32 portClient1=0; 
-    Uint32 portClient2=0;
-	IPaddress playersIP[4] = {{0,0}};
-	char takenPlayerSlots[4] = {0};
-	int amountOfPlayers = 0;
-
-	Player playersObject[4] = {{0, 0, 0, 0, 0, 0, 0}};
 	
-    PhysicsObject physicsObjects[5] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0, 0}};
+	unsigned char takenPlayerSlots[4] = {0};
+	IPaddress playersIP[4] = {{0,0}};
+	Player playersObject[4] = {{0, 0, 0, 0, 0, 0, 0}};
+	KeyboardStates playerInputs[4] = {{{0}}};
+	int amountOfPlayers = 0;
+    int quit = 0;
+	
+    PhysicsObject physicsObjects[5] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0}};
 	int amountOfPhysicalObjects = 5;
+	
+	//  (platform)
+    physicsObjects[0].acceleration = vec2(0.f, 0.f);
+    physicsObjects[0].pos = vec2(100, 150);
+    physicsObjects[0].oldPos = physicsObjects[0].pos;
+    physicsObjects[0].extents = vec2(600, 150);
+    physicsObjects[0].flags = 0;
 
-    
+    //  (player 0)
+    physicsObjects[1].acceleration = vec2(0.f, -982.0f);
+    physicsObjects[1].pos = vec2(150, 536);
+    physicsObjects[1].oldPos = physicsObjects[1].pos;
+    physicsObjects[1].extents = vec2(32, 64);
+    physicsObjects[1].flags = DYNAMIC | PLAYER;
+    //  (player 1)
+    physicsObjects[2].acceleration = vec2(0.f, -982.0f);
+    physicsObjects[2].pos = vec2(316.6666666666666666666666666666f, 536);
+    physicsObjects[2].oldPos = physicsObjects[2].pos;
+    physicsObjects[2].extents = vec2(32, 64);
+    physicsObjects[2].flags = DYNAMIC | PLAYER;
 
-    int quit;
+    //  (player 2)
+    physicsObjects[3].acceleration = vec2(0.f, -982.0f);
+    physicsObjects[3].pos = vec2(483.33333333333333333333333333334f, 536);
+    physicsObjects[3].oldPos = physicsObjects[3].pos;
+    physicsObjects[3].extents = vec2(32, 64);
+    physicsObjects[3].flags = DYNAMIC | PLAYER;
+
+    //  (player 3)
+    physicsObjects[4].acceleration = vec2(0.f, -982.0f);
+    physicsObjects[4].pos = vec2(650, 536);
+    physicsObjects[4].oldPos = physicsObjects[4].pos;
+    physicsObjects[4].extents = vec2(32, 64);
+    physicsObjects[4].flags = DYNAMIC | PLAYER;
  
 	/* Initialize SDL_net */
 	if (SDLNet_Init() < 0)
@@ -78,42 +100,8 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	//  (platform)
-    physicsObjects[0].acceleration = vec2(0.f, 0.f);
-    physicsObjects[0].pos = vec2(100, 150);
-    physicsObjects[0].oldPos = physicsObjects[0].pos;
-    physicsObjects[0].extents = vec2(600, 150);
-    physicsObjects[0].type = STATIC;
-
-    //  (player 0)
-    physicsObjects[1].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[1].pos = vec2(150, 536);
-    physicsObjects[1].oldPos = physicsObjects[1].pos;
-    physicsObjects[1].extents = vec2(32, 64);
-    physicsObjects[1].type = DYNAMIC;
-    //  (player 1)
-    physicsObjects[2].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[2].pos = vec2(316.6666666666666666666666666666f, 536);
-    physicsObjects[2].oldPos = physicsObjects[2].pos;
-    physicsObjects[2].extents = vec2(32, 64);
-    physicsObjects[2].type = DYNAMIC;
-
-    //  (player 2)
-    physicsObjects[3].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[3].pos = vec2(483.33333333333333333333333333334f, 536);
-    physicsObjects[3].oldPos = physicsObjects[3].pos;
-    physicsObjects[3].extents = vec2(32, 64);
-    physicsObjects[3].type = DYNAMIC;
-
-    //  (player 3)
-    physicsObjects[4].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[4].pos = vec2(650, 536);
-    physicsObjects[4].oldPos = physicsObjects[4].pos;
-    physicsObjects[4].extents = vec2(32, 64);
-    physicsObjects[4].type = DYNAMIC;
- 
 	/* Make space for the packet */
-	if (!((pSent = SDLNet_AllocPacket(250))&&(pReceive = SDLNet_AllocPacket(250))))
+	if (!((pSent = SDLNet_AllocPacket(250)) && (pReceive = SDLNet_AllocPacket(250))))
 	{
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
@@ -123,18 +111,12 @@ int main(int argc, char **argv)
     playersObject[1].physics = &physicsObjects[2];
  	playersObject[2].physics = &physicsObjects[3];
     playersObject[3].physics = &physicsObjects[4];
+	struct timespec t1, t2, timeToDoPhysics = {0,0};
 
-	KeyboardStates states[4] = {{0}};
-	
-	struct timespec t1, t2, timeLeft, timeCheck;
-
-	int executePhysicsAmountOfTimes = 0;
-	quit = 0;
+	int executePhysicsAmount = 0;
 
 	clock_gettime(CLOCK_MONOTONIC, &t1);
 
-	double timer;
-	
 	/* Main loop */
 	
 	while (!quit)
@@ -142,9 +124,14 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_MONOTONIC, &t2);
 
 		if(amountOfPlayers > 0) {
-			timer += getTime(t2, t1);
-			//printf("Timer: %lf\n", timer);
+			getTimeDifference(&t1, &t2, &timeToDoPhysics);
+			
+			executePhysicsAmount = timeToDoPhysics.tv_nsec / 16666666;
+			timeToDoPhysics.tv_nsec %= 16666666;
+
+			printf("Time received: %llu,%09ld\n", timeToDoPhysics.tv_sec, timeToDoPhysics.tv_nsec);
 		}
+		
 		t1 = t2;
 
 		/* Wait a packet. UDP_Recv returns != 0 if a packet is coming */
@@ -174,16 +161,17 @@ int main(int argc, char **argv)
 							break;
 						}
 					}
-					int tmp = 0;
+
 					printf("Player connected assigned number: %d\n", ifNewWhichIndex);
+					
 					takenPlayerSlots[ifNewWhichIndex] = 1;
 
 					playersIP[ifNewWhichIndex].host = pReceive->address.host;
+					pSent->address.host = pReceive->address.host;
 					playersIP[ifNewWhichIndex].port = pReceive->address.port;
+					pSent->address.port = pReceive->address.port;
 					memmove(pSent->data, (void*)&ifNewWhichIndex, 4);
 					pSent->len = 4;
-					pSent->address.host = pReceive->address.host;
-					pSent->address.port = pReceive->address.port;
 
 					amountOfPlayers++;
 					
@@ -197,9 +185,9 @@ int main(int argc, char **argv)
 
 			if(!newPlayer) 
 			{
-				memmove((void*)&states[ifNotNewWhichIndex].keyState,pReceive->data,32);
+				memmove((void*)&playerInputs[ifNotNewWhichIndex].keyState,pReceive->data,32);
 
-				handlePlayerInputs(&playersObject[ifNotNewWhichIndex], (1.f/240.0f), &states[ifNotNewWhichIndex]);
+				handlePlayerInputs(&playersObject[ifNotNewWhichIndex], (1.f/240.0f), &playerInputs[ifNotNewWhichIndex]);
 
 				unsigned char disconnecting = 0;
 				memmove((void*)&disconnecting,pReceive->data+32,1);
@@ -214,38 +202,41 @@ int main(int argc, char **argv)
 			}	
 		}	
 
-		if(timer >= 0.0166666666666666666666666666666)
+
+		while (executePhysicsAmount > 0)
 		{
 			for (int i = 0; i < amountOfPhysicalObjects; i++)
             {
-                physicsObjects[i].recentCollision = 0;
+                physicsObjects[i].flags &= 0b00001111;
             }
 
 			for (int i = 0; i < 4; i++)
         	{
-        	    boundarySolve(playersObject);
+        	    boundarySolve(physicsObjects, amountOfPhysicalObjects);
         	    constraintSolve(physicsObjects, amountOfPhysicalObjects);
         	    updatePositions(physicsObjects, amountOfPhysicalObjects, (1.f/240.0f));
         	}
 
-			memmove(pSent->data, (void*)&physicsObjects, 180);
-			pSent->len = 180;
 
-			for (int i = 0; i < 4; i++)
+			if(executePhysicsAmount == 1) 
 			{
-				if(takenPlayerSlots[i] == 1) 
+				memmove(pSent->data, (void*)&physicsObjects, 180);
+				pSent->len = 180;
+
+				for (int i = 0; i < 4; i++)
 				{
+					if(takenPlayerSlots[i] == 1) 
+					{
 					
-					pSent->address.host = playersIP[i].host;
-					pSent->address.port = playersIP[i].port;
+						pSent->address.host = playersIP[i].host;
+						pSent->address.port = playersIP[i].port;
 
-					SDLNet_UDP_Send(sd, -1, pSent);
+						SDLNet_UDP_Send(sd, -1, pSent);
+					}
 				}
-			}
+			}	
 
-			//clock_gettime(CLOCK_MONOTONIC, &timeCheck);
-			//printf("Time sent: %d,%09d\n", timeCheck.tv_sec, timeCheck.tv_nsec);
-			timer -= 0.0166666666666666666666666666666;
+			executePhysicsAmount--;
 		}
 		
 

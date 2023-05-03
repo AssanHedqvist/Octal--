@@ -10,10 +10,12 @@ typedef struct
 {
     RenderObject* render;
     PhysicsObject* physics;
-    int amountOfJumpsLeft;
-    int lives;
-    int health;
-    int recentlyHit;
+    unsigned char amountOfJumpsLeft;
+    unsigned short health;
+    unsigned char lives;
+    unsigned char recentlyHit;
+    unsigned char animationState;
+    
     float timeSinceLastJump;
     float timeSinceLastPunch;
     float timeSinceHit;
@@ -25,7 +27,5 @@ void handlePlayerInputs(Player* player, float dt, KeyboardStates* keyboardInputs
 void handlePlayerAnimation(Player* player);
 
 void handlePlayerLives(Player* player);
-
-void boundarySolve(Player players[4]);
 
 #endif
