@@ -12,9 +12,11 @@ typedef struct
     PhysicsObject* physics;
     int amountOfJumpsLeft;
     int lives;
-    float timeSinceLastJump;
     int health;
+    int recentlyHit;
+    float timeSinceLastJump;
     float timeSinceLastPunch;
+    float timeSinceHit
     //  add more
 } Player;
 
