@@ -7,7 +7,6 @@
 
 typedef struct text
 {
-    TTF_Font *font;
     char* string;
     SDL_Color color;
 }Text;

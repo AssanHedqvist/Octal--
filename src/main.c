@@ -45,13 +45,6 @@ enum GameStates
     CLOSED
 };
 
-void ingameMenu(SDL_Renderer *renderer, SDL_Event *event, int *currentGameState, int *inGameMenuOpen)
-{
-    Text menuText;
-    SDL_Rect buttonRects[2];
-
-    renderIngameMenu(renderer, menuText, buttonRects);
-}
 
 int main(int argv, char **args)
 {
@@ -125,7 +118,8 @@ int main(int argv, char **args)
 
     SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
-    
+    TTF_Font* font = TTF_OpenFont("./resources/fonts/moiser.ttf", 100);
+
     SDL_Event event;
 
     //initialize SDL_mixer
@@ -235,19 +229,12 @@ int main(int argv, char **args)
     players[2].health = 0;
     players[3].health = 0;
     
-    //might remove
-    playerHealthText->font = TTF_OpenFont("./resources/fonts/arial.ttf", 20);
 
+    
     SDL_Texture* backgroundTexture = IMG_LoadTexture(renderer, "resources/menu/menu.png");
     SDL_Rect backgroundRect = {0, 0, 800, 600};
-
-    MenuButton buttons[3];
-    createButtons(renderer, buttons);
-
-    SDL_Rect buttonRects[2] = {
-        {BUTTON_X, BUTTON_Y - 100, BUTTON_WIDTH + 400, BUTTON_HEIGHT + 200},
-        {BUTTON_X, BUTTON_Y + 100, BUTTON_WIDTH + 400, BUTTON_HEIGHT + 200}
-    };
+    MenuButton buttons[5];
+    createButtons(renderer, buttons, font);
 
     KeyboardStates keyboardInputs = {{0}};
     MouseState mouseInputs = {0,0,0};
@@ -331,19 +318,19 @@ int main(int argv, char **args)
                 if (isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT) && inGameMenuOpen) 
                 {
                                 
-                    for(int i = 0; i < 2; i++)
+                    for(int i = 3; i < 5; i++)
                     {
-                        if( mouseInputs.x >= buttonRects[i].x &&
-                            mouseInputs.x <= buttonRects[i].x + buttonRects[i].w &&
-                            mouseInputs.y >= buttonRects[i].y &&
-                            mouseInputs.y <= buttonRects[i].y + buttonRects[i].h) 
+                        if( mouseInputs.x >= buttons[i].rect.x &&
+                            mouseInputs.x <= buttons[i].rect.x + buttons[i].rect.w &&
+                            mouseInputs.y >= buttons[i].rect.y &&
+                            mouseInputs.y <= buttons[i].rect.y + buttons[i].rect.h) 
                         {
                             switch (i)
                             {
-                                case 0:
+                                case 3:
                                     inGameMenuOpen = 0;
                                     break;
-                                case 1:
+                                case 4:
                                     inGameMenuOpen = 0;
                                     currentGameState = MENU;
                                 default:
@@ -403,10 +390,10 @@ int main(int argv, char **args)
 
                 SDL_RenderClear(renderer);
                 render(renderer, renderObjects, amountOfRenderObjects);
-                renderPlayerHealth(players, 4, renderer, playerHealthText->font, 100, 550);
+                renderPlayerHealth(players, 4, renderer, font, 100, 550);
                 if (inGameMenuOpen) 
                 {
-                    ingameMenu(renderer, &event, &currentGameState, &inGameMenuOpen);
+                    renderIngameMenu(renderer, backgroundRect, buttons);
                 }
 
                 SDL_RenderPresent(renderer);
@@ -445,11 +432,8 @@ int main(int argv, char **args)
         SDL_DestroyTexture(renderObjects[i].texture);
     }
 
-    for (int i = 0; i < 3; i++)
-    {
-        SDL_DestroyTexture(buttons[i].texture);
-    }
-
+    freeButtons(buttons, 5);
+    TTF_CloseFont(font);
     SDL_DestroyTexture(backgroundTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
