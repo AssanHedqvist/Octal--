@@ -401,10 +401,6 @@ int main(int argv, char **args)
                 if (SDLNet_UDP_Recv(sd, fromServer) == 1)
                 {
                     memmove((void*)&physicsObjects, fromServer->data, 180);
-                    for (int i = 0; i < amountOfPhysicalObjects; i++)
-                    {
-			        	printf("%d %f %f\n", i, physicsObjects[i].pos.x, physicsObjects[i].pos.y);
-                    }
                 }
 
                 updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);

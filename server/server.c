@@ -16,7 +16,7 @@ exit
 #include "../include/player.h"
 #include "../include/renderObject.h"
 
-int doWeNeedToSimulatePhysics(struct timespec* before, struct timespec* after, struct timespec* remainingTime) {
+void doWeNeedToSimulatePhysics(struct timespec* before, struct timespec* after, struct timespec* remainingTime) {
 	struct timespec immediateTime;
 	if(after->tv_sec >= before->tv_sec) {
 		immediateTime.tv_sec = after->tv_sec - before->tv_sec;
@@ -33,6 +33,11 @@ int doWeNeedToSimulatePhysics(struct timespec* before, struct timespec* after, s
 		remainingTime->tv_sec += immediateTime.tv_sec + ((remainingTime->tv_nsec + immediateTime.tv_nsec) / 1000000000);
         remainingTime->tv_nsec = ((remainingTime->tv_nsec + immediateTime.tv_nsec) % 1000000000);
 	}
+}
+
+float getTime(struct timespec after, struct timespec before) {
+    return ((float)after.tv_sec + ((float)after.tv_nsec * 1e-9f)) -
+           ((float)before.tv_sec + ((float)before.tv_nsec * 1e-9f));
 }
  
 int main(int argc, char **argv)
@@ -127,6 +132,8 @@ int main(int argc, char **argv)
 	quit = 0;
 
 	clock_gettime(CLOCK_MONOTONIC, &t1);
+
+	float timer;
 	
 	/* Main loop */
 	
@@ -135,10 +142,7 @@ int main(int argc, char **argv)
 		clock_gettime(CLOCK_MONOTONIC, &t2);
 
 		if(amountOfPlayers > 0) {
-			doWeNeedToSimulatePhysics(&t1,&t2, &timeLeft);
-
-			executePhysicsAmountOfTimes = timeLeft.tv_nsec / 16666666;
-			timeLeft.tv_nsec %= 16666666;
+			timer += getTime(t2, t1);
 		}
 		t1 = t2;
 
@@ -209,7 +213,7 @@ int main(int argc, char **argv)
 			}	
 		}	
 
-		while(executePhysicsAmountOfTimes > 0)
+		if(timer >= 0.0166666666666666666666666666666f)
 		{
 			for (int i = 0; i < amountOfPhysicalObjects; i++)
             {
@@ -223,23 +227,23 @@ int main(int argc, char **argv)
         	    updatePositions(physicsObjects, amountOfPhysicalObjects, (1.f/240.0f));
         	}
 
-			if(executePhysicsAmountOfTimes == 1) {
-				
-				for (int i = 0; i < 4; i++)
-				{
-					if(takenPlayerSlots[i]) 
-					{
-						memmove(pSent->data, (void*)&physicsObjects, 180);
-						pSent->len = 180;
-						pSent->address.host = playersIP[i].host;
-						pSent->address.port = playersIP[i].port;
+			memmove(pSent->data, (void*)&physicsObjects, 180);
+			pSent->len = 180;
 
-						SDLNet_UDP_Send(sd, -1, pSent);
-					}
+			for (int i = 0; i < 4; i++)
+			{
+				if(takenPlayerSlots[i]) 
+				{
+					
+					pSent->address.host = playersIP[i].host;
+					pSent->address.port = playersIP[i].port;
+
+					SDLNet_UDP_Send(sd, -1, pSent);
 				}
 			}
 
-			executePhysicsAmountOfTimes--;
+			printf("Test1\n");
+			timer -= 0.0166666666666666666666666666666f;
 		}
 		
 
