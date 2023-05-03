@@ -35,7 +35,6 @@ void updatePositions(PhysicsObject objects[], int length, const float dt);
 
 void aabbTest(PhysicsObject* obj, PhysicsObject* obj2);
 
-
 void constraintSolve(PhysicsObject objects[], int length);
 
 

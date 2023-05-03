@@ -58,7 +58,7 @@ int main(int argv, char **args)
     IPaddress srvadd;
     UDPpacket *toServer;
     UDPpacket *fromServer;
-    Player players[4] = {0, 0, 0, 0, 0};
+    Player players[4] = {{0, 0, 0, 0, 0, 0, 0}};
     Text playerHealthText[4];
 
     SDL_Init(SDL_INIT_EVERYTHING);
