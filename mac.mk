@@ -23,8 +23,8 @@ LIBS = /opt/homebrew/lib
 #LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -mwindows
 LDFLAGS = -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_ttf -lSDL2_mixer
 
-game: main.o vec2.o physicsObject.o renderObject.o keyboard.o player.o text.o attacks.o sounds.o menu.o
-	gcc -o game main.o vec2.o physicsObject.o renderObject.o keyboard.o player.o text.o attacks.o sounds.o menu.o -L$(LIBS) -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_ttf -lSDL2_mixer
+game: main.o vec2.o physicsObject.o renderObject.o keyboard.o player.o text.o attacks.o sounds.o menu.o mouse.o
+	gcc -o game main.o vec2.o physicsObject.o renderObject.o keyboard.o player.o text.o attacks.o sounds.o menu.o mouse.o -L$(LIBS) -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_ttf -lSDL2_mixer
 main.o: 
 	gcc -c $(SRCDIR)/main.c -I$(INCLUDE)
 vec2.o: 
@@ -45,7 +45,8 @@ sounds.o:
 	gcc -c $(SRCDIR)/sounds.c -I$(INCLUDE)
 menu.o:
 	gcc -c $(SRCDIR)/menu.c -I$(INCLUDE)
-
+mouse.o:
+	gcc -c $(SRCDIR)/mouse.c -I$(INCLUDE)
 
 clean:
 	rm -f *.o
