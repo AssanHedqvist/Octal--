@@ -74,9 +74,9 @@ int main(int argv, char **args)
         // fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
-
+    //"130.229.153.16"
     //   Resolve server name
-    if (SDLNet_ResolveHost(&serverAddress, "127.0.0.1", 31929) == -1)
+    if (SDLNet_ResolveHost(&serverAddress,"130.229.153.16", 31929) == -1)
     {
         // fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -229,6 +229,7 @@ int main(int argv, char **args)
     players[2].health = 0;
     players[3].health = 0;
     
+    int wentIntoMenu = 0;
 
     
     SDL_Texture* backgroundTexture = IMG_LoadTexture(renderer, "resources/menu/menu.png");
@@ -345,10 +346,15 @@ int main(int argv, char **args)
                     //togglePlay();                           //press p to toggle music
                 }
 
-                if (isKeyDown(&keyboardInputs, SDL_SCANCODE_ESCAPE)) 
+                if (isKeyDown(&keyboardInputs, SDL_SCANCODE_ESCAPE) && wentIntoMenu == 0) 
                 {
                     inGameMenuOpen = !inGameMenuOpen;
-                    //currentGameState = CLOSED;
+                    wentIntoMenu = 1;
+                }
+
+                if(!isKeyDown(&keyboardInputs, SDL_SCANCODE_ESCAPE) && wentIntoMenu == 1) 
+                {
+                    wentIntoMenu = 0;
                 }
 
                 if (isKeyDown(&keyboardInputs, SDL_SCANCODE_E))
@@ -417,6 +423,8 @@ int main(int argv, char **args)
     toServer->len = 33;
 
     SDLNet_UDP_Send(sd, -1, toServer);
+    
+    TTF_CloseFont(font);
 
     TTF_Quit();
     
@@ -433,7 +441,7 @@ int main(int argv, char **args)
     }
 
     freeButtons(buttons, 5);
-    TTF_CloseFont(font);
+    
     SDL_DestroyTexture(backgroundTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

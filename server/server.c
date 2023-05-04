@@ -129,13 +129,13 @@ int main(int argc, char **argv)
 			executePhysicsAmount = timeToDoPhysics.tv_nsec / 16666666;
 			timeToDoPhysics.tv_nsec %= 16666666;
 
-			printf("Time received: %llu,%09ld\n", timeToDoPhysics.tv_sec, timeToDoPhysics.tv_nsec);
+			//printf("Time received: %llu,%09ld\n", timeToDoPhysics.tv_sec, timeToDoPhysics.tv_nsec);
 		}
 		
 		t1 = t2;
 
 		/* Wait a packet. UDP_Recv returns != 0 if a packet is coming */
-		if (SDLNet_UDP_Recv(sd, pReceive))
+		while (SDLNet_UDP_Recv(sd, pReceive) == 1)
 		{
 			int newPlayer = 1;
 			int ifNewWhichIndex = 0;
