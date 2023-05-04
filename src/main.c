@@ -74,9 +74,9 @@ int main(int argv, char **args)
         // fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
-    //"130.229.153.16"
+    
     //   Resolve server name
-    if (SDLNet_ResolveHost(&serverAddress,"130.229.153.16", 31929) == -1)
+    if (SDLNet_ResolveHost(&serverAddress,"127.0.0.1", 31929) == -1)
     {
         // fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
