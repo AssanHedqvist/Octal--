@@ -45,7 +45,6 @@ enum GameStates
     CLOSED
 };
 
-
 int main(int argv, char **args)
 {
     UDPsocket sd;
@@ -74,9 +73,9 @@ int main(int argv, char **args)
         // fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
-    
+
     //   Resolve server name
-    if (SDLNet_ResolveHost(&serverAddress,"127.0.0.1", 31929) == -1)
+    if (SDLNet_ResolveHost(&serverAddress, "127.0.0.1", 31929) == -1)
     {
         // fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -94,35 +93,35 @@ int main(int argv, char **args)
     int thisComputersPlayerIndex = -1;
 
     //  server connecting code
-                                    
-                                    toServer->address.host = serverAddress.host;
-                                    toServer->address.port = serverAddress.port;
 
-                                    int tmp = 1;
+    toServer->address.host = serverAddress.host;
+    toServer->address.port = serverAddress.port;
 
-                                    memmove(toServer->data, (void *)&tmp, 4);
-                                    toServer->len = 4;
-                                    SDLNet_UDP_Send(sd, -1, toServer);
+    int tmp = 1;
 
-                                    while (thisComputersPlayerIndex == -1)
-                                    {
-                                        if (SDLNet_UDP_Recv(sd, fromServer) == 1)
-                                        {
-                                            memmove((void *)&thisComputersPlayerIndex, fromServer->data, 4);
-                                        }
-                                    }
+    memmove(toServer->data, (void *)&tmp, 4);
+    toServer->len = 4;
+    SDLNet_UDP_Send(sd, -1, toServer);
 
-                                    printf("Client: %d\n", thisComputersPlayerIndex);
+    while (thisComputersPlayerIndex == -1)
+    {
+        if (SDLNet_UDP_Recv(sd, fromServer) == 1)
+        {
+            memmove((void *)&thisComputersPlayerIndex, fromServer->data, 4);
+        }
+    }
 
-                                    //  server connecting code
+    printf("Client: %d\n", thisComputersPlayerIndex);
+
+    //  server connecting code
 
     SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
-    TTF_Font* font = TTF_OpenFont("./resources/fonts/moiser.ttf", 100);
+    TTF_Font *font = TTF_OpenFont("./resources/fonts/moiser.ttf", 100);
 
     SDL_Event event;
 
-    //initialize SDL_mixer
+    // initialize SDL_mixer
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
     Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/tempMusicWhatIsLove.mp3");
     int amountOfRenderObjects = 6;
@@ -140,10 +139,10 @@ int main(int argv, char **args)
     renderObjects[1].imageExtents = (SDL_Rect){0, 0, 1054, 289};
     renderObjects[1].screenExtents = (SDL_Rect){100, 300, 600, 150};
     renderObjects[1].flip = 0;
-    
+
     renderObjects[2].order = 2;
-    renderObjects[2].texture = IMG_LoadTexture(renderer, "resources/stickmanSprite.png");
-    renderObjects[2].imageExtents = (SDL_Rect){0, 0, 32, 64};
+    renderObjects[2].texture = IMG_LoadTexture(renderer, "resources/gridnetForSprites.png");
+    renderObjects[2].imageExtents = (SDL_Rect){0, 0, 128, 256};
     renderObjects[2].screenExtents = (SDL_Rect){400, 300, 32, 64};
     renderObjects[2].flip = 0;
 
@@ -228,17 +227,16 @@ int main(int argv, char **args)
     players[1].health = 0;
     players[2].health = 0;
     players[3].health = 0;
-    
+
     int wentIntoMenu = 0;
 
-    
-    SDL_Texture* backgroundTexture = IMG_LoadTexture(renderer, "resources/menu/menu.png");
+    SDL_Texture *backgroundTexture = IMG_LoadTexture(renderer, "resources/menu/menu.png");
     SDL_Rect backgroundRect = {0, 0, 800, 600};
     MenuButton buttons[5];
     createButtons(renderer, buttons, font);
 
     KeyboardStates keyboardInputs = {{0}};
-    MouseState mouseInputs = {0,0,0};
+    MouseState mouseInputs = {0, 0, 0};
     unsigned char disconnecting = 0;
 
     struct timespec t1, t2;
@@ -251,158 +249,157 @@ int main(int argv, char **args)
         {
             switch (event.type)
             {
-                case SDL_QUIT:
-                    //handleKeyboardInputs(&keyboardInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
-                    
-                    currentGameState = CLOSED;
-                    disconnecting = 1;
-                    
-                    break;
-                case SDL_KEYDOWN:             
-                case SDL_KEYUP:
-                    handleKeyboardInputs(&keyboardInputs, event.key.keysym.scancode, event.type);
-                    break;
-                case SDL_MOUSEMOTION: 
-                    updateMousePos(&mouseInputs);
-                    break;
-                case SDL_MOUSEBUTTONDOWN: 
-                case SDL_MOUSEBUTTONUP: 
-                    handleMouseInputs(&mouseInputs, event.button.button, event.type);
-                    break;
-                    
+            case SDL_QUIT:
+                // handleKeyboardInputs(&keyboardInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
+
+                currentGameState = CLOSED;
+                disconnecting = 1;
+
+                break;
+            case SDL_KEYDOWN:
+            case SDL_KEYUP:
+                handleKeyboardInputs(&keyboardInputs, event.key.keysym.scancode, event.type);
+                break;
+            case SDL_MOUSEMOTION:
+                updateMousePos(&mouseInputs);
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
+                handleMouseInputs(&mouseInputs, event.button.button, event.type);
+                break;
             }
-        } 
+        }
         switch (currentGameState)
         {
-            case MENU:
-                if(isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT)) 
-                {           
-                    for (int i = 0; i < 3; i++) 
+        case MENU:
+            if (isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT))
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    if (mouseInputs.x >= buttons[i].rect.x &&
+                        mouseInputs.x <= buttons[i].rect.x + buttons[i].rect.w &&
+                        mouseInputs.y >= buttons[i].rect.y &&
+                        mouseInputs.y <= buttons[i].rect.y + buttons[i].rect.h)
                     {
-                        if( mouseInputs.x >= buttons[i].rect.x &&
-                            mouseInputs.x <= buttons[i].rect.x + buttons[i].rect.w &&
-                            mouseInputs.y >= buttons[i].rect.y &&
-                            mouseInputs.y <= buttons[i].rect.y + buttons[i].rect.h) 
+                        switch (i)
                         {
-                            switch (i)
-                            {
-                                case 0:
-                                    currentGameState = RUNNING;
-                                    //Mix_PlayMusic(backgroundMusic,-1); // music plays when game starts
-                                    break;
-                                case 1:
-                                    
-                                    break;
-                                case 2:
-                                    currentGameState = CLOSED;
-                                    disconnecting = 1;
-                                    break;
-                                default:
-                                    break;
-                            }
+                        case 0:
+                            currentGameState = RUNNING;
+                            // Mix_PlayMusic(backgroundMusic,-1); // music plays when game starts
+                            break;
+                        case 1:
+
+                            break;
+                        case 2:
+                            currentGameState = CLOSED;
+                            disconnecting = 1;
+                            break;
+                        default:
+                            break;
                         }
                     }
                 }
+            }
 
-                SDL_RenderClear(renderer);
-                renderMenu(renderer, backgroundTexture, backgroundRect, buttons);
-                SDL_RenderPresent(renderer);
-                break;
+            SDL_RenderClear(renderer);
+            renderMenu(renderer, backgroundTexture, backgroundRect, buttons);
+            SDL_RenderPresent(renderer);
             break;
-            case RUNNING:
-                memmove(toServer->data, (void *)&keyboardInputs.keyState, 32);
-                memmove(toServer->data+32, (void *)&disconnecting, 1);
-                toServer->len = 33;
+            break;
+        case RUNNING:
+            memmove(toServer->data, (void *)&keyboardInputs.keyState, 32);
+            memmove(toServer->data + 32, (void *)&disconnecting, 1);
+            toServer->len = 33;
 
-                SDLNet_UDP_Send(sd, -1, toServer);
+            SDLNet_UDP_Send(sd, -1, toServer);
 
-                if (isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT) && inGameMenuOpen) 
+            if (isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT) && inGameMenuOpen)
+            {
+
+                for (int i = 3; i < 5; i++)
                 {
-                                
-                    for(int i = 3; i < 5; i++)
+                    if (mouseInputs.x >= buttons[i].rect.x &&
+                        mouseInputs.x <= buttons[i].rect.x + buttons[i].rect.w &&
+                        mouseInputs.y >= buttons[i].rect.y &&
+                        mouseInputs.y <= buttons[i].rect.y + buttons[i].rect.h)
                     {
-                        if( mouseInputs.x >= buttons[i].rect.x &&
-                            mouseInputs.x <= buttons[i].rect.x + buttons[i].rect.w &&
-                            mouseInputs.y >= buttons[i].rect.y &&
-                            mouseInputs.y <= buttons[i].rect.y + buttons[i].rect.h) 
+                        switch (i)
                         {
-                            switch (i)
-                            {
-                                case 3:
-                                    inGameMenuOpen = 0;
-                                    break;
-                                case 4:
-                                    inGameMenuOpen = 0;
-                                    currentGameState = MENU;
-                                default:
-                                    break;
-                            }
+                        case 3:
+                            inGameMenuOpen = 0;
+                            break;
+                        case 4:
+                            inGameMenuOpen = 0;
+                            currentGameState = MENU;
+                        default:
+                            break;
                         }
                     }
                 }
+            }
 
-                if (isKeyDown(&keyboardInputs, SDL_SCANCODE_P))
-                {
-                    //togglePlay();                           //press p to toggle music
-                }
+            if (isKeyDown(&keyboardInputs, SDL_SCANCODE_P))
+            {
+                // togglePlay();                           //press p to toggle music
+            }
 
-                if (isKeyDown(&keyboardInputs, SDL_SCANCODE_ESCAPE) && wentIntoMenu == 0) 
-                {
-                    inGameMenuOpen = !inGameMenuOpen;
-                    wentIntoMenu = 1;
-                }
+            if (isKeyDown(&keyboardInputs, SDL_SCANCODE_ESCAPE) && wentIntoMenu == 0)
+            {
+                inGameMenuOpen = !inGameMenuOpen;
+                wentIntoMenu = 1;
+            }
 
-                if(!isKeyDown(&keyboardInputs, SDL_SCANCODE_ESCAPE) && wentIntoMenu == 1) 
-                {
-                    wentIntoMenu = 0;
-                }
+            if (!isKeyDown(&keyboardInputs, SDL_SCANCODE_ESCAPE) && wentIntoMenu == 1)
+            {
+                wentIntoMenu = 0;
+            }
 
-                if (isKeyDown(&keyboardInputs, SDL_SCANCODE_E))
-                {
-                    players[0].health += 10;
-                }
+            if (isKeyDown(&keyboardInputs, SDL_SCANCODE_E))
+            {
+                players[0].health += 10;
+            }
+        // : %d\n", (players[0].render->imageExtents.y));
 
-                handlePlayerAnimation(players);
+            handlePlayerAnimation(players);
 
-                if (!inGameMenuOpen) 
-                {
-                    handlePlayerInputs(&players[thisComputersPlayerIndex], DT, &keyboardInputs);
-                }
+            if (!inGameMenuOpen)
+            {
+                handlePlayerInputs(&players[thisComputersPlayerIndex], DT, &keyboardInputs);
+            }
 
-                handlePlayerLives(&players[0]); //  did (&players) work for anybody? -- Damien
-                lightPunch(players, 4, &keyboardInputs);         //  did (&players) work for anybody? -- Damien
+            handlePlayerLives(&players[0]);          //  did (&players) work for anybody? -- Damien
+            lightPunch(players, 4, &keyboardInputs); //  did (&players) work for anybody? -- Damien
 
-                for (int i = 0; i < amountOfPhysicalObjects; i++)
-                {
-                    physicsObjects[i].flags &= 0b00001111;
-                }
+            for (int i = 0; i < amountOfPhysicalObjects; i++)
+            {
+                physicsObjects[i].flags &= 0b00001111;
+            }
 
-                for (int i = 0; i < SUB_STEPS; i++)
-                {
-                    boundarySolve(physicsObjects, amountOfPhysicalObjects);
-                    constraintSolve(physicsObjects, amountOfPhysicalObjects);
-                    updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
-                }
+            for (int i = 0; i < SUB_STEPS; i++)
+            {
+                boundarySolve(physicsObjects, amountOfPhysicalObjects);
+                constraintSolve(physicsObjects, amountOfPhysicalObjects);
+                updatePositions(physicsObjects, amountOfPhysicalObjects, DT);
+            }
 
-                while (SDLNet_UDP_Recv(sd, fromServer) == 1)
-                {
-                    //clock_gettime(CLOCK_MONOTONIC, &timeCheck);
-                    //printf("Time received: %d,%09d\n", timeCheck.tv_sec, timeCheck.tv_nsec);
-                    memmove((void*)&physicsObjects, fromServer->data, 180);
-                    
-                }
+            while (SDLNet_UDP_Recv(sd, fromServer) == 1)
+            {
+                // clock_gettime(CLOCK_MONOTONIC, &timeCheck);
+                // printf("Time received: %d,%09d\n", timeCheck.tv_sec, timeCheck.tv_nsec);
+                memmove((void *)&physicsObjects, fromServer->data, 180);
+            }
 
-                updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
+            updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
 
-                SDL_RenderClear(renderer);
-                render(renderer, renderObjects, amountOfRenderObjects);
-                renderPlayerHealth(players, 4, renderer, font, 100, 550);
-                if (inGameMenuOpen) 
-                {
-                    renderIngameMenu(renderer, backgroundRect, buttons);
-                }
+            SDL_RenderClear(renderer);
+            render(renderer, renderObjects, amountOfRenderObjects);
+            renderPlayerHealth(players, 4, renderer, font, 100, 550);
+            if (inGameMenuOpen)
+            {
+                renderIngameMenu(renderer, backgroundRect, buttons);
+            }
 
-                SDL_RenderPresent(renderer);
+            SDL_RenderPresent(renderer);
             break;
         }
         frameCounter++;
@@ -419,15 +416,15 @@ int main(int argv, char **args)
     }
 
     memmove(toServer->data, (void *)&keyboardInputs.keyState, 32);
-    memmove(toServer->data+32, (void *)&disconnecting, 1);
+    memmove(toServer->data + 32, (void *)&disconnecting, 1);
     toServer->len = 33;
 
     SDLNet_UDP_Send(sd, -1, toServer);
-    
+
     TTF_CloseFont(font);
 
     TTF_Quit();
-    
+
     SDLNet_Quit();
     SDLNet_FreePacket(toServer);
     SDLNet_FreePacket(fromServer);
@@ -441,7 +438,7 @@ int main(int argv, char **args)
     }
 
     freeButtons(buttons, 5);
-    
+
     SDL_DestroyTexture(backgroundTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
