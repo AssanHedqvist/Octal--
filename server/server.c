@@ -30,7 +30,7 @@ void getTimeDifference(struct timespec* before, struct timespec* after, struct t
 			tmpTime.tv_nsec = after->tv_nsec - before->tv_nsec;
 		}
 
-		remainingTime->tv_sec +=  ((remainingTime->tv_nsec - tmpTime.tv_sec *  1000000000 + tmpTime.tv_nsec) / 1000000000);
+		remainingTime->tv_sec +=  ((remainingTime->tv_nsec - tmpTime.tv_sec * 1000000000 + tmpTime.tv_nsec) / 1000000000);
         remainingTime->tv_nsec = ((remainingTime->tv_nsec + tmpTime.tv_nsec) % 1000000000);
 	}
 }
@@ -46,7 +46,10 @@ int main(int argc, char **argv)
 	IPaddress playersIP[4] = {{0,0}};
 	Player playersObject[4] = {{0, 0, 0, 0, 0, 0, 0}};
 	KeyboardStates playerInputs[4] = {{{0}}};
+	unsigned char playersHP[4] = {0};
+	unsigned char playerLives[4] = {4};
 	int amountOfPlayers = 0;
+	
     int quit = 0;
 	
     PhysicsObject physicsObjects[5] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0}};
@@ -138,7 +141,6 @@ int main(int argc, char **argv)
 		while (SDLNet_UDP_Recv(sd, pReceive) == 1)
 		{
 			int newPlayer = 1;
-			int ifNewWhichIndex = 0;
 			int ifNotNewWhichIndex = 0;
 			for (int i = 0; i < 4; i++)
 			{
@@ -151,6 +153,7 @@ int main(int argc, char **argv)
 			}
 
 			if(newPlayer) {
+				int ifNewWhichIndex = 0;
 				if(amountOfPlayers < 4) 
 				{
 					for (int i = 0; i < 4; i++)
@@ -162,20 +165,22 @@ int main(int argc, char **argv)
 						}
 					}
 
-					printf("Player connected assigned number: %d\n", ifNewWhichIndex);
-					
-					takenPlayerSlots[ifNewWhichIndex] = 1;
+					memcpy(pSent->data, (void*)&ifNewWhichIndex, 4);
 
 					playersIP[ifNewWhichIndex].host = pReceive->address.host;
 					pSent->address.host = pReceive->address.host;
 					playersIP[ifNewWhichIndex].port = pReceive->address.port;
 					pSent->address.port = pReceive->address.port;
-					memmove(pSent->data, (void*)&ifNewWhichIndex, 4);
+					
 					pSent->len = 4;
-
-					amountOfPlayers++;
 					
 					SDLNet_UDP_Send(sd, -1, pSent);
+
+					takenPlayerSlots[ifNewWhichIndex] = 1;
+
+					printf("Player connected assigned number: %d\n", ifNewWhichIndex);
+
+					amountOfPlayers++;
 				}
 				else 
 				{
@@ -185,24 +190,23 @@ int main(int argc, char **argv)
 
 			if(!newPlayer) 
 			{
-				memmove((void*)&playerInputs[ifNotNewWhichIndex].keyState,pReceive->data,32);
+				memcpy((void*)&playerInputs[ifNotNewWhichIndex].keyState,pReceive->data,32);
 
 				handlePlayerInputs(&playersObject[ifNotNewWhichIndex], (1.f/240.0f), &playerInputs[ifNotNewWhichIndex]);
 
 				unsigned char disconnecting = 0;
-				memmove((void*)&disconnecting,pReceive->data+32,1);
+				memcpy((void*)&disconnecting,pReceive->data+32,1);
 				if(disconnecting) 
-				{
-					printf("Disconnecting Player: %d\n", ifNotNewWhichIndex);
+				{			
 					amountOfPlayers--;
 					playersIP[ifNotNewWhichIndex].host = 0;
 					playersIP[ifNotNewWhichIndex].port = 0;
 					takenPlayerSlots[ifNotNewWhichIndex] = 0;
+					printf("Disconnecting Player: %d\n", ifNotNewWhichIndex);
 				}
 			}	
 		}	
-
-
+		
 		while (executePhysicsAmount > 0)
 		{
 			for (int i = 0; i < amountOfPhysicalObjects; i++)
@@ -217,10 +221,9 @@ int main(int argc, char **argv)
         	    updatePositions(physicsObjects, amountOfPhysicalObjects, (1.f/240.0f));
         	}
 
-
 			if(executePhysicsAmount == 1) 
 			{
-				memmove(pSent->data, (void*)&physicsObjects, 180);
+				memcpy(pSent->data, (void*)&physicsObjects, 180);
 				pSent->len = 180;
 
 				for (int i = 0; i < 4; i++)

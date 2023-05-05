@@ -94,13 +94,13 @@ int main(int argv, char **args)
     int thisComputersPlayerIndex = -1;
 
     //  server connecting code
-                                    
+    
                                     toServer->address.host = serverAddress.host;
                                     toServer->address.port = serverAddress.port;
 
                                     int tmp = 1;
 
-                                    memmove(toServer->data, (void *)&tmp, 4);
+                                    memcpy(toServer->data, (void *)&tmp, 4);
                                     toServer->len = 4;
                                     SDLNet_UDP_Send(sd, -1, toServer);
 
@@ -108,7 +108,7 @@ int main(int argv, char **args)
                                     {
                                         if (SDLNet_UDP_Recv(sd, fromServer) == 1)
                                         {
-                                            memmove((void *)&thisComputersPlayerIndex, fromServer->data, 4);
+                                            memcpy((void *)&thisComputersPlayerIndex, fromServer->data, 4);
                                         }
                                     }
 
@@ -310,8 +310,8 @@ int main(int argv, char **args)
                 break;
             break;
             case RUNNING:
-                memmove(toServer->data, (void *)&keyboardInputs.keyState, 32);
-                memmove(toServer->data+32, (void *)&disconnecting, 1);
+                memcpy(toServer->data, (void *)&keyboardInputs.keyState, 32);
+                memcpy(toServer->data+32, (void *)&disconnecting, 1);
                 toServer->len = 33;
 
                 SDLNet_UDP_Send(sd, -1, toServer);
@@ -388,7 +388,7 @@ int main(int argv, char **args)
                 {
                     //clock_gettime(CLOCK_MONOTONIC, &timeCheck);
                     //printf("Time received: %d,%09d\n", timeCheck.tv_sec, timeCheck.tv_nsec);
-                    memmove((void*)&physicsObjects, fromServer->data, 180);
+                    memcpy((void*)&physicsObjects, fromServer->data, 180);
                     
                 }
 
@@ -418,8 +418,8 @@ int main(int argv, char **args)
         } while (((t2.tv_sec < t1.tv_sec) || ((t2.tv_sec == t1.tv_sec) && (t2.tv_nsec < t1.tv_nsec))));
     }
 
-    memmove(toServer->data, (void *)&keyboardInputs.keyState, 32);
-    memmove(toServer->data+32, (void *)&disconnecting, 1);
+    memcpy(toServer->data, (void *)&keyboardInputs.keyState, 32);
+    memcpy(toServer->data+32, (void *)&disconnecting, 1);
     toServer->len = 33;
 
     SDLNet_UDP_Send(sd, -1, toServer);
