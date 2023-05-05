@@ -5,27 +5,37 @@
 #include "../include/physicsObject.h"
 #include "../include/keyboard.h"
 
-
-typedef struct 
+typedef struct
 {
-    RenderObject* render;
-    PhysicsObject* physics;
+    RenderObject *render;
+    PhysicsObject *physics;
     unsigned char amountOfJumpsLeft;
     unsigned short health;
     unsigned char lives;
     unsigned char recentlyHit;
     unsigned char animationState;
-    
+
     float timeSinceLastJump;
     float timeSinceLastPunch;
     float timeSinceHit;
     //  add more
 } Player;
 
-void handlePlayerInputs(Player* player, float dt, KeyboardStates* keyboardInputs);
+//   numbers represent rows in spritesheet
+typedef enum {
+IDLE = 0,
+RUN = 1,
+JUMP = 2
 
-void handlePlayerAnimation(Player* player);
+} animationState;
 
-void handlePlayerLives(Player* player);
+
+
+
+void handlePlayerInputs(Player *player, float dt, KeyboardStates *keyboardInputs);
+
+void handlePlayerAnimation(Player *player);
+
+void handlePlayerLives(Player *player);
 
 #endif
