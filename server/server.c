@@ -241,8 +241,6 @@ int main(int argc, char **argv)
 
 			executePhysicsAmount--;
 		}
-		
-
 	}
 
 	/* Clean and exit */
