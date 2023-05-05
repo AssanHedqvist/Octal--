@@ -99,7 +99,7 @@ int main(int argv, char **args)
 
     int tmp = 1;
 
-    memmove(toServer->data, (void *)&tmp, 4);
+    memcpy(toServer->data, (void *)&tmp, 4);
     toServer->len = 4;
     SDLNet_UDP_Send(sd, -1, toServer);
 
@@ -107,7 +107,7 @@ int main(int argv, char **args)
     {
         if (SDLNet_UDP_Recv(sd, fromServer) == 1)
         {
-            memmove((void *)&thisComputersPlayerIndex, fromServer->data, 4);
+            memcpy((void *)&thisComputersPlayerIndex, fromServer->data, 4);
         }
     }
 
@@ -305,10 +305,9 @@ int main(int argv, char **args)
             renderMenu(renderer, backgroundTexture, backgroundRect, buttons);
             SDL_RenderPresent(renderer);
             break;
-            break;
         case RUNNING:
-            memmove(toServer->data, (void *)&keyboardInputs.keyState, 32);
-            memmove(toServer->data + 32, (void *)&disconnecting, 1);
+            memcpy(toServer->data, (void *)&keyboardInputs.keyState, 32);
+            memcpy(toServer->data+32, (void *)&disconnecting, 1);
             toServer->len = 33;
 
             SDLNet_UDP_Send(sd, -1, toServer);
@@ -358,7 +357,7 @@ int main(int argv, char **args)
             {
                 players[0].health += 10;
             }
-        // : %d\n", (players[0].render->imageExtents.y));
+            // : %d\n", (players[0].render->imageExtents.y));
 
             handlePlayerAnimation(players);
 
@@ -384,9 +383,9 @@ int main(int argv, char **args)
 
             while (SDLNet_UDP_Recv(sd, fromServer) == 1)
             {
-                // clock_gettime(CLOCK_MONOTONIC, &timeCheck);
-                // printf("Time received: %d,%09d\n", timeCheck.tv_sec, timeCheck.tv_nsec);
-                memmove((void *)&physicsObjects, fromServer->data, 180);
+                //clock_gettime(CLOCK_MONOTONIC, &timeCheck);
+                //printf("Time received: %d,%09d\n", timeCheck.tv_sec, timeCheck.tv_nsec);
+                memcpy((void*)&physicsObjects, fromServer->data, 180);        
             }
 
             updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
@@ -415,8 +414,8 @@ int main(int argv, char **args)
         } while (((t2.tv_sec < t1.tv_sec) || ((t2.tv_sec == t1.tv_sec) && (t2.tv_nsec < t1.tv_nsec))));
     }
 
-    memmove(toServer->data, (void *)&keyboardInputs.keyState, 32);
-    memmove(toServer->data + 32, (void *)&disconnecting, 1);
+    memcpy(toServer->data, (void *)&keyboardInputs.keyState, 32);
+    memcpy(toServer->data+32, (void *)&disconnecting, 1);
     toServer->len = 33;
 
     SDLNet_UDP_Send(sd, -1, toServer);

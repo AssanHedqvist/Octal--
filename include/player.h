@@ -23,10 +23,9 @@ typedef struct
 
 //   numbers represent rows in spritesheet
 typedef enum {
-IDLE = 0,
-RUN = 1,
-JUMP = 2
-
+    IDLE = 0,
+    RUN = 1,
+    JUMP = 2
 } animationState;
 
 
