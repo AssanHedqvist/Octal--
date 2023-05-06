@@ -90,10 +90,10 @@ int main(int argv, char **args)
 
     // printf("%u.%u.%u.%u\n", address->host & 0xFF, (( address->host >> 8) & 0xFF),  (( address->host >> 16) & 0xFF), ((address->host >> 24) & 0xFF));
 
-    int thisComputersPlayerIndex = 0;
+    int thisComputersPlayerIndex = -1;
 
     //  server connecting code
-/*
+
     toServer->address.host = serverAddress.host;
     toServer->address.port = serverAddress.port;
 
@@ -112,7 +112,7 @@ int main(int argv, char **args)
     }
 
     printf("Client: %d\n", thisComputersPlayerIndex);
-*/
+
     //  server connecting code
 
     SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
