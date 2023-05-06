@@ -4,6 +4,8 @@
 #include "../include/renderObject.h"
 #include "../include/physicsObject.h"
 #include "../include/keyboard.h"
+#include "../include/sounds.h"
+
 
 typedef struct
 {
@@ -31,10 +33,10 @@ typedef enum {
 
 
 
-void handlePlayerInputs(Player *player, float dt, KeyboardStates *keyboardInputs);
+void handlePlayerInputs(Player *player, float dt, KeyboardStates *keyboardInputs, SoundEffect soundEffect);
 
 void handlePlayerAnimation(Player *player);
 
-void handlePlayerLives(Player *player);
+void handlePlayerLives(Player *player, SoundEffect soundEffect);
 
 #endif

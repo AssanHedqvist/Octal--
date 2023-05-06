@@ -90,10 +90,10 @@ int main(int argv, char **args)
 
     // printf("%u.%u.%u.%u\n", address->host & 0xFF, (( address->host >> 8) & 0xFF),  (( address->host >> 16) & 0xFF), ((address->host >> 24) & 0xFF));
 
-    int thisComputersPlayerIndex = -1;
+    int thisComputersPlayerIndex = 0;
 
     //  server connecting code
-
+/*
     toServer->address.host = serverAddress.host;
     toServer->address.port = serverAddress.port;
 
@@ -112,7 +112,7 @@ int main(int argv, char **args)
     }
 
     printf("Client: %d\n", thisComputersPlayerIndex);
-
+*/
     //  server connecting code
 
     SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
@@ -124,6 +124,8 @@ int main(int argv, char **args)
     // initialize SDL_mixer
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
     Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/tempMusicWhatIsLove.mp3");
+    SoundEffect soundEffect;
+    loadSoundEffects(&soundEffect);
     int amountOfRenderObjects = 6;
     RenderObject renderObjects[6];
 
@@ -285,12 +287,14 @@ int main(int argv, char **args)
                         {
                         case 0:
                             currentGameState = RUNNING;
+                            Mix_PlayChannel(-1, soundEffect.buttonClick,0);
                             // Mix_PlayMusic(backgroundMusic,-1); // music plays when game starts
                             break;
                         case 1:
-
+                            Mix_PlayChannel(-1, soundEffect.buttonClick,0);
                             break;
                         case 2:
+                            Mix_PlayChannel(-1, soundEffect.buttonClick,0);
                             currentGameState = CLOSED;
                             disconnecting = 1;
                             break;
@@ -326,9 +330,11 @@ int main(int argv, char **args)
                         {
                         case 3:
                             inGameMenuOpen = 0;
+                            Mix_PlayChannel(-1, soundEffect.buttonClick,0);
                             break;
                         case 4:
                             inGameMenuOpen = 0;
+                            Mix_PlayChannel(-1, soundEffect.buttonClick,0);
                             currentGameState = MENU;
                         default:
                             break;
@@ -363,11 +369,11 @@ int main(int argv, char **args)
 
             if (!inGameMenuOpen)
             {
-                handlePlayerInputs(&players[thisComputersPlayerIndex], DT, &keyboardInputs);
+                handlePlayerInputs(&players[thisComputersPlayerIndex], DT, &keyboardInputs, soundEffect);
             }
 
-            handlePlayerLives(&players[0]);          //  did (&players) work for anybody? -- Damien
-            lightPunch(players, 4, &keyboardInputs); //  did (&players) work for anybody? -- Damien
+            handlePlayerLives(&players[0], soundEffect);          //  did (&players) work for anybody? -- Damien
+            lightPunch(players, 4, &keyboardInputs, soundEffect); //  did (&players) work for anybody? -- Damien
 
             for (int i = 0; i < amountOfPhysicalObjects; i++)
             {
@@ -429,6 +435,7 @@ int main(int argv, char **args)
     SDLNet_FreePacket(fromServer);
 
     Mix_FreeMusic(backgroundMusic);
+    freeSoundEffects(&soundEffect);
     Mix_CloseAudio();
 
     for (int i = 0; i < amountOfRenderObjects; i++)

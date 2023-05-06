@@ -6,6 +6,6 @@
 #include "../include/keyboard.h"
 #include "../include/player.h"
 
-void lightPunch(Player players[], int amountOfPlayers, KeyboardStates *keyboardInputs);
+void lightPunch(Player players[], int amountOfPlayers, KeyboardStates *keyboardInputs, SoundEffect soundEffect);
 
 #endif

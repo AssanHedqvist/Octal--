@@ -3,7 +3,7 @@
 #define totSprites 3
 #define JUMP_COOLDOWN 0.1f
 
-void handlePlayerInputs(Player *player, const float dt, KeyboardStates *keyboardInputs)
+void handlePlayerInputs(Player *player, const float dt, KeyboardStates *keyboardInputs, SoundEffect soundEffect)
 {
     if (isKeyDown(keyboardInputs, SDL_SCANCODE_A))
     {
@@ -21,6 +21,10 @@ void handlePlayerInputs(Player *player, const float dt, KeyboardStates *keyboard
 
     if (flagSet(player->physics->flags, DOWN) && player->timeSinceLastJump >= JUMP_COOLDOWN)
     {
+        if (player->amountOfJumpsLeft <2)
+        {
+            Mix_PlayChannel(-1,soundEffect.landOnGround,0);
+        }
         player->amountOfJumpsLeft = 2;
     }
 
@@ -32,6 +36,7 @@ void handlePlayerInputs(Player *player, const float dt, KeyboardStates *keyboard
             player->animationState = JUMP;
 
             player->physics->oldPos = vsum(player->physics->oldPos, vsmul(vec2(0.f, -450.f), dt));
+            Mix_PlayChannel(-1, soundEffect.jump, 0);
             // vec2 velocity = vdiff(player->physics->pos, player->physics->oldPos);
 
             //  may have to do it so that it only adds velocity.y when it is negative (try bouncing off a player then jumping off the platform)
@@ -44,10 +49,11 @@ void handlePlayerInputs(Player *player, const float dt, KeyboardStates *keyboard
     player->timeSinceLastJump += (1.0f / 60.f);
 }
 
-void handlePlayerLives(Player *player)
+void handlePlayerLives(Player *player, SoundEffect soundEffect)
 {
     if (player->physics->pos.y < 0)
     {
+        Mix_PlayChannel(-1, soundEffect.death, 0);
         player->lives -= 1;
         player->physics->oldPos = vec2(384, 450);
         player->physics->pos = vec2(384, 450);
