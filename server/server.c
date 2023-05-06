@@ -34,6 +34,20 @@ void getTimeDifference(struct timespec* before, struct timespec* after, struct t
         remainingTime->tv_nsec = ((remainingTime->tv_nsec + tmpTime.tv_nsec) % 1000000000);
 	}
 }
+
+int checkWinner(int *amountOfPlayers, unsigned char *playerLives)
+{
+	int nAlive = 0, nWinner = 0;
+	for (int x = 0; x < *amountOfPlayers; x++)
+		if ((int)playerLives[x] > 0)
+		{
+			nAlive++;
+			nWinner = x;
+		}
+	if (nAlive > 1)
+		return 0;
+	return nWinner;	
+}
  
 int main(int argc, char **argv)
 {
@@ -47,7 +61,7 @@ int main(int argc, char **argv)
 	Player playersObject[4] = {{0, 0, 0, 0, 0, 0, 0}};
 	KeyboardStates playerInputs[4] = {{{0}}};
 	unsigned char playersHP[4] = {0};
-	unsigned char playerLives[4] = {4};
+	unsigned char playerLives[4] = {4, 4, 4, 4};
 	int amountOfPlayers = 0;
 	
     int quit = 0;
@@ -204,8 +218,14 @@ int main(int argc, char **argv)
 					takenPlayerSlots[ifNotNewWhichIndex] = 0;
 					printf("Disconnecting Player: %d\n", ifNotNewWhichIndex);
 				}
-			}	
-		}	
+			}
+			if (amountOfPlayers > 1)
+			{
+				int nWinner = checkWinner(&amountOfPlayers, playerLives);
+				if (nWinner)
+					memcpy(pSent->data+180, (void*)&nWinner, 1);	
+			}
+		}
 		
 		while (executePhysicsAmount > 0)
 		{
@@ -224,7 +244,7 @@ int main(int argc, char **argv)
 			if(executePhysicsAmount == 1) 
 			{
 				memcpy(pSent->data, (void*)&physicsObjects, 180);
-				pSent->len = 180;
+				pSent->len = 181;
 
 				for (int i = 0; i < 4; i++)
 				{
@@ -248,5 +268,4 @@ int main(int argc, char **argv)
     SDLNet_FreePacket(pReceive);
 	SDLNet_Quit();
 	return EXIT_SUCCESS;
-} 
-
+}
