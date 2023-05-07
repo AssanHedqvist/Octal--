@@ -11,8 +11,8 @@ CFLAGS = -g -I$(INCLUDE) -c
 #	LIBS = /usr/local/lib
 LIBS = /opt/homebrew/lib
 
-host: server.o vec2.o physicsObject.o renderObject.o keyboard.o player.o
-	gcc -o host server.o vec2.o physicsObject.o renderObject.o keyboard.o player.o -L$(LIBS) -lSDL2_net -lSDL2main -lSDL2
+host: server.o vec2.o physicsObject.o renderObject.o keyboard.o player.o attacks.o
+	gcc -o host server.o vec2.o physicsObject.o renderObject.o keyboard.o player.o attacks.o -L$(LIBS) -lSDL2_net -lSDL2main -lSDL2 -lSDL2_mixer
 server.o:
 	gcc -c server.c -I$(INCLUDE)
 vec2.o: 
@@ -25,6 +25,9 @@ renderObject.o:
 	gcc -c ../src/renderObject.c -I$(INCLUDE)
 player.o: keyboard.o renderObject.o physicsObject.o
 	gcc -c ../src/player.c
+attacks.o: keyboard.o player.o
+	gcc -c ../src/attacks.c -I$(INCLUDE)
+
 clean:
 	rm -f *.o
 	rm -f host
