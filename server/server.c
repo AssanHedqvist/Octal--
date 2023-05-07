@@ -46,6 +46,22 @@ typedef enum {
     JOIN_ANSWER = 0,
     PHYSICS_INFO = 1
 } serverMessage;
+
+char checkWinner(int *amountOfPlayers, unsigned char *playerLives)
+{
+
+	int nAlive = 0, nWinner = 0;
+	for (int x = 0; x < *amountOfPlayers; x++)
+		if ((int)playerLives[x] > 0)
+		{
+			nAlive++;
+			nWinner = x;
+		}
+	
+	if (nAlive > 1)
+		return -1; // player zero is a real player right? -- Damien
+	return nWinner;	
+}
  
 int main(int argc, char **argv)
 {
@@ -59,6 +75,8 @@ int main(int argc, char **argv)
 	Player playersObject[4] = {{0, 0, 0, 0, 0, 0, 0}};
 	KeyboardStates playerInputs[4] = {{{0}}};
 	unsigned char playerFlip[4] = {0};
+	unsigned char playersHP[4] = {0};
+	unsigned char playerLives[4] = {4, 4, 4, 4};
 	int amountOfPlayers = 0;
 	
     int quit = 0;
@@ -262,6 +280,13 @@ int main(int argc, char **argv)
 
 			if(executePhysicsAmount == 1) 
 			{
+				if (amountOfPlayers > 1)
+				{
+					int nWinner = checkWinner(&amountOfPlayers, playerLives);
+					if (nWinner)
+					memcpy(pSent->data+201, (void*)&nWinner, 1);	
+				}	
+
 				messageType = PHYSICS_INFO;
 				memcpy(pSent->data,  (void*)&messageType, 1);
 				memcpy(pSent->data+1, (void*)&physicsObjects, 180);
@@ -283,7 +308,7 @@ int main(int argc, char **argv)
 
 				memcpy(pSent->data+197, (void*)&playerFlip, 4);
 
-				pSent->len = 201;
+				pSent->len = 202;
 
 				for (int i = 0; i < 4; i++)
 				{
@@ -306,5 +331,4 @@ int main(int argc, char **argv)
     SDLNet_FreePacket(pReceive);
 	SDLNet_Quit();
 	return EXIT_SUCCESS;
-} 
-
+}

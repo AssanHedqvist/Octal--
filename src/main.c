@@ -139,7 +139,8 @@ int main(int argv, char **args)
     // initialize SDL_mixer
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
     Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/tempMusicWhatIsLove.mp3");
-
+    SoundEffect soundEffect;
+    loadSoundEffects(&soundEffect);
     int amountOfRenderObjects = 6;
     RenderObject renderObjects[6];
 
@@ -299,12 +300,14 @@ int main(int argv, char **args)
                         {
                         case 0:
                             currentGameState = RUNNING;
+                            Mix_PlayChannel(-1, soundEffect.buttonClick,0);
                             // Mix_PlayMusic(backgroundMusic,-1); // music plays when game starts
                             break;
                         case 1:
-
+                            Mix_PlayChannel(-1, soundEffect.buttonClick,0);
                             break;
                         case 2:
+                            Mix_PlayChannel(-1, soundEffect.buttonClick,0);
                             currentGameState = CLOSED;
                             messageType = DISCONNECTING;
                             break;
@@ -342,9 +345,11 @@ int main(int argv, char **args)
                         {
                         case 3:
                             inGameMenuOpen = 0;
+                            Mix_PlayChannel(-1, soundEffect.buttonClick,0);
                             break;
                         case 4:
                             inGameMenuOpen = 0;
+                            Mix_PlayChannel(-1, soundEffect.buttonClick,0);
                             currentGameState = MENU;
                         default:
                             break;
@@ -378,7 +383,7 @@ int main(int argv, char **args)
 
             if (!inGameMenuOpen)
             {
-                handlePlayerInputs(&players[thisComputersPlayerIndex], DT, &keyboardInputs);
+                handlePlayerInputs(&players[thisComputersPlayerIndex], DT, &keyboardInputs, soundEffect);
             }
 
             for (int i = 0; i < amountOfPhysicalObjects; i++)
@@ -463,6 +468,7 @@ int main(int argv, char **args)
     TTF_Quit();
 
     Mix_FreeMusic(backgroundMusic);
+    freeSoundEffects(&soundEffect);
     Mix_CloseAudio();
 
     for (int i = 0; i < amountOfRenderObjects; i++)

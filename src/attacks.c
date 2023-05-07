@@ -6,10 +6,11 @@
 #define PUNCH_COOLDOWN 0.13333333333333333333333333333333f
 
 //  server shall handle this function later when that is done change keyboardStates to a array instead of pointer
-void lightPunch(Player players[], int amountOfPlayers, KeyboardStates *keyboardInputs)
+void lightPunch(Player players[], int amountOfPlayers, KeyboardStates *keyboardInputs, SoundEffect soundEffect)
 {
     if (isKeyDown(keyboardInputs, SDL_SCANCODE_J) && players[0].timeSinceLastPunch >= PUNCH_COOLDOWN)
     {
+        Mix_PlayChannel(-1, soundEffect.punch,0);
         for (int i = 1; i < 4; i++)
         {
             //   I'll keep those here to clarify the math for myself. Will delete in a week or so.
