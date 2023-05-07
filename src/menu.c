@@ -42,9 +42,9 @@ void createButtons(SDL_Renderer* renderer, MenuButton* buttons, TTF_Font* font)
 
     for(int i = 0; i < 5; i++)
     {
-       buttons[i].surface = TTF_RenderText_Solid(font, buttons[i].text.string, buttons[i].text.color);
-       buttons[i].texture = SDL_CreateTextureFromSurface(renderer, buttons[i].surface);
-       SDL_FreeSurface(buttons[i].surface);
+        buttons[i].surface = TTF_RenderText_Solid(font, buttons[i].text.string, buttons[i].text.color);
+        buttons[i].texture = SDL_CreateTextureFromSurface(renderer, buttons[i].surface);
+        SDL_FreeSurface(buttons[i].surface);
     }
 }
 

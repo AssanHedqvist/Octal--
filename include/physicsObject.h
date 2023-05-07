@@ -4,8 +4,10 @@
 #include "../include/vec2.h"
 
 typedef enum {
-    DYNAMIC = 0b00000001,
-    PLAYER = 0b00000010,
+    ACTIVE = 0b00000001,
+    DYNAMIC = 0b00000010,
+    PLAYER = 0b00000100,
+    PASSABLE_PLATFORM = 0b00001000,
     UP =    0b00010000,
     RIGHT = 0b00100000,
     DOWN =  0b01000000,

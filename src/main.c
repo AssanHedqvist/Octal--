@@ -38,12 +38,23 @@ void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int
 #define BUTTON_HEIGHT 40
 #define BUTTON_GAP 60
 
-enum GameStates
+typedef enum 
 {
     MENU,
     RUNNING,
     CLOSED
-};
+} GameStates;
+
+typedef enum {
+    JOIN_REQUEST = 0,
+    CLIENT_KEYBOARD = 1,
+	DISCONNECTING = 2
+} clientMessage;
+
+typedef enum  {
+    JOIN_ANSWER = 0,
+    PHYSICS_INFO = 1
+} serverMessage;
 
 int main(int argv, char **args)
 {
@@ -51,7 +62,7 @@ int main(int argv, char **args)
     IPaddress serverAddress;
     UDPpacket *toServer;
     UDPpacket *fromServer;
-    Player players[4] = {{0, 0, 0, 0, 0, 0, 0}};
+    Player players[4] = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
     Text playerHealthText[4];
 
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -90,24 +101,28 @@ int main(int argv, char **args)
 
     // printf("%u.%u.%u.%u\n", address->host & 0xFF, (( address->host >> 8) & 0xFF),  (( address->host >> 16) & 0xFF), ((address->host >> 24) & 0xFF));
 
-    int thisComputersPlayerIndex = -1;
+    unsigned char thisComputersPlayerIndex = 0;
 
     //  server connecting code
 
     toServer->address.host = serverAddress.host;
     toServer->address.port = serverAddress.port;
 
-    int tmp = 1;
+    unsigned char messageType = JOIN_REQUEST;
 
-    memcpy(toServer->data, (void *)&tmp, 4);
-    toServer->len = 4;
+    memcpy(toServer->data, (void *)&messageType, 1);
+    toServer->len = 1;
     SDLNet_UDP_Send(sd, -1, toServer);
 
-    while (thisComputersPlayerIndex == -1)
+    while(1) 
     {
-        if (SDLNet_UDP_Recv(sd, fromServer) == 1)
+        if(SDLNet_UDP_Recv(sd, fromServer)==1) 
         {
-            memcpy((void *)&thisComputersPlayerIndex, fromServer->data, 4);
+            if(fromServer->data[0] == JOIN_ANSWER) 
+            {
+                memcpy((void *)&thisComputersPlayerIndex, fromServer->data+1, 1);
+                break;
+            }
         }
     }
 
@@ -124,6 +139,7 @@ int main(int argv, char **args)
     // initialize SDL_mixer
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
     Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/tempMusicWhatIsLove.mp3");
+
     int amountOfRenderObjects = 6;
     RenderObject renderObjects[6];
 
@@ -136,8 +152,8 @@ int main(int argv, char **args)
 
     renderObjects[1].order = 1;
     renderObjects[1].texture = IMG_LoadTexture(renderer, "resources/platform.png");
-    renderObjects[1].imageExtents = (SDL_Rect){0, 0, 1054, 289};
-    renderObjects[1].screenExtents = (SDL_Rect){100, 300, 600, 150};
+    renderObjects[1].imageExtents = (SDL_Rect){0, 0, 1000, 75};
+    renderObjects[1].screenExtents = (SDL_Rect){100, 300, 600, 53};
     renderObjects[1].flip = 0;
 
     renderObjects[2].order = 2;
@@ -181,9 +197,9 @@ int main(int argv, char **args)
 
     //  (platform)
     physicsObjects[0].acceleration = vec2(0.f, 0.f);
-    physicsObjects[0].pos = vec2(100, 150);
+    physicsObjects[0].pos = vec2(100, 247);
     physicsObjects[0].oldPos = physicsObjects[0].pos;
-    physicsObjects[0].extents = vec2(600, 150);
+    physicsObjects[0].extents = vec2(600, 53);
     physicsObjects[0].flags = 0;
 
     //  (player 0)
@@ -228,8 +244,6 @@ int main(int argv, char **args)
     players[2].health = 0;
     players[3].health = 0;
 
-    int wentIntoMenu = 0;
-
     SDL_Texture *backgroundTexture = IMG_LoadTexture(renderer, "resources/menu/menu.png");
     SDL_Rect backgroundRect = {0, 0, 800, 600};
     MenuButton buttons[5];
@@ -237,11 +251,11 @@ int main(int argv, char **args)
 
     KeyboardStates keyboardInputs = {{0}};
     MouseState mouseInputs = {0, 0, 0};
-    unsigned char disconnecting = 0;
 
     struct timespec t1, t2;
     int currentGameState = MENU;
     int inGameMenuOpen = 0;
+    int wentIntoMenu = 0;
     while (currentGameState != CLOSED)
     {
         clock_gettime(CLOCK_MONOTONIC, &t1);
@@ -253,7 +267,7 @@ int main(int argv, char **args)
                 // handleKeyboardInputs(&keyboardInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
 
                 currentGameState = CLOSED;
-                disconnecting = 1;
+                messageType = DISCONNECTING;
 
                 break;
             case SDL_KEYDOWN:
@@ -292,7 +306,7 @@ int main(int argv, char **args)
                             break;
                         case 2:
                             currentGameState = CLOSED;
-                            disconnecting = 1;
+                            messageType = DISCONNECTING;
                             break;
                         default:
                             break;
@@ -306,8 +320,10 @@ int main(int argv, char **args)
             SDL_RenderPresent(renderer);
             break;
         case RUNNING:
-            memcpy(toServer->data, (void *)&keyboardInputs.keyState, 32);
-            memcpy(toServer->data+32, (void *)&disconnecting, 1);
+            messageType = CLIENT_KEYBOARD;
+            memcpy(toServer->data, (void *)&messageType, 1);
+            memcpy(toServer->data+1, (void *)&keyboardInputs.keyState, 32);
+           
             toServer->len = 33;
 
             SDLNet_UDP_Send(sd, -1, toServer);
@@ -357,7 +373,6 @@ int main(int argv, char **args)
             {
                 players[0].health += 10;
             }
-            // : %d\n", (players[0].render->imageExtents.y));
 
             handlePlayerAnimation(players);
 
@@ -365,9 +380,6 @@ int main(int argv, char **args)
             {
                 handlePlayerInputs(&players[thisComputersPlayerIndex], DT, &keyboardInputs);
             }
-
-            handlePlayerLives(&players[0]);          //  did (&players) work for anybody? -- Damien
-            lightPunch(players, 4, &keyboardInputs); //  did (&players) work for anybody? -- Damien
 
             for (int i = 0; i < amountOfPhysicalObjects; i++)
             {
@@ -383,9 +395,30 @@ int main(int argv, char **args)
 
             while (SDLNet_UDP_Recv(sd, fromServer) == 1)
             {
-                //clock_gettime(CLOCK_MONOTONIC, &timeCheck);
-                //printf("Time received: %d,%09d\n", timeCheck.tv_sec, timeCheck.tv_nsec);
-                memcpy((void*)&physicsObjects, fromServer->data, 180);        
+                if(fromServer->data[0] == PHYSICS_INFO) 
+                {
+                    memcpy((void*)&physicsObjects, fromServer->data+1, 180); 
+
+                    memcpy((void*)&players[0].health,fromServer->data+181, 2);
+                    memcpy((void*)&players[1].health,fromServer->data+183, 2);
+                    memcpy((void*)&players[2].health,fromServer->data+185, 2);
+                    memcpy((void*)&players[3].health,fromServer->data+187, 2);
+
+                    memcpy((void*)&players[0].lives,fromServer->data+189, 1);
+                    memcpy((void*)&players[1].lives,fromServer->data+190, 1);
+                    memcpy((void*)&players[2].lives,fromServer->data+191, 1);
+                    memcpy((void*)&players[3].lives,fromServer->data+192, 1);
+
+                    // memcpy((void*)&players[0].animationState,fromServer->data+193, 1);
+                    // memcpy((void*)&players[1].animationState,fromServer->data+194, 1);
+                    // memcpy((void*)&players[2].animationState,fromServer->data+195, 1);
+                    // memcpy((void*)&players[3].animationState,fromServer->data+196, 1);
+
+                    memcpy((void*)&players[0].render->flip,fromServer->data+197, 1);
+                    memcpy((void*)&players[1].render->flip,fromServer->data+198, 1);
+                    memcpy((void*)&players[2].render->flip,fromServer->data+199, 1);
+                    memcpy((void*)&players[3].render->flip,fromServer->data+200, 1);
+                }       
             }
 
             updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
@@ -406,7 +439,6 @@ int main(int argv, char **args)
         //  16638935 = (1/60.1) * 1000000000
         t1.tv_sec += ((t1.tv_nsec + 16638935) / 1000000000);
         t1.tv_nsec = ((t1.tv_nsec + 16638935) % 1000000000);
-
         do
         {
             clock_gettime(CLOCK_MONOTONIC, &t2);
@@ -414,19 +446,21 @@ int main(int argv, char **args)
         } while (((t2.tv_sec < t1.tv_sec) || ((t2.tv_sec == t1.tv_sec) && (t2.tv_nsec < t1.tv_nsec))));
     }
 
-    memcpy(toServer->data, (void *)&keyboardInputs.keyState, 32);
-    memcpy(toServer->data+32, (void *)&disconnecting, 1);
+    messageType = DISCONNECTING;
+    memcpy(toServer->data, (void *)&messageType, 1);
+    memcpy(toServer->data+1, (void *)&keyboardInputs.keyState, 32);
+   
     toServer->len = 33;
 
     SDLNet_UDP_Send(sd, -1, toServer);
 
-    TTF_CloseFont(font);
-
-    TTF_Quit();
-
     SDLNet_Quit();
     SDLNet_FreePacket(toServer);
     SDLNet_FreePacket(fromServer);
+
+    TTF_CloseFont(font);
+
+    TTF_Quit();
 
     Mix_FreeMusic(backgroundMusic);
     Mix_CloseAudio();

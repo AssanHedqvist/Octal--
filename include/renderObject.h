@@ -10,7 +10,7 @@ typedef struct
     SDL_Texture* texture;
     SDL_Rect imageExtents;
     SDL_Rect screenExtents;
-    SDL_RendererFlip flip;
+    unsigned char flip;
 } RenderObject;
 
 int spriteHandler(RenderObject object, int spriteToGet);

@@ -35,6 +35,6 @@ void handlePlayerInputs(Player *player, float dt, KeyboardStates *keyboardInputs
 
 void handlePlayerAnimation(Player *player);
 
-void handlePlayerLives(Player *player);
+void handlePlayerLives(Player player[4]);
 
 #endif

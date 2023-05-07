@@ -15,4 +15,4 @@ void renderPlayerHealth(Player players[], int amountOfPlayers, SDL_Renderer* ren
         SDL_FreeSurface(surface);
         SDL_DestroyTexture(texture);
     }
- }
+}

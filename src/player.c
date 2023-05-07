@@ -44,13 +44,17 @@ void handlePlayerInputs(Player *player, const float dt, KeyboardStates *keyboard
     player->timeSinceLastJump += (1.0f / 60.f);
 }
 
-void handlePlayerLives(Player *player)
+void handlePlayerLives(Player player[4])
 {
-    if (player->physics->pos.y < 0)
+    for (int i = 0; i < 4; i++)
     {
-        player->lives -= 1;
-        player->physics->oldPos = vec2(384, 450);
-        player->physics->pos = vec2(384, 450);
+        if (player[i].physics->pos.y < 0 || player[i].health > 100)
+        {
+            player[i].lives -= 1;
+            player[i].health = 0;
+            player[i].physics->oldPos = vec2(150.f + i * 166.6666718f, 450);
+            player[i].physics->pos = vec2(150.f + i * 166.6666718f, 450);
+        }
     }
 }
 

@@ -8,4 +8,6 @@
 
 void lightPunch(Player players[], int amountOfPlayers, KeyboardStates *keyboardInputs);
 
+void lightPunchServer(Player players[4],unsigned char playerFlip[4], KeyboardStates keyboardInputs[4]);
+
 #endif

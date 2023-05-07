@@ -15,6 +15,7 @@ exit
 #include "../include/physicsObject.h"
 #include "../include/player.h"
 #include "../include/renderObject.h"
+#include "../include/attacks.h"
 
 void getTimeDifference(struct timespec* before, struct timespec* after, struct timespec* remainingTime) {
 	struct timespec tmpTime;
@@ -34,6 +35,17 @@ void getTimeDifference(struct timespec* before, struct timespec* after, struct t
         remainingTime->tv_nsec = ((remainingTime->tv_nsec + tmpTime.tv_nsec) % 1000000000);
 	}
 }
+
+typedef enum {
+    JOIN_REQUEST = 0,
+    CLIENT_KEYBOARD = 1,
+	DISCONNECTING = 2
+} clientMessage;
+
+typedef enum {
+    JOIN_ANSWER = 0,
+    PHYSICS_INFO = 1
+} serverMessage;
  
 int main(int argc, char **argv)
 {
@@ -46,8 +58,7 @@ int main(int argc, char **argv)
 	IPaddress playersIP[4] = {{0,0}};
 	Player playersObject[4] = {{0, 0, 0, 0, 0, 0, 0}};
 	KeyboardStates playerInputs[4] = {{{0}}};
-	unsigned char playersHP[4] = {0};
-	unsigned char playerLives[4] = {4};
+	unsigned char playerFlip[4] = {0};
 	int amountOfPlayers = 0;
 	
     int quit = 0;
@@ -57,9 +68,9 @@ int main(int argc, char **argv)
 	
 	//  (platform)
     physicsObjects[0].acceleration = vec2(0.f, 0.f);
-    physicsObjects[0].pos = vec2(100, 150);
+    physicsObjects[0].pos = vec2(100, 247);
     physicsObjects[0].oldPos = physicsObjects[0].pos;
-    physicsObjects[0].extents = vec2(600, 150);
+    physicsObjects[0].extents = vec2(600, 53);
     physicsObjects[0].flags = 0;
 
     //  (player 0)
@@ -118,6 +129,8 @@ int main(int argc, char **argv)
 
 	int executePhysicsAmount = 0;
 
+	unsigned char messageType = 0;
+
 	clock_gettime(CLOCK_MONOTONIC, &t1);
 
 	/* Main loop */
@@ -131,8 +144,6 @@ int main(int argc, char **argv)
 			
 			executePhysicsAmount = timeToDoPhysics.tv_nsec / 16666666;
 			timeToDoPhysics.tv_nsec %= 16666666;
-
-			//printf("Time received: %llu,%09ld\n", timeToDoPhysics.tv_sec, timeToDoPhysics.tv_nsec);
 		}
 		
 		t1 = t2;
@@ -142,6 +153,7 @@ int main(int argc, char **argv)
 		{
 			int newPlayer = 1;
 			int ifNotNewWhichIndex = 0;
+			
 			for (int i = 0; i < 4; i++)
 			{
 				if(playersIP[i].host == pReceive->address.host && playersIP[i].port == pReceive->address.port) 
@@ -152,63 +164,90 @@ int main(int argc, char **argv)
 				}
 			}
 
-			if(newPlayer) {
-				int ifNewWhichIndex = 0;
-				if(amountOfPlayers < 4) 
-				{
-					for (int i = 0; i < 4; i++)
-					{	
-						if(takenPlayerSlots[i] == 0) 
-						{
-							ifNewWhichIndex = i;
-							break;
-						}
-					}
-
-					memcpy(pSent->data, (void*)&ifNewWhichIndex, 4);
-
-					playersIP[ifNewWhichIndex].host = pReceive->address.host;
-					pSent->address.host = pReceive->address.host;
-					playersIP[ifNewWhichIndex].port = pReceive->address.port;
-					pSent->address.port = pReceive->address.port;
-					
-					pSent->len = 4;
-					
-					SDLNet_UDP_Send(sd, -1, pSent);
-
-					takenPlayerSlots[ifNewWhichIndex] = 1;
-
-					printf("Player connected assigned number: %d\n", ifNewWhichIndex);
-
-					amountOfPlayers++;
-				}
-				else 
-				{
-					printf("Lobby is full couldn't connect new player\n");
-				}		
-			}
-
-			if(!newPlayer) 
+			switch (pReceive->data[0])
 			{
-				memcpy((void*)&playerInputs[ifNotNewWhichIndex].keyState,pReceive->data,32);
+				case JOIN_REQUEST:
+					if(newPlayer) {		
+						if(amountOfPlayers < 4) 
+						{
+							unsigned char ifNewWhichIndex = 0;
+							for (int i = 0; i < 4; i++)
+							{	
+								if(takenPlayerSlots[i] == 0) 
+								{
+									ifNewWhichIndex = i;
+									break;
+								}
+							}
 
-				handlePlayerInputs(&playersObject[ifNotNewWhichIndex], (1.f/240.0f), &playerInputs[ifNotNewWhichIndex]);
+							messageType = JOIN_ANSWER;
+							memcpy(pSent->data, (void*)&messageType, 1);
+							memcpy(pSent->data+1, (void*)&ifNewWhichIndex, 1);
 
-				unsigned char disconnecting = 0;
-				memcpy((void*)&disconnecting,pReceive->data+32,1);
-				if(disconnecting) 
-				{			
-					amountOfPlayers--;
-					playersIP[ifNotNewWhichIndex].host = 0;
-					playersIP[ifNotNewWhichIndex].port = 0;
-					takenPlayerSlots[ifNotNewWhichIndex] = 0;
-					printf("Disconnecting Player: %d\n", ifNotNewWhichIndex);
-				}
-			}	
+							playersIP[ifNewWhichIndex].host = pReceive->address.host;
+							pSent->address.host = pReceive->address.host;
+							playersIP[ifNewWhichIndex].port = pReceive->address.port;
+							pSent->address.port = pReceive->address.port;
+
+							pSent->len = 1;
+
+							SDLNet_UDP_Send(sd, -1, pSent);
+
+							takenPlayerSlots[ifNewWhichIndex] = 1;
+
+							printf("Player connected assigned number: %d\n", ifNewWhichIndex);
+
+							amountOfPlayers++;
+						}
+						else 
+						{
+							printf("Lobby is full couldn't connect new player\n");
+						}		
+					}
+					break;
+				case CLIENT_KEYBOARD:
+					if(!newPlayer) 
+					{
+						memcpy((void*)&playerInputs[ifNotNewWhichIndex].keyState,pReceive->data+1,32);
+					}
+					break;
+				case DISCONNECTING:
+					if(!newPlayer) 
+					{
+						amountOfPlayers--;
+						playersIP[ifNotNewWhichIndex].host = 0;
+						playersIP[ifNotNewWhichIndex].port = 0;
+						takenPlayerSlots[ifNotNewWhichIndex] = 0;
+						printf("Disconnecting Player: %d\n", ifNotNewWhichIndex);
+					}
+					break;
+				default:
+					break;
+			}
 		}	
 		
 		while (executePhysicsAmount > 0)
 		{
+		
+			for (int i = 0; i < 4; i++)
+			{
+				handlePlayerInputs(&playersObject[i], (1.f/240.0f), &playerInputs[i]);
+
+				//	temporary solution for flip 
+				if (isKeyDown(&playerInputs[i], SDL_SCANCODE_A)) 
+				{
+					playerFlip[i] = 1;
+				}
+
+				if (isKeyDown(&playerInputs[i], SDL_SCANCODE_D)) 
+				{
+					playerFlip[i] = 0;
+				}
+			}
+
+			lightPunchServer(playersObject, playerFlip, playerInputs);
+			handlePlayerLives(playersObject);
+			
 			for (int i = 0; i < amountOfPhysicalObjects; i++)
             {
                 physicsObjects[i].flags &= 0b00001111;
@@ -223,8 +262,28 @@ int main(int argc, char **argv)
 
 			if(executePhysicsAmount == 1) 
 			{
-				memcpy(pSent->data, (void*)&physicsObjects, 180);
-				pSent->len = 180;
+				messageType = PHYSICS_INFO;
+				memcpy(pSent->data,  (void*)&messageType, 1);
+				memcpy(pSent->data+1, (void*)&physicsObjects, 180);
+
+				memcpy(pSent->data+181, (void*)&playersObject[0].health, 2);
+				memcpy(pSent->data+183, (void*)&playersObject[1].health, 2);
+				memcpy(pSent->data+185, (void*)&playersObject[2].health, 2);
+				memcpy(pSent->data+187, (void*)&playersObject[3].health, 2);
+
+				memcpy(pSent->data+189, (void*)&playersObject[0].lives, 1);
+				memcpy(pSent->data+190, (void*)&playersObject[1].lives, 1);
+				memcpy(pSent->data+191, (void*)&playersObject[2].lives, 1);
+				memcpy(pSent->data+192, (void*)&playersObject[3].lives, 1);
+
+				// memcpy(pSent->data+193, (void*)&playersObject[0].animationState, 1);
+				// memcpy(pSent->data+194, (void*)&playersObject[1].animationState, 1);
+				// memcpy(pSent->data+195, (void*)&playersObject[2].animationState, 1);
+				// memcpy(pSent->data+196, (void*)&playersObject[3].animationState, 1);
+
+				memcpy(pSent->data+197, (void*)&playerFlip, 4);
+
+				pSent->len = 201;
 
 				for (int i = 0; i < 4; i++)
 				{
@@ -238,10 +297,9 @@ int main(int argc, char **argv)
 					}
 				}
 			}	
-
 			executePhysicsAmount--;
 		}
-	}
+	}	
 
 	/* Clean and exit */
 	SDLNet_FreePacket(pSent);
