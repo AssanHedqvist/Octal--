@@ -383,7 +383,7 @@ int main(int argv, char **args)
 
             if (!inGameMenuOpen)
             {
-                handlePlayerInputs(&players[thisComputersPlayerIndex], DT, &keyboardInputs, soundEffect);
+                handlePlayerInputs(&players[thisComputersPlayerIndex], DT, &keyboardInputs/*, soundEffect*/);
             }
 
             for (int i = 0; i < amountOfPhysicalObjects; i++)
