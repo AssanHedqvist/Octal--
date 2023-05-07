@@ -21,9 +21,9 @@ void handlePlayerInputs(Player *player, const float dt, KeyboardStates *keyboard
 
     if (flagSet(player->physics->flags, DOWN) && player->timeSinceLastJump >= JUMP_COOLDOWN)
     {
-        if (player->amountOfJumpsLeft <2)
+        if (player->amountOfJumpsLeft < 2)
         {
-            //Mix_PlayChannel(-1,soundEffect.landOnGround,0);
+            // Mix_PlayChannel(-1,soundEffect.landOnGround,0);
         }
         player->amountOfJumpsLeft = 2;
     }
@@ -37,7 +37,7 @@ void handlePlayerInputs(Player *player, const float dt, KeyboardStates *keyboard
 
             player->physics->oldPos = vsum(player->physics->oldPos, vsmul(vec2(0.f, -450.f), dt));
 
-            //Mix_PlayChannel(-1, soundEffect.jump, 0);
+            // Mix_PlayChannel(-1, soundEffect.jump, 0);
 
             // vec2 velocity = vdiff(player->physics->pos, player->physics->oldPos);
 
@@ -78,7 +78,12 @@ void handlePlayerAnimation(Player *player)
     switch (player->animationState)
     {
     case IDLE:
-        player->render->imageExtents.y = 0;
+        if (player->render->imageExtents.y != player->render->imageExtents.h * IDLE)
+        {
+            player->render->imageExtents.y = player->render->imageExtents.h * IDLE;
+            player->render->imageExtents.x = 0;
+        }
+
         if (player->render->imageExtents.x >= 1920) //   1920 is entire spritesheet - one sprite
         {
             player->render->imageExtents.x = 0;
@@ -97,7 +102,11 @@ void handlePlayerAnimation(Player *player)
         break;
 
     case RUN:
-        player->render->imageExtents.y = 256;
+        if (player->render->imageExtents.y != player->render->imageExtents.h * RUN)
+        {
+            player->render->imageExtents.y = player->render->imageExtents.h * RUN;
+            player->render->imageExtents.x = 0;
+        }
         if (!flagSet(player->physics->flags, DOWN))
         {
             player->animationState = JUMP;
@@ -117,7 +126,11 @@ void handlePlayerAnimation(Player *player)
         }
         break;
     case JUMP:
-        player->render->imageExtents.y = 512;
+        if (player->render->imageExtents.y != player->render->imageExtents.h * JUMP)
+        {
+            player->render->imageExtents.y = player->render->imageExtents.h * JUMP;
+            player->render->imageExtents.x = 0;
+        }
         if (player->render->imageExtents.x >= 1920)
         {
             player->render->imageExtents.x = 0;
