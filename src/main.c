@@ -86,7 +86,7 @@ int main(int argv, char **args)
     }
 
     //   Resolve server name
-    if (SDLNet_ResolveHost(&serverAddress, "127.0.0.1", 31929) == -1)
+    if (SDLNet_ResolveHost(&serverAddress, "130.229.128.1", 31929) == -1)
     {
         // fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
