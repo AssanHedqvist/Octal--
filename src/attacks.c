@@ -10,6 +10,7 @@ void lightPunch(Player players[], int amountOfPlayers, KeyboardStates *keyboardI
 {
     if (isKeyDown(keyboardInputs, SDL_SCANCODE_J) && players[0].timeSinceLastPunch >= PUNCH_COOLDOWN)
     {
+        players[0].animationState = PUNCH;
         Mix_PlayChannel(-1, soundEffect.punch,0);
         for (int i = 1; i < 4; i++)
         {
