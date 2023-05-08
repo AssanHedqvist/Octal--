@@ -5,6 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include "../include/keyboard.h"
 #include "../include/player.h"
+#include "../include/sounds.h"
 
 void lightPunch(Player players[], int amountOfPlayers, KeyboardStates *keyboardInputs, SoundEffect soundEffect);
 

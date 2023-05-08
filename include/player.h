@@ -33,8 +33,10 @@ typedef enum {
 
 void handlePlayerInputs(Player *player, float dt, KeyboardStates *keyboardInputs /*, SoundEffect soundEffect*/);
 
+void handlePlayerLives(Player player[4]);
+
 void handlePlayerAnimation(Player *player);
 
-void handlePlayerLives(Player player[4]);
+void handlePlayerAnimationServer(Player player[4]);
 
 #endif

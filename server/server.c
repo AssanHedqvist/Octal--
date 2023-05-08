@@ -47,12 +47,13 @@ typedef enum {
     PHYSICS_INFO = 1
 } serverMessage;
 
-char checkWinner(int *amountOfPlayers, unsigned char *playerLives)
+char checkWinner(int *amountOfPlayers, Player players[4])
 {
 
 	int nAlive = 0, nWinner = 0;
+	//	this will not work if player 0 and player 2 is connected 
 	for (int x = 0; x < *amountOfPlayers; x++)
-		if ((int)playerLives[x] > 0)
+		if (players[x].lives > 0)
 		{
 			nAlive++;
 			nWinner = x;
@@ -75,9 +76,9 @@ int main(int argc, char **argv)
 	Player playersObject[4] = {{0, 0, 0, 0, 0, 0, 0}};
 	KeyboardStates playerInputs[4] = {{{0}}};
 	unsigned char playerFlip[4] = {0};
-	unsigned char playersHP[4] = {0};
-	unsigned char playerLives[4] = {4, 4, 4, 4};
 	int amountOfPlayers = 0;
+
+	int soundsToPlay = 0;
 	
     int quit = 0;
 	
@@ -170,7 +171,7 @@ int main(int argc, char **argv)
 		while (SDLNet_UDP_Recv(sd, pReceive) == 1)
 		{
 			int newPlayer = 1;
-			int ifNotNewWhichIndex = 0;
+			unsigned char ifNotNewWhichIndex = 0;
 			
 			for (int i = 0; i < 4; i++)
 			{
@@ -207,7 +208,7 @@ int main(int argc, char **argv)
 							playersIP[ifNewWhichIndex].port = pReceive->address.port;
 							pSent->address.port = pReceive->address.port;
 
-							pSent->len = 1;
+							pSent->len = 2;
 
 							SDLNet_UDP_Send(sd, -1, pSent);
 
@@ -221,6 +222,17 @@ int main(int argc, char **argv)
 						{
 							printf("Lobby is full couldn't connect new player\n");
 						}		
+					}
+					else {
+						messageType = JOIN_ANSWER;
+						memcpy(pSent->data, (void*)&messageType, 1);
+						memcpy(pSent->data+1, (void*)&ifNotNewWhichIndex, 1);
+						pSent->address.host = playersIP[ifNotNewWhichIndex].host;
+						pSent->address.port = playersIP[ifNotNewWhichIndex].port;
+						
+						pSent->len = 2;
+
+						SDLNet_UDP_Send(sd, -1, pSent);
 					}
 					break;
 				case CLIENT_KEYBOARD:
@@ -264,6 +276,7 @@ int main(int argc, char **argv)
 			}
 
 			lightPunchServer(playersObject, playerFlip, playerInputs);
+			handlePlayerAnimationServer(playersObject);
 			handlePlayerLives(playersObject);
 			
 			for (int i = 0; i < amountOfPhysicalObjects; i++)
@@ -282,9 +295,11 @@ int main(int argc, char **argv)
 			{
 				if (amountOfPlayers > 1)
 				{
-					int nWinner = checkWinner(&amountOfPlayers, playerLives);
-					if (nWinner)
-					memcpy(pSent->data+201, (void*)&nWinner, 1);	
+					char nWinner = checkWinner(&amountOfPlayers, playersObject);
+					if (nWinner) 
+					{
+						memcpy(pSent->data+201, (void*)&nWinner, 1);	
+					}
 				}	
 
 				messageType = PHYSICS_INFO;
@@ -301,10 +316,10 @@ int main(int argc, char **argv)
 				memcpy(pSent->data+191, (void*)&playersObject[2].lives, 1);
 				memcpy(pSent->data+192, (void*)&playersObject[3].lives, 1);
 
-				// memcpy(pSent->data+193, (void*)&playersObject[0].animationState, 1);
-				// memcpy(pSent->data+194, (void*)&playersObject[1].animationState, 1);
-				// memcpy(pSent->data+195, (void*)&playersObject[2].animationState, 1);
-				// memcpy(pSent->data+196, (void*)&playersObject[3].animationState, 1);
+				memcpy(pSent->data+193, (void*)&playersObject[0].animationState, 1);
+				memcpy(pSent->data+194, (void*)&playersObject[1].animationState, 1);
+				memcpy(pSent->data+195, (void*)&playersObject[2].animationState, 1);
+				memcpy(pSent->data+196, (void*)&playersObject[3].animationState, 1);
 
 				memcpy(pSent->data+197, (void*)&playerFlip, 4);
 

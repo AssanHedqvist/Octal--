@@ -1,6 +1,5 @@
 #include "../include/player.h"
 
-#define totSprites 3
 #define JUMP_COOLDOWN 0.1f
 
 void handlePlayerInputs(Player *player, const float dt, KeyboardStates *keyboardInputs /*, SoundEffect soundEffect*/)
@@ -73,79 +72,126 @@ void handlePlayerLives(Player player[4])
     }
 }
 
-void handlePlayerAnimation(Player *player)
+void handlePlayerAnimation(Player player[4])
 {
-    switch (player->animationState)
+    for (int i = 0; i < 4; i++)
     {
-    case IDLE:
-        if (player->render->imageExtents.y != player->render->imageExtents.h * IDLE)
+        switch (player[i].animationState)
         {
-            player->render->imageExtents.y = player->render->imageExtents.h * IDLE;
-            player->render->imageExtents.x = 0;
+        case IDLE:
+            if (player[i].render->imageExtents.y != player[i].render->imageExtents.h * IDLE)
+            {
+                player[i].render->imageExtents.y = player[i].render->imageExtents.h * IDLE;
+                player[i].render->imageExtents.x = 0;
+            }
+    
+            if (player[i].render->imageExtents.x >= 1920) //   1920 is entire spritesheet - one sprite
+            {
+                player[i].render->imageExtents.x = 0;
+            }
+            else if (!flagSet(player[i].physics->flags, DOWN))
+            {
+                player[i].animationState = JUMP;
+                player[i].render->imageExtents.x += player[i].render->imageExtents.w;
+            }
+            else
+            {
+            
+                player[i].render->imageExtents.x += player[i].render->imageExtents.w;
+            }
+    
+            break;
+    
+        case RUN:
+            if (player[i].render->imageExtents.y != player[i].render->imageExtents.h * RUN)
+            {
+                player[i].render->imageExtents.y = player[i].render->imageExtents.h * RUN;
+                player[i].render->imageExtents.x = 0;
+            }
+            if (!flagSet(player[i].physics->flags, DOWN))
+            {
+                player[i].animationState = JUMP;
+                player[i].render->imageExtents.y = 512; //   not sure why this has to be set here as well.
+            }
+            else if (player[i].render->imageExtents.x >= 1920 && fabs(player[i].physics->pos.x - player[i].physics->oldPos.x) > 0.3f)
+            {
+                player[i].render->imageExtents.x = 0;
+            }
+            else if (fabs(player[i].physics->pos.x - player[i].physics->oldPos.x) > 0.3f)
+            {
+                player[i].render->imageExtents.x += player[i].render->imageExtents.w;
+            }
+            else
+            {
+                player[i].animationState = IDLE;
+            }
+            break;
+        case JUMP:
+            if (player[i].render->imageExtents.y != player[i].render->imageExtents.h * JUMP)
+            {
+                player[i].render->imageExtents.y = player[i].render->imageExtents.h * JUMP;
+                player[i].render->imageExtents.x = 0;
+            }
+            if (player[i].render->imageExtents.x >= 1920)
+            {
+                player[i].render->imageExtents.x = 0;
+            }
+            else if (!flagSet(player[i].physics->flags, DOWN))
+            {
+                player[i].render->imageExtents.x += player[i].render->imageExtents.w;
+            }
+            else
+            {
+                player[i].animationState = IDLE;
+            }
+            break;
+    
+        default:
+            break;
         }
+    } 
+}
 
-        if (player->render->imageExtents.x >= 1920) //   1920 is entire spritesheet - one sprite
+void handlePlayerAnimationServer(Player player[4])
+{
+    for (int i = 0; i < 4; i++)
+    {
+        switch (player[i].animationState)
         {
-            player->render->imageExtents.x = 0;
-        }
-        else if (!flagSet(player->physics->flags, DOWN))
-        {
-            player->animationState = JUMP;
-            player->render->imageExtents.x += player->render->imageExtents.w;
-        }
-        else
-        {
+        case IDLE:
+            if (!flagSet(player[i].physics->flags, DOWN))
+            {
+                player[i].animationState = JUMP;
+            }
+            break;
+        case RUN:
+            if (!flagSet(player[i].physics->flags, DOWN))
+            {
+                player[i].animationState = JUMP;
+    
+            }
+            if (fabs(player[i].physics->pos.x - player[i].physics->oldPos.x) > 0.3f)
+            {
+                player[i].animationState = RUN;
+            }
+            else
+            {
+                player[i].animationState = IDLE;
+            }
+            break;
+        case JUMP:
+            if (!flagSet(player[i].physics->flags, DOWN))
+            {
+                player[i].animationState = JUMP;
+            }
+            else
+            {
+                player[i].animationState = IDLE;
+            }
+            break;
 
-            player->render->imageExtents.x += player->render->imageExtents.w;
+        default:
+            break;
         }
-
-        break;
-
-    case RUN:
-        if (player->render->imageExtents.y != player->render->imageExtents.h * RUN)
-        {
-            player->render->imageExtents.y = player->render->imageExtents.h * RUN;
-            player->render->imageExtents.x = 0;
-        }
-        if (!flagSet(player->physics->flags, DOWN))
-        {
-            player->animationState = JUMP;
-            player->render->imageExtents.y = 512; //   not sure why this has to be set here as well.
-        }
-        else if (player->render->imageExtents.x >= 1920 && fabs(player->physics->pos.x - player->physics->oldPos.x) > 0.2)
-        {
-            player->render->imageExtents.x = 0;
-        }
-        else if (fabs(player->physics->pos.x - player->physics->oldPos.x) > 0.3)
-        {
-            player->render->imageExtents.x += player->render->imageExtents.w;
-        }
-        else
-        {
-            player->animationState = IDLE;
-        }
-        break;
-    case JUMP:
-        if (player->render->imageExtents.y != player->render->imageExtents.h * JUMP)
-        {
-            player->render->imageExtents.y = player->render->imageExtents.h * JUMP;
-            player->render->imageExtents.x = 0;
-        }
-        if (player->render->imageExtents.x >= 1920)
-        {
-            player->render->imageExtents.x = 0;
-        }
-        else if (!flagSet(player->physics->flags, DOWN))
-        {
-            player->render->imageExtents.x += player->render->imageExtents.w;
-        }
-        else
-        {
-            player->animationState = IDLE;
-        }
-        break;
-
-    default:
-        break;
-    }
+    } 
 }

@@ -105,17 +105,20 @@ int main(int argv, char **args)
 
     //  server connecting code
 
-    toServer->address.host = serverAddress.host;
-    toServer->address.port = serverAddress.port;
-
-    unsigned char messageType = JOIN_REQUEST;
-
-    memcpy(toServer->data, (void *)&messageType, 1);
-    toServer->len = 1;
-    SDLNet_UDP_Send(sd, -1, toServer);
-
+    unsigned char messageType;
     while(1) 
     {
+        toServer->address.host = serverAddress.host;
+        toServer->address.port = serverAddress.port;
+
+        messageType = JOIN_REQUEST;
+
+        memcpy(toServer->data, (void *)&messageType, 1);
+
+        toServer->len = 1;
+
+        SDLNet_UDP_Send(sd, -1, toServer);
+
         if(SDLNet_UDP_Recv(sd, fromServer)==1) 
         {
             if(fromServer->data[0] == JOIN_ANSWER) 
@@ -139,8 +142,10 @@ int main(int argv, char **args)
     // initialize SDL_mixer
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
     Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/tempMusicWhatIsLove.mp3");
+
     SoundEffect soundEffect;
     loadSoundEffects(&soundEffect);
+
     int amountOfRenderObjects = 6;
     RenderObject renderObjects[6];
 
@@ -254,9 +259,11 @@ int main(int argv, char **args)
     MouseState mouseInputs = {0, 0, 0};
 
     struct timespec t1, t2;
+
     int currentGameState = MENU;
     int inGameMenuOpen = 0;
     int wentIntoMenu = 0;
+
     while (currentGameState != CLOSED)
     {
         clock_gettime(CLOCK_MONOTONIC, &t1);
@@ -265,7 +272,6 @@ int main(int argv, char **args)
             switch (event.type)
             {
             case SDL_QUIT:
-                // handleKeyboardInputs(&keyboardInputs, SDL_SCANCODE_ESCAPE, SDL_KEYDOWN);
 
                 currentGameState = CLOSED;
                 messageType = DISCONNECTING;
@@ -379,8 +385,7 @@ int main(int argv, char **args)
                 players[0].health += 10;
             }
 
-            handlePlayerAnimation(players);
-
+          
             if (!inGameMenuOpen)
             {
                 handlePlayerInputs(&players[thisComputersPlayerIndex], DT, &keyboardInputs/*, soundEffect*/);
@@ -414,10 +419,10 @@ int main(int argv, char **args)
                     memcpy((void*)&players[2].lives,fromServer->data+191, 1);
                     memcpy((void*)&players[3].lives,fromServer->data+192, 1);
 
-                    // memcpy((void*)&players[0].animationState,fromServer->data+193, 1);
-                    // memcpy((void*)&players[1].animationState,fromServer->data+194, 1);
-                    // memcpy((void*)&players[2].animationState,fromServer->data+195, 1);
-                    // memcpy((void*)&players[3].animationState,fromServer->data+196, 1);
+                    memcpy((void*)&players[0].animationState,fromServer->data+193, 1);
+                    memcpy((void*)&players[1].animationState,fromServer->data+194, 1);
+                    memcpy((void*)&players[2].animationState,fromServer->data+195, 1);
+                    memcpy((void*)&players[3].animationState,fromServer->data+196, 1);
 
                     memcpy((void*)&players[0].render->flip,fromServer->data+197, 1);
                     memcpy((void*)&players[1].render->flip,fromServer->data+198, 1);
@@ -425,6 +430,8 @@ int main(int argv, char **args)
                     memcpy((void*)&players[3].render->flip,fromServer->data+200, 1);
                 }       
             }
+
+            handlePlayerAnimation(players);
 
             updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
 
