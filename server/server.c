@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 	
 	unsigned char takenPlayerSlots[4] = {0};
 	IPaddress playersIP[4] = {{0,0}};
-	Player playersObject[4] = {{0, 0, 0, 0, 0, 0, 0}};
+	Player playersObject[4] = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 	KeyboardStates playerInputs[4] = {{{0}}};
 	unsigned char playerFlip[4] = {0};
 	int amountOfPlayers = 0;
@@ -273,15 +273,16 @@ int main(int argc, char **argv)
 				{
 					playerFlip[i] = 0;
 				}
-				if (isKeyDown(&playerInputs[i], SDL_SCANCODE_J)) 
+
+				if (isKeyDown(&playerInputs[i], SDL_SCANCODE_J) && playersObject[i].timeSinceLastPunch >=  0.13333333333333333333333333333333f) 
 				{
-					playersObject[i].animationState = PUNCH;
+					playersObject[i].animationState = PUNCH_0;
 				}
 				
 			}
 
 			lightPunchServer(playersObject, playerFlip, playerInputs);
-			handlePlayerAnimationServer(playersObject);
+			handlePlayerAnimationServerAlt(playersObject);
 			handlePlayerLives(playersObject);
 			
 			for (int i = 0; i < amountOfPhysicalObjects; i++)

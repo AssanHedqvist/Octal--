@@ -431,7 +431,7 @@ int main(int argv, char **args)
                 }       
             }
 
-            handlePlayerAnimation(players);
+            handlePlayerAnimationAlt(players);
 
             updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
 
