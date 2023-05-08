@@ -47,20 +47,20 @@ typedef enum {
     PHYSICS_INFO = 1
 } serverMessage;
 
-char checkWinner(int *amountOfPlayers, Player players[4])
+char checkWinner(int *amountOfPlayers, Player players[4], unsigned char takenPlayerSlots[4])
 {
-
-	int nAlive = 0, nWinner = 0;
-	//	this will not work if player 0 and player 2 is connected 
-	for (int x = 0; x < *amountOfPlayers; x++)
-		if (players[x].lives > 0)
+	int nAlive = 0, nWinner = -1;
+	for (int i = 0; i < 4; i++) 
+	{
+		if (takenPlayerSlots[i] && players[i].lives > 0)
 		{
 			nAlive++;
-			nWinner = x;
+			nWinner = i;
 		}
-	
+	}
+		
 	if (nAlive > 1)
-		return -1; // player zero is a real player right? -- Damien
+		return -1;
 	return nWinner;	
 }
  
@@ -295,7 +295,7 @@ int main(int argc, char **argv)
 			{
 				if (amountOfPlayers > 1)
 				{
-					char nWinner = checkWinner(&amountOfPlayers, playersObject);
+					char nWinner = checkWinner(&amountOfPlayers, playersObject, takenPlayerSlots);
 					if (nWinner) 
 					{
 						memcpy(pSent->data+201, (void*)&nWinner, 1);	

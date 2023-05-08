@@ -86,7 +86,7 @@ int main(int argv, char **args)
     }
 
     //   Resolve server name
-    if (SDLNet_ResolveHost(&serverAddress, "130.229.128.1", 31929) == -1)
+    if (SDLNet_ResolveHost(&serverAddress, "130.229.160.40", 31929) == -1)
     {
         // fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -163,26 +163,26 @@ int main(int argv, char **args)
     renderObjects[1].flip = 0;
 
     renderObjects[2].order = 2;
-    renderObjects[2].texture = IMG_LoadTexture(renderer, "resources/gridnetForSprites.png");
+    renderObjects[2].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesAlpha.png");
     renderObjects[2].imageExtents = (SDL_Rect){0, 0, 128, 256};
     renderObjects[2].screenExtents = (SDL_Rect){400, 300, 32, 64};
     renderObjects[2].flip = 0;
 
     renderObjects[3].order = 2;
-    renderObjects[3].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite2.png");
-    renderObjects[3].imageExtents = (SDL_Rect){0, 0, 32, 64};
+    renderObjects[3].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesAlpha.png");
+    renderObjects[3].imageExtents = (SDL_Rect){0, 0, 128, 256};
     renderObjects[3].screenExtents = (SDL_Rect){300, 300, 32, 64};
     renderObjects[3].flip = 0;
 
     renderObjects[4].order = 2;
-    renderObjects[4].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite3.png");
-    renderObjects[4].imageExtents = (SDL_Rect){0, 0, 32, 64};
+    renderObjects[4].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesAlpha.png");
+    renderObjects[4].imageExtents = (SDL_Rect){0, 0, 128, 256};
     renderObjects[4].screenExtents = (SDL_Rect){300, 300, 32, 64};
     renderObjects[4].flip = 0;
 
     renderObjects[5].order = 2;
-    renderObjects[5].texture = IMG_LoadTexture(renderer, "resources/stickman/stickmanSprite4.png");
-    renderObjects[5].imageExtents = (SDL_Rect){0, 0, 32, 64};
+    renderObjects[5].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesAlpha.png");
+    renderObjects[5].imageExtents = (SDL_Rect){0, 0, 128, 256};
     renderObjects[5].screenExtents = (SDL_Rect){300, 300, 32, 64};
     renderObjects[5].flip = 0;
 
