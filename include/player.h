@@ -27,7 +27,8 @@ typedef struct
 typedef enum {
     IDLE = 0,
     RUN = 1,
-    JUMP = 2
+    JUMP = 2,
+    PUNCH = 3
 } animationState;
 
 

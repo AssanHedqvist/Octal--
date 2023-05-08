@@ -79,31 +79,43 @@ void handlePlayerAnimation(Player player[4])
         switch (player[i].animationState)
         {
         case IDLE:
-            if (player[i].render->imageExtents.y != player[i].render->imageExtents.h * IDLE)
+            if (player[i].render->imageExtents.y == player[i].render->imageExtents.h * PUNCH &&
+                player[i].render->imageExtents.x < 1920)
             {
-                player[i].render->imageExtents.y = player[i].render->imageExtents.h * IDLE;
-                player[i].render->imageExtents.x = 0;
+                player[i].render->imageExtents.x += 128;
+                player[i].animationState = PUNCH;
+                printf("borde räkna upp x? %d %d\n", player[i].render->imageExtents.x, player[i].render->imageExtents.y);
             }
-    
-            if (player[i].render->imageExtents.x >= 1920) //   1920 is entire spritesheet - one sprite
-            {
-                player[i].render->imageExtents.x = 0;
-            }
+
             else if (!flagSet(player[i].physics->flags, DOWN))
             {
                 player[i].animationState = JUMP;
                 player[i].render->imageExtents.x += player[i].render->imageExtents.w;
             }
+            else if (player[i].render->imageExtents.y != player[i].render->imageExtents.h * IDLE)
+            {
+                player[i].render->imageExtents.y = player[i].render->imageExtents.h * IDLE;
+                player[i].render->imageExtents.x = 0;
+            }
+            else if (player[i].render->imageExtents.x >= 1920) //   1920 is entire spritesheet - one sprite
+            {
+                player[i].render->imageExtents.x = 0;
+            }
             else
             {
-            
                 player[i].render->imageExtents.x += player[i].render->imageExtents.w;
             }
-    
+
             break;
-    
+
         case RUN:
-            if (player[i].render->imageExtents.y != player[i].render->imageExtents.h * RUN)
+            if (player[i].render->imageExtents.y == player[i].render->imageExtents.h * PUNCH &&
+                player[i].render->imageExtents.x < 1920)
+            {
+                player[i].render->imageExtents.x += player[i].render->imageExtents.w;
+                printf("borde räkna upp x? %d %d\n", player[i].render->imageExtents.x, player[i].render->imageExtents.y);
+            }
+            else if (player[i].render->imageExtents.y != player[i].render->imageExtents.h * RUN)
             {
                 player[i].render->imageExtents.y = player[i].render->imageExtents.h * RUN;
                 player[i].render->imageExtents.x = 0;
@@ -127,7 +139,13 @@ void handlePlayerAnimation(Player player[4])
             }
             break;
         case JUMP:
-            if (player[i].render->imageExtents.y != player[i].render->imageExtents.h * JUMP)
+            if (player[i].render->imageExtents.y == player[i].render->imageExtents.h * PUNCH &&
+                player[i].render->imageExtents.x < 1920)
+            {
+                printf("%d %d\n", player[i].render->imageExtents.x, player[i].render->imageExtents.y);
+                player[i].render->imageExtents.x += 128;
+            }
+            else if (player[i].render->imageExtents.y != player[i].render->imageExtents.h * JUMP)
             {
                 player[i].render->imageExtents.y = player[i].render->imageExtents.h * JUMP;
                 player[i].render->imageExtents.x = 0;
@@ -145,11 +163,25 @@ void handlePlayerAnimation(Player player[4])
                 player[i].animationState = IDLE;
             }
             break;
-    
+        case PUNCH:
+            if (player[i].render->imageExtents.h != player[i].render->imageExtents.h * PUNCH)
+            {
+                player[i].render->imageExtents.y = player[i].render->imageExtents.h * PUNCH;
+                player[i].render->imageExtents.x = 0;
+                //  player[i].animationState = IDLE;
+            }
+            else
+            {
+                printf("in the ELSE\n");
+                player[i].animationState = IDLE;
+            }
+            printf("%d %d\n", player[i].render->imageExtents.x, player[i].render->imageExtents.y);
+            // printf("animstate %d\n", player[i].animationState);
+
         default:
             break;
         }
-    } 
+    }
 }
 
 void handlePlayerAnimationServer(Player player[4])
@@ -168,7 +200,6 @@ void handlePlayerAnimationServer(Player player[4])
             if (!flagSet(player[i].physics->flags, DOWN))
             {
                 player[i].animationState = JUMP;
-    
             }
             if (fabs(player[i].physics->pos.x - player[i].physics->oldPos.x) > 0.3f)
             {
@@ -189,9 +220,11 @@ void handlePlayerAnimationServer(Player player[4])
                 player[i].animationState = IDLE;
             }
             break;
+        case PUNCH:
+            player[i].animationState = PUNCH;
 
         default:
             break;
         }
-    } 
+    }
 }

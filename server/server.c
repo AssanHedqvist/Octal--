@@ -273,6 +273,11 @@ int main(int argc, char **argv)
 				{
 					playerFlip[i] = 0;
 				}
+				if (isKeyDown(&playerInputs[i], SDL_SCANCODE_J)) 
+				{
+					playersObject[i].animationState = PUNCH;
+				}
+				
 			}
 
 			lightPunchServer(playersObject, playerFlip, playerInputs);
