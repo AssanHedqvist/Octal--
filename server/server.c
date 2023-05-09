@@ -47,21 +47,26 @@ typedef enum {
     PHYSICS_INFO = 1
 } serverMessage;
 
-char checkWinner(int *amountOfPlayers, Player players[4], unsigned char takenPlayerSlots[4])
+char checkWinner(int amountOfPlayers, Player players[4], unsigned char takenPlayerSlots[4])
 {
-	int nAlive = 0, nWinner = -1;
-	for (int i = 0; i < 4; i++) 
+	int nAlive = 0, nWinner = 0;
+
+	/*
+		x < 4 has to be this way because if player 0 and player 2 is connected but player 1 isn't 
+		then x < amountOfPlayers won't work then
+	*/
+
+	for (int x = 0; x < 4; x++) 
 	{
-		if (takenPlayerSlots[i] && players[i].lives > 0)
+		if (takenPlayerSlots[x] && players[x].lives > 0)
 		{
 			nAlive++;
-			nWinner = i;
+			nWinner = x;
 		}
 	}
-		
 	if (nAlive > 1)
-		return -1;
-	return nWinner;	
+		return 0;	//	player 0 is a player so we have to be careful with this
+	return nWinner + 1;
 }
  
 int main(int argc, char **argv)
@@ -139,6 +144,8 @@ int main(int argc, char **argv)
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
+
+	memset(pSent->data, 0, 250);
 	
 	playersObject[0].physics = &physicsObjects[1];
     playersObject[1].physics = &physicsObjects[2];
@@ -295,11 +302,12 @@ int main(int argc, char **argv)
 			{
 				if (amountOfPlayers > 1)
 				{
-					char nWinner = checkWinner(&amountOfPlayers, playersObject, takenPlayerSlots);
-					if (nWinner) 
-					{
-						memcpy(pSent->data+201, (void*)&nWinner, 1);	
-					}
+					// Enable line(s) below when properly initilizing player lives
+					// char nWinner = checkWinner(amountOfPlayers, playersObject, takenPlayerSlots);
+					//if (nWinner) 
+					//{
+					//	memcpy(pSent->data+201, (void*)&nWinner, 1);	
+					//}
 				}	
 
 				messageType = PHYSICS_INFO;

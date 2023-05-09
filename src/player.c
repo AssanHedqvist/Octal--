@@ -2,7 +2,7 @@
 
 #define JUMP_COOLDOWN 0.1f
 
-void handlePlayerInputs(Player *player, const float dt, KeyboardStates *keyboardInputs /*, SoundEffect soundEffect*/)
+void handlePlayerInputsServer(Player *player, const float dt, KeyboardStates *keyboardInputs /*, SoundEffect soundEffect*/)
 {
     if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_A))
     {

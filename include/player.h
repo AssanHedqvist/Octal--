@@ -95,7 +95,7 @@ typedef enum {
     PUNCH_16,
 } animationState;
 
-void handlePlayerInputs(Player *player, float dt, KeyboardStates *keyboardInputs /*, SoundEffect soundEffect*/);
+void handlePlayerInputsServer(Player *player, float dt, KeyboardStates *keyboardInputs /*, SoundEffect soundEffect*/);
 
 void handlePlayerLives(Player player[4]);
 
