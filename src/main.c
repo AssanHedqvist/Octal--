@@ -86,7 +86,7 @@ int main(int argv, char **args)
     }
 
     //   Resolve server name
-    if (SDLNet_ResolveHost(&serverAddress, "130.229.160.40", 31929) == -1)
+    if (SDLNet_ResolveHost(&serverAddress, "130.229.177.128", 31929) == -1)
     {
         // fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
@@ -242,6 +242,8 @@ int main(int argv, char **args)
 
     players[0].amountOfJumpsLeft = 2;
     players[1].amountOfJumpsLeft = 2;
+    players[2].amountOfJumpsLeft = 2;
+    players[3].amountOfJumpsLeft = 2;
 
     int frameCounter = 0;
 
@@ -279,21 +281,21 @@ int main(int argv, char **args)
                 break;
             case SDL_KEYDOWN:
             case SDL_KEYUP:
-                handleKeyboardInputs(&keyboardInputs, event.key.keysym.scancode, event.type);
+                setKeyboardKey(&keyboardInputs, event.key.keysym.scancode, event.type);
                 break;
             case SDL_MOUSEMOTION:
                 updateMousePos(&mouseInputs);
                 break;
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:
-                handleMouseInputs(&mouseInputs, event.button.button, event.type);
+                setMouseKey(&mouseInputs, event.button.button, event.type);
                 break;
             }
         }
         switch (currentGameState)
         {
         case MENU:
-            if (isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT))
+            if (getMouseKey(&mouseInputs, SDL_BUTTON_LEFT))
             {
                 for (int i = 0; i < 3; i++)
                 {
@@ -332,12 +334,12 @@ int main(int argv, char **args)
             messageType = CLIENT_KEYBOARD;
             memcpy(toServer->data, (void *)&messageType, 1);
             memcpy(toServer->data+1, (void *)&keyboardInputs.keyState, 32);
-           
+            
             toServer->len = 33;
 
             SDLNet_UDP_Send(sd, -1, toServer);
 
-            if (isMouseButtonPressed(&mouseInputs, SDL_BUTTON_LEFT) && inGameMenuOpen)
+            if (getMouseKey(&mouseInputs, SDL_BUTTON_LEFT) && inGameMenuOpen)
             {
 
                 for (int i = 3; i < 5; i++)
@@ -364,32 +366,28 @@ int main(int argv, char **args)
                 }
             }
 
-            if (isKeyDown(&keyboardInputs, SDL_SCANCODE_P))
+            if (getKeyboardKey(&keyboardInputs, SDL_SCANCODE_P))
             {
                 // togglePlay();                           //press p to toggle music
             }
 
-            if (isKeyDown(&keyboardInputs, SDL_SCANCODE_ESCAPE) && wentIntoMenu == 0)
+            if (getKeyboardKey(&keyboardInputs, SDL_SCANCODE_ESCAPE) && wentIntoMenu == 0)
             {
                 inGameMenuOpen = !inGameMenuOpen;
                 wentIntoMenu = 1;
             }
 
-            if (!isKeyDown(&keyboardInputs, SDL_SCANCODE_ESCAPE) && wentIntoMenu == 1)
+            if (!getKeyboardKey(&keyboardInputs, SDL_SCANCODE_ESCAPE) && wentIntoMenu == 1)
             {
                 wentIntoMenu = 0;
             }
-
-            if (isKeyDown(&keyboardInputs, SDL_SCANCODE_E))
-            {
-                players[0].health += 10;
-            }
-
           
             if (!inGameMenuOpen)
             {
                 handlePlayerInputs(&players[thisComputersPlayerIndex], DT, &keyboardInputs/*, soundEffect*/);
             }
+
+            handlePlayerAnimationClient(players, thisComputersPlayerIndex);
 
             for (int i = 0; i < amountOfPhysicalObjects; i++)
             {
@@ -431,7 +429,7 @@ int main(int argv, char **args)
                 }       
             }
 
-            handlePlayerAnimationAlt(players);
+            updatePlayerRenderWithAnimation(players);
 
             updateRenderWithPhysics(renderObjects, physicsObjects, amountOfPhysicalObjects);
 
@@ -466,10 +464,11 @@ int main(int argv, char **args)
 
     SDLNet_UDP_Send(sd, -1, toServer);
 
-    SDLNet_Quit();
-    SDLNet_FreePacket(toServer);
+    SDLNet_FreePacket(toServer);    
     SDLNet_FreePacket(fromServer);
 
+    SDLNet_Quit();
+    
     TTF_CloseFont(font);
 
     TTF_Quit();

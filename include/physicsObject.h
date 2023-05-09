@@ -24,7 +24,7 @@ typedef struct
     unsigned char flags; //  flags about physicsObject
 } PhysicsObject;
 
-static inline unsigned char flagSet(unsigned char objFlags, unsigned char physicsFlagToCheck) 
+static inline unsigned char flagGet(unsigned char objFlags, unsigned char physicsFlagToCheck) 
 {
     return ((objFlags & physicsFlagToCheck) > 0);
 }

@@ -6,9 +6,7 @@
 #include "../include/keyboard.h"
 #include "../include/sounds.h"
 
-
-typedef struct
-{
+typedef struct {
     RenderObject *render;
     PhysicsObject *physics;
     unsigned char amountOfJumpsLeft;
@@ -23,96 +21,88 @@ typedef struct
     //  add more
 } Player;
 
-//   numbers represent rows in spritesheet
+/*
+    Every _0 animation isn't really an animation it is just there to make the code work properly
+*/
 typedef enum {
-    IDLE = 0,
-    RUN = 1,
-    JUMP = 2,
-    PUNCH = 3    
+    IDLE_0 ,
+    IDLE_1 ,
+    IDLE_2 ,
+    IDLE_3 ,
+    IDLE_4 ,
+    IDLE_5 ,
+    IDLE_6 ,
+    IDLE_7 ,
+    IDLE_8 ,
+    IDLE_9 ,
+    IDLE_10,
+    IDLE_11,
+    IDLE_12,
+    IDLE_13,
+    IDLE_14,
+    IDLE_15,
+    IDLE_16,
+    RUN_0  ,
+    RUN_1  ,
+    RUN_2  ,
+    RUN_3  ,
+    RUN_4  ,
+    RUN_5  ,
+    RUN_6  ,
+    RUN_7  ,
+    RUN_8  ,
+    RUN_9  ,
+    RUN_10 ,
+    RUN_11 ,
+    RUN_12 ,
+    RUN_13 ,
+    RUN_14 ,
+    RUN_15 ,
+    RUN_16 ,
+    JUMP_0 ,
+    JUMP_1 ,
+    JUMP_2 ,
+    JUMP_3 ,
+    JUMP_4 ,
+    JUMP_5 ,
+    JUMP_6 ,
+    JUMP_7 ,
+    JUMP_8 ,
+    JUMP_9 ,
+    JUMP_10,
+    JUMP_11,
+    JUMP_12,
+    JUMP_13,
+    JUMP_14,
+    JUMP_15,
+    JUMP_16,
+    PUNCH_0,
+    PUNCH_1,
+    PUNCH_2,
+    PUNCH_3,
+    PUNCH_4,
+    PUNCH_5,
+    PUNCH_6,
+    PUNCH_7,
+    PUNCH_8,
+    PUNCH_9,
+    PUNCH_10,
+    PUNCH_11,
+    PUNCH_12,
+    PUNCH_13,
+    PUNCH_14,
+    PUNCH_15,
+    PUNCH_16,
 } animationState;
-
-//   numbers represent rows in spritesheet
-typedef enum {
-IDLE_0       = 0,
-IDLE_1       = 1,
-IDLE_2       = 2,
-IDLE_3       = 3,
-IDLE_4       = 4,
-IDLE_5       = 5,
-IDLE_6       = 6,
-IDLE_7       = 7,
-IDLE_8       = 8,
-IDLE_9       = 9,
-IDLE_10      = 10,
-IDLE_11      = 11,
-IDLE_12      = 12,
-IDLE_13      = 13,
-IDLE_14      = 14,
-IDLE_15      = 15,
-IDLE_16      = 16,
-RUN_0        = 17,
-RUN_1        = 18,
-RUN_2        = 19,
-RUN_3        = 20,
-RUN_4        = 21,
-RUN_5        = 22,
-RUN_6        = 23,
-RUN_7        = 24,
-RUN_8        = 25,
-RUN_9        = 26,
-RUN_10       = 27,
-RUN_11       = 28,
-RUN_12       = 29,
-RUN_13       = 30,
-RUN_14       = 31,
-RUN_15       = 32,
-RUN_16       = 33,
-JUMP_0       = 34,
-JUMP_1       = 35,
-JUMP_2       = 36,
-JUMP_3       = 37,
-JUMP_4       = 38,
-JUMP_5       = 39,
-JUMP_6       = 40,
-JUMP_7       = 41,
-JUMP_8       = 42,
-JUMP_9       = 43,
-JUMP_10      = 44,
-JUMP_11      = 45,
-JUMP_12      = 46,
-JUMP_13      = 47,
-JUMP_14      = 48,
-JUMP_15      = 49,
-JUMP_16      = 50,
-PUNCH_0      = 51,
-PUNCH_1      = 52,
-PUNCH_2      = 53,
-PUNCH_3      = 54,
-PUNCH_4      = 55,
-PUNCH_5      = 56,
-PUNCH_6      = 57,
-PUNCH_7      = 58,
-PUNCH_8      = 59,
-PUNCH_9      = 60,
-PUNCH_10     = 61,
-PUNCH_11     = 62,
-PUNCH_12     = 63,
-PUNCH_13     = 64,
-PUNCH_14     = 65,
-PUNCH_15     = 66,
-PUNCH_16     = 67,
-} animationStateAlt;
 
 void handlePlayerInputs(Player *player, float dt, KeyboardStates *keyboardInputs /*, SoundEffect soundEffect*/);
 
 void handlePlayerLives(Player player[4]);
 
-void handlePlayerAnimation(Player player[4]);
+void handlePlayerAnimationClient(Player player[4], unsigned char thisComputersPlayerIndex);
 
 void handlePlayerAnimationServer(Player player[4]);
 
-void handlePlayerAnimationAlt(Player player[4]);
-
-void handlePlayerAnimationServerAlt(Player player[4]);
+void updatePlayerRenderWithAnimation(Player player[4]);
 
 #endif

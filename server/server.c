@@ -264,25 +264,19 @@ int main(int argc, char **argv)
 				handlePlayerInputs(&playersObject[i], (1.f/240.0f), &playerInputs[i]);
 
 				//	temporary solution for flip 
-				if (isKeyDown(&playerInputs[i], SDL_SCANCODE_A)) 
+				if (getKeyboardKey(&playerInputs[i], SDL_SCANCODE_A)) 
 				{
 					playerFlip[i] = 1;
 				}
 
-				if (isKeyDown(&playerInputs[i], SDL_SCANCODE_D)) 
+				if (getKeyboardKey(&playerInputs[i], SDL_SCANCODE_D)) 
 				{
 					playerFlip[i] = 0;
-				}
-
-				if (isKeyDown(&playerInputs[i], SDL_SCANCODE_J) && playersObject[i].timeSinceLastPunch >=  0.13333333333333333333333333333333f) 
-				{
-					playersObject[i].animationState = PUNCH_0;
-				}
-				
+				}			
 			}
 
 			lightPunchServer(playersObject, playerFlip, playerInputs);
-			handlePlayerAnimationServerAlt(playersObject);
+			handlePlayerAnimationServer(playersObject);
 			handlePlayerLives(playersObject);
 			
 			for (int i = 0; i < amountOfPhysicalObjects; i++)

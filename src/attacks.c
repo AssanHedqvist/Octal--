@@ -8,9 +8,9 @@
 //  server shall handle this function later when that is done change keyboardStates to a array instead of pointer
 void lightPunch(Player players[], int amountOfPlayers, KeyboardStates *keyboardInputs, SoundEffect soundEffect)
 {
-    if (isKeyDown(keyboardInputs, SDL_SCANCODE_J) && players[0].timeSinceLastPunch >= PUNCH_COOLDOWN)
+    if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_J) && players[0].timeSinceLastPunch >= PUNCH_COOLDOWN)
     {
-        players[0].animationState = PUNCH;
+        //players[0].animationState = PUNCH;
         Mix_PlayChannel(-1, soundEffect.punch,0);
         for (int i = 1; i < 4; i++)
         {
@@ -91,8 +91,10 @@ void lightPunchServer(Player players[4], unsigned char playerFlip[4], KeyboardSt
     float sign = 1.f;
     for (int i = 0; i < 4; i++)
     {
-        if (isKeyDown(&keyboardInputs[i], SDL_SCANCODE_J) && players[i].timeSinceLastPunch >= PUNCH_COOLDOWN) 
+        if (getKeyboardKey(&keyboardInputs[i], SDL_SCANCODE_J) && players[i].timeSinceLastPunch >= PUNCH_COOLDOWN) 
         {   
+            players[i].animationState = PUNCH_0;
+
             if(playerFlip[i] == 1) {
                 minCorner1 = vsum(players[i].physics->pos, vec2(-players[i].physics->extents.x,0.f));
                 maxCorner1 = vsum(players[i].physics->pos, vec2(0.f,players[i].physics->extents.y));

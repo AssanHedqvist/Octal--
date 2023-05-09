@@ -3,7 +3,7 @@
 
 void updatePosition(PhysicsObject* obj, float dt) 
 {
-    if(flagSet(obj->flags, DYNAMIC)) {
+    if(flagGet(obj->flags, DYNAMIC)) {
         vec2 velocity = vdiff(obj->pos, obj->oldPos);
 
         obj->oldPos = obj->pos;
@@ -16,7 +16,7 @@ void updatePositions(PhysicsObject objects[], int length, const float dt)
 {
     for (int i = 0; i < length; i++)
     {
-        if(flagSet(objects[i].flags, DYNAMIC)) {
+        if(flagGet(objects[i].flags, DYNAMIC)) {
             // 0.9740037464253f is a magic value equal to 0.9^(1/4) because we take 4 substeps right now --Damien
             
             vec2 velocity = vdiff(objects[i].pos, objects[i].oldPos);
@@ -49,16 +49,16 @@ void aabbTest(PhysicsObject* obj1, PhysicsObject* obj2)
         pushVector.x = obj2->pos.x <= obj1->pos.x ? pushVector.x : -pushVector.x;
         pushVector.y = obj2->pos.y <= obj1->pos.y ? pushVector.y : -pushVector.y;
 
-        if(flagSet(obj1->flags, DYNAMIC) && !flagSet(obj2->flags, DYNAMIC)) 
+        if(flagGet(obj1->flags, DYNAMIC) && !flagGet(obj2->flags, DYNAMIC)) 
         {
             obj1->pos = vsum(obj1->pos, pushVector);
         }
-        if(flagSet(obj1->flags, DYNAMIC) && flagSet(obj2->flags, DYNAMIC)) 
+        if(flagGet(obj1->flags, DYNAMIC) && flagGet(obj2->flags, DYNAMIC)) 
         {
             obj1->pos = vsum(obj1->pos, vsmul(pushVector,0.5f));
             obj2->pos = vsum(obj2->pos, vsmul(pushVector,-0.5f));
         }
-        if(!flagSet(obj1->flags, DYNAMIC) && flagSet(obj2->flags, DYNAMIC)) 
+        if(!flagGet(obj1->flags, DYNAMIC) && flagGet(obj2->flags, DYNAMIC)) 
         {
             obj2->pos = vdiff(obj2->pos, pushVector);
         }  
@@ -110,16 +110,16 @@ void constraintSolve(PhysicsObject objects[], int length)
                 }
 
                 //  push objects out of each other
-                if(flagSet(objects[i].flags, DYNAMIC) && !flagSet(objects[j].flags, DYNAMIC)) 
+                if(flagGet(objects[i].flags, DYNAMIC) && !flagGet(objects[j].flags, DYNAMIC)) 
                 {
                     objects[i].pos = vsum(objects[i].pos, pushVector);
                 }
-                if(flagSet(objects[i].flags, DYNAMIC) && flagSet(objects[j].flags, DYNAMIC)) 
+                if(flagGet(objects[i].flags, DYNAMIC) && flagGet(objects[j].flags, DYNAMIC)) 
                 {
                     objects[i].pos = vsum(objects[i].pos, vsmul(pushVector,0.5f));
                     objects[j].pos = vsum(objects[j].pos, vsmul(pushVector,-0.5f));
                 }
-                if(!flagSet(objects[i].flags, DYNAMIC) && flagSet(objects[j].flags, DYNAMIC)) 
+                if(!flagGet(objects[i].flags, DYNAMIC) && flagGet(objects[j].flags, DYNAMIC)) 
                 {
                     objects[j].pos = vdiff(objects[j].pos, pushVector);
                 }  
@@ -132,7 +132,7 @@ void constraintSolve(PhysicsObject objects[], int length)
 void boundarySolve(PhysicsObject objects[], int length) {
     for (int i = 0; i < length; i++)
     {
-        if(flagSet(objects[i].flags, PLAYER)) 
+        if(flagGet(objects[i].flags, PLAYER)) 
         {
             // collision detection with windows boundries
             if (objects[i].pos.x <= 0.f)

@@ -5,7 +5,7 @@ void updateMousePos(MouseState* mouseState)
     SDL_GetMouseState(&mouseState->x, &mouseState->y);
 }
 
-void handleMouseInputs(MouseState* mouseState, int mouseButton, int eventType) 
+void setMouseKey(MouseState* mouseState, int mouseButton, int eventType) 
 {
     if(eventType == SDL_MOUSEBUTTONDOWN) {
         mouseState->state |= (1 << mouseButton);
@@ -15,6 +15,6 @@ void handleMouseInputs(MouseState* mouseState, int mouseButton, int eventType)
     }
 }
 
-char isMouseButtonPressed(MouseState* mouseState, int mouseButton) {
+char getMouseKey(MouseState* mouseState, int mouseButton) {
     return (mouseState->state & (1u << mouseButton )) > 0;
 }
