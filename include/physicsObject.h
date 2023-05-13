@@ -29,6 +29,8 @@ static inline unsigned char flagGet(unsigned char objFlags, unsigned char physic
     return ((objFlags & physicsFlagToCheck) > 0);
 }
 
+void initPhysicsObjects(PhysicsObject objects[]);
+
 void updatePosition(PhysicsObject* obj, float dt);
 
 void updatePositions(PhysicsObject objects[], int length, const float dt);

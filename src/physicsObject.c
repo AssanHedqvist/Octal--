@@ -1,6 +1,43 @@
 #include "../include/physicsObject.h"
 #include <math.h>
 
+void initPhysicsObjects(PhysicsObject objects[]) 
+{
+     //  (platform)
+    objects[0].acceleration = vec2(0.f, 0.f);
+    objects[0].pos = vec2(100, 247);
+    objects[0].oldPos = objects[0].pos;
+    objects[0].extents = vec2(600, 53);
+    objects[0].flags = 0;
+
+    //  (player 0)
+    objects[1].acceleration = vec2(0.f, -982.0f);
+    objects[1].pos = vec2(150, 536);
+    objects[1].oldPos = objects[1].pos;
+    objects[1].extents = vec2(32, 64);
+    objects[1].flags = (DYNAMIC | PLAYER);
+    //  (player 1)
+    objects[2].acceleration = vec2(0.f, -982.0f);
+    objects[2].pos = vec2(316.6666666666666666666666666666f, 536);
+    objects[2].oldPos = objects[2].pos;
+    objects[2].extents = vec2(32, 64);
+    objects[2].flags = (DYNAMIC | PLAYER);
+
+    //  (player 2)
+    objects[3].acceleration = vec2(0.f, -982.0f);
+    objects[3].pos = vec2(483.33333333333333333333333333334f, 536);
+    objects[3].oldPos = objects[3].pos;
+    objects[3].extents = vec2(32, 64);
+    objects[3].flags = (DYNAMIC | PLAYER);
+
+    //  (player 3)
+    objects[4].acceleration = vec2(0.f, -982.0f);
+    objects[4].pos = vec2(650, 536);
+    objects[4].oldPos = objects[4].pos;
+    objects[4].extents = vec2(32, 64);
+    objects[4].flags = (DYNAMIC | PLAYER);
+}
+
 void updatePosition(PhysicsObject* obj, float dt) 
 {
     if(flagGet(obj->flags, DYNAMIC)) {
@@ -79,7 +116,9 @@ void constraintSolve(PhysicsObject objects[], int length)
             if(objects[i].pos.x <= maxCorner2.x &&
                objects[i].pos.y <= maxCorner2.y &&
                objects[j].pos.x <= maxCorner1.x && 
-               objects[j].pos.y <= maxCorner1.y) 
+               objects[j].pos.y <= maxCorner1.y &&
+               !(flagGet(objects[i].flags, PLAYER) && 
+               flagGet(objects[j].flags, PLAYER))) 
             {
                 //  pushVector
                 vec2 pushVector = vdiff(vmin(maxCorner1,maxCorner2),vmax(objects[i].pos,objects[j].pos));

@@ -3,11 +3,16 @@
 
 #include <SDL2/SDL.h>
 
-typedef struct {
+typedef struct 
+{
     int x;
     int y;
     unsigned char state;
 } MouseState;
+
+int getMouseX(MouseState* mouseState);
+
+int getMouseY(MouseState* mouseState);
 
 void updateMousePos(MouseState* mouseState);
 

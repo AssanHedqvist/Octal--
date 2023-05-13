@@ -1,5 +1,15 @@
 #include "../include/mouse.h"
 
+int getMouseX(MouseState* mouseState) 
+{
+    return mouseState->x;
+}
+
+int getMouseY(MouseState* mouseState) 
+{
+    return mouseState->y;
+}
+
 void updateMousePos(MouseState* mouseState) 
 {
     SDL_GetMouseState(&mouseState->x, &mouseState->y);

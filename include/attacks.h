@@ -7,8 +7,10 @@
 #include "../include/player.h"
 #include "../include/sounds.h"
 
-void lightPunch(Player players[], int amountOfPlayers, KeyboardStates *keyboardInputs, SoundEffect soundEffect);
+void lightPunchClient(Player players[4], KeyboardStates* keyboardInputs, unsigned char thisComputersPlayerIndex, SoundEffect soundEffect);
 
 void lightPunchServer(Player players[4],unsigned char playerFlip[4], KeyboardStates keyboardInputs[4]);
+
+void oldLightPunch(Player players[], int amountOfPlayers, KeyboardStates *keyboardInputs, SoundEffect soundEffect);
 
 #endif

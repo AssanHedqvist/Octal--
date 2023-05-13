@@ -13,7 +13,7 @@ typedef struct
     unsigned char flip;
 } RenderObject;
 
-int spriteHandler(RenderObject object, int spriteToGet);
+void initRenderObjects(RenderObject objects[], SDL_Renderer *renderer);
 
 void renderObject(SDL_Renderer *renderer, RenderObject* objectToRender);
 

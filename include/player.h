@@ -11,7 +11,7 @@ typedef struct {
     PhysicsObject *physics;
     unsigned char amountOfJumpsLeft;
     unsigned short health;
-    unsigned char lives;
+    char lives;
     unsigned char recentlyHit;
     unsigned char animationState;
 
@@ -20,6 +20,23 @@ typedef struct {
     float timeSinceHit;
     //  add more
 } Player;
+
+void initPlayers(Player players[]);
+
+void handlePlayerInputsServer(Player player[4], KeyboardStates keyboardInputs[4], unsigned char playerFlip[4]);
+
+void handlePlayerInputsClient(Player *player, KeyboardStates *keyboardInputs, SoundEffect soundEffect);
+
+void handlePlayerLivesServer(Player player[4]);
+
+void handlePlayerLivesClient(Player player[4], SoundEffect soundEffect);
+
+void handlePlayerAnimationServer(Player player[4]);
+
+void handlePlayerAnimationClient(Player player[4]);
+
+//  client only function
+void updatePlayerRenderWithAnimation(Player player[4]);
 
 /*
     Every _0 animation isn't really an animation it is just there to make the code work properly
@@ -93,16 +110,23 @@ typedef enum {
     PUNCH_14,
     PUNCH_15,
     PUNCH_16,
+    BLOCK_0,
+    BLOCK_1,
+    BLOCK_2,
+    BLOCK_3,
+    BLOCK_4,
+    BLOCK_5,
+    BLOCK_6,
+    BLOCK_7,
+    BLOCK_8,
+    BLOCK_9,
+    BLOCK_10,
+    BLOCK_11,
+    BLOCK_12,
+    BLOCK_13,
+    BLOCK_14,
+    BLOCK_15,
+    BLOCK_16,
 } animationState;
-
-void handlePlayerInputsServer(Player *player, float dt, KeyboardStates *keyboardInputs /*, SoundEffect soundEffect*/);
-
-void handlePlayerLives(Player player[4]);
-
-void handlePlayerAnimationClient(Player player[4], unsigned char thisComputersPlayerIndex);
-
-void handlePlayerAnimationServer(Player player[4]);
-
-void updatePlayerRenderWithAnimation(Player player[4]);
 
 #endif

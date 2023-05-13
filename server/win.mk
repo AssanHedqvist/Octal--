@@ -1,6 +1,6 @@
 
 INCLUDE = C:\msys64\mingw64\include
-LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_net -lSDL2_mixer
+LDFLAGS = -lmingw32 -lSDL2main -lSDL2_image -lSDL2 -lSDL2_net -lSDL2_mixer
 
 LIBS = C:\msys64\mingw64\lib
 

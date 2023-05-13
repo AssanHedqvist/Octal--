@@ -63,7 +63,10 @@ int main(int argv, char **args)
     IPaddress serverAddress;
     UDPpacket *toServer;
     UDPpacket *fromServer;
-    Player players[4] = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+    Player players[4];
+
+    initPlayers(players);
+
     Text playerHealthText[4];
 
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -89,7 +92,7 @@ int main(int argv, char **args)
     //   Resolve server name
     if (SDLNet_ResolveHost(&serverAddress, "127.0.0.1", 31929) == -1)
     {
-        // fprintf(stderr, "SDLNet_ResolveHost(192.0.0.1 2000): %s\n", SDLNet_GetError());
+        fprintf(stderr, "Resolve Host Error:%s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
 
@@ -144,114 +147,32 @@ int main(int argv, char **args)
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
     Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/tempMusicWhatIsLove.mp3");
 
+    SDL_Texture *endScreenTexture = IMG_LoadTexture(renderer, "resources/endscreens/p1EndScreen.png");
+
     SoundEffect soundEffect;
     loadSoundEffects(&soundEffect);
 
     int amountOfRenderObjects = 6;
     RenderObject renderObjects[6];
 
-    //   Render order: start at 0 continue up.
-    renderObjects[0].order = 0;
-    renderObjects[0].texture = IMG_LoadTexture(renderer, "resources/background.png");
-    renderObjects[0].imageExtents = (SDL_Rect){0, 0, 6000, 3000};
-    renderObjects[0].screenExtents = (SDL_Rect){0, 0, 800, 600};
-    renderObjects[0].flip = 0;
-
-    renderObjects[1].order = 1;
-    renderObjects[1].texture = IMG_LoadTexture(renderer, "resources/platform.png");
-    renderObjects[1].imageExtents = (SDL_Rect){0, 0, 1000, 75};
-    renderObjects[1].screenExtents = (SDL_Rect){100, 300, 600, 53};
-    renderObjects[1].flip = 0;
-
-    renderObjects[2].order = 2;
-    renderObjects[2].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesAlpha.png");
-    renderObjects[2].imageExtents = (SDL_Rect){0, 0, 128, 256};
-    renderObjects[2].screenExtents = (SDL_Rect){400, 300, 32, 64};
-    renderObjects[2].flip = 0;
-
-    renderObjects[3].order = 2;
-    renderObjects[3].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesAlpha.png");
-    renderObjects[3].imageExtents = (SDL_Rect){0, 0, 128, 256};
-    renderObjects[3].screenExtents = (SDL_Rect){300, 300, 32, 64};
-    renderObjects[3].flip = 0;
-
-    renderObjects[4].order = 2;
-    renderObjects[4].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesAlpha.png");
-    renderObjects[4].imageExtents = (SDL_Rect){0, 0, 128, 256};
-    renderObjects[4].screenExtents = (SDL_Rect){300, 300, 32, 64};
-    renderObjects[4].flip = 0;
-
-    renderObjects[5].order = 2;
-    renderObjects[5].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesAlpha.png");
-    renderObjects[5].imageExtents = (SDL_Rect){0, 0, 128, 256};
-    renderObjects[5].screenExtents = (SDL_Rect){300, 300, 32, 64};
-    renderObjects[5].flip = 0;
+    initRenderObjects(renderObjects, renderer);
 
     players[0].render = &renderObjects[2];
     players[1].render = &renderObjects[3];
     players[2].render = &renderObjects[4];
     players[3].render = &renderObjects[5];
 
-    //  three renderObjects for now...
     int amountOfPhysicalObjects = 5;
-    PhysicsObject physicsObjects[5] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0}};
+    PhysicsObject physicsObjects[5];
 
-    /*
-    Damien:
-    I am going to make it so that you won't need to set the oldPos yourself
-    that is because im going to make it so it can be calculated
-    */
-
-    //  (platform)
-    physicsObjects[0].acceleration = vec2(0.f, 0.f);
-    physicsObjects[0].pos = vec2(100, 247);
-    physicsObjects[0].oldPos = physicsObjects[0].pos;
-    physicsObjects[0].extents = vec2(600, 53);
-    physicsObjects[0].flags = 0;
-
-    //  (player 0)
-    physicsObjects[1].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[1].pos = vec2(150, 536);
-    physicsObjects[1].oldPos = physicsObjects[1].pos;
-    physicsObjects[1].extents = vec2(32, 64);
-    physicsObjects[1].flags = (DYNAMIC | PLAYER);
-    //  (player 1)
-    physicsObjects[2].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[2].pos = vec2(316.6666666666666666666666666666f, 536);
-    physicsObjects[2].oldPos = physicsObjects[2].pos;
-    physicsObjects[2].extents = vec2(32, 64);
-    physicsObjects[2].flags = (DYNAMIC | PLAYER);
-
-    //  (player 2)
-    physicsObjects[3].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[3].pos = vec2(483.33333333333333333333333333334f, 536);
-    physicsObjects[3].oldPos = physicsObjects[3].pos;
-    physicsObjects[3].extents = vec2(32, 64);
-    physicsObjects[3].flags = (DYNAMIC | PLAYER);
-
-    //  (player 3)
-    physicsObjects[4].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[4].pos = vec2(650, 536);
-    physicsObjects[4].oldPos = physicsObjects[4].pos;
-    physicsObjects[4].extents = vec2(32, 64);
-    physicsObjects[4].flags = (DYNAMIC | PLAYER);
+    initPhysicsObjects(physicsObjects);
 
     players[0].physics = &physicsObjects[1];
     players[1].physics = &physicsObjects[2];
     players[2].physics = &physicsObjects[3];
     players[3].physics = &physicsObjects[4];
 
-    players[0].amountOfJumpsLeft = 2;
-    players[1].amountOfJumpsLeft = 2;
-    players[2].amountOfJumpsLeft = 2;
-    players[3].amountOfJumpsLeft = 2;
-
     int frameCounter = 0;
-
-    players[0].health = 0;
-    players[1].health = 0;
-    players[2].health = 0;
-    players[3].health = 0;
 
     SDL_Texture *backgroundTexture = IMG_LoadTexture(renderer, "resources/menu/menu.png");
     SDL_Rect backgroundRect = {0, 0, 800, 600};
@@ -259,7 +180,7 @@ int main(int argv, char **args)
     createButtons(renderer, buttons, font);
 
     KeyboardStates keyboardInputs = {{0}};
-    MouseState mouseInputs = {0, 0, 0};
+    MouseState mouseInputs = {0,0,0};
 
     struct timespec t1, t2;
 
@@ -301,10 +222,10 @@ int main(int argv, char **args)
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    if (mouseInputs.x >= buttons[i].rect.x &&
-                        mouseInputs.x <= buttons[i].rect.x + buttons[i].rect.w &&
-                        mouseInputs.y >= buttons[i].rect.y &&
-                        mouseInputs.y <= buttons[i].rect.y + buttons[i].rect.h)
+                    if (getMouseX(&mouseInputs) >= buttons[i].rect.x &&
+                        getMouseX(&mouseInputs) <= buttons[i].rect.x + buttons[i].rect.w &&
+                        getMouseY(&mouseInputs) >= buttons[i].rect.y &&
+                        getMouseY(&mouseInputs) <= buttons[i].rect.y + buttons[i].rect.h)
                     {
                         switch (i)
                         {
@@ -346,10 +267,10 @@ int main(int argv, char **args)
 
                 for (int i = 3; i < 5; i++)
                 {
-                    if (mouseInputs.x >= buttons[i].rect.x &&
-                        mouseInputs.x <= buttons[i].rect.x + buttons[i].rect.w &&
-                        mouseInputs.y >= buttons[i].rect.y &&
-                        mouseInputs.y <= buttons[i].rect.y + buttons[i].rect.h)
+                    if (getMouseX(&mouseInputs) >= buttons[i].rect.x &&
+                        getMouseX(&mouseInputs) <= buttons[i].rect.x + buttons[i].rect.w &&
+                        getMouseY(&mouseInputs) >= buttons[i].rect.y &&
+                        getMouseY(&mouseInputs) <= buttons[i].rect.y + buttons[i].rect.h)
                     {
                         switch (i)
                         {
@@ -386,10 +307,12 @@ int main(int argv, char **args)
           
             if (!inGameMenuOpen)
             {
-                handlePlayerInputs(&players[thisComputersPlayerIndex], DT, &keyboardInputs/*, soundEffect*/);
+                handlePlayerInputsClient(&players[thisComputersPlayerIndex], &keyboardInputs, soundEffect);
             }
 
-            handlePlayerAnimationClient(players, thisComputersPlayerIndex);
+            lightPunchClient(players, &keyboardInputs, thisComputersPlayerIndex, soundEffect);
+            handlePlayerAnimationClient(players);
+            handlePlayerLivesClient(players, soundEffect);
 
             for (int i = 0; i < amountOfPhysicalObjects; i++)
             {
@@ -414,10 +337,17 @@ int main(int argv, char **args)
                     memcpy((void*)&players[2].health,fromServer->data+185, 2);
                     memcpy((void*)&players[3].health,fromServer->data+187, 2);
 
-                    memcpy((void*)&players[0].lives,fromServer->data+189, 1);
-                    memcpy((void*)&players[1].lives,fromServer->data+190, 1);
-                    memcpy((void*)&players[2].lives,fromServer->data+191, 1);
-                    memcpy((void*)&players[3].lives,fromServer->data+192, 1);
+                    unsigned char tmpLivesCheck[4];
+
+                    memcpy((void*)&tmpLivesCheck,fromServer->data+189, 4);
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if(tmpLivesCheck[i] < players[i].lives) {
+                            Mix_PlayChannel(-1, soundEffect.death, 0); 
+                        }
+                        players[i].lives = tmpLivesCheck[i];
+                    }
 
                     memcpy((void*)&players[0].animationState,fromServer->data+193, 1);
                     memcpy((void*)&players[1].animationState,fromServer->data+194, 1);
@@ -456,10 +386,11 @@ int main(int argv, char **args)
             //char winnerEndScreen[50];
             //sprintf(winnerEndScreen, "resources/endscreens/p%dEndScreen.png", nWinner);
             //SDL_Texture *backgroundTexture = IMG_LoadTexture(renderer, winnerEndScreen);
-            SDL_Texture *endScreenTexture = IMG_LoadTexture(renderer, "resources/endscreens/p1EndScreen.png");
+            //printf("Player %d won!\n", nWinner);
             SDL_RenderClear(renderer);
             SDL_RenderCopyEx(renderer, endScreenTexture, NULL, &backgroundRect, 0.0, NULL, 0);
             SDL_RenderPresent(renderer);
+            
             break;
         }
         }
@@ -503,6 +434,7 @@ int main(int argv, char **args)
 
     freeButtons(buttons, 5);
 
+    SDL_DestroyTexture(endScreenTexture);
     SDL_DestroyTexture(backgroundTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
