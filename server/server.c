@@ -58,7 +58,7 @@ char checkWinner(int amountOfPlayers, Player players[4], unsigned char takenPlay
 
 	for (int x = 0; x < 4; x++) 
 	{
-		if (takenPlayerSlots[x] && players[x].lives > 0)
+		if (/*takenPlayerSlots[x] &&*/ players[x].lives > 0)
 		{
 			nAlive++;
 			nWinner = x;
@@ -78,7 +78,10 @@ int main(int argc, char **argv)
 	
 	unsigned char takenPlayerSlots[4] = {0};
 	IPaddress playersIP[4] = {{0,0}};
-	Player playersObject[4] = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+	Player playersObject[4];
+	
+	initPlayers(playersObject);
+
 	KeyboardStates playerInputs[4] = {{{0}}};
 	unsigned char playerFlip[4] = {0};
 	int amountOfPlayers = 0;
@@ -87,42 +90,15 @@ int main(int argc, char **argv)
 	
     int quit = 0;
 	
-    PhysicsObject physicsObjects[5] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0}};
 	int amountOfPhysicalObjects = 5;
+    PhysicsObject physicsObjects[5] = {{{0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, {0.f, 0.f}, 0}};
 	
-	//  (platform)
-    physicsObjects[0].acceleration = vec2(0.f, 0.f);
-    physicsObjects[0].pos = vec2(100, 247);
-    physicsObjects[0].oldPos = physicsObjects[0].pos;
-    physicsObjects[0].extents = vec2(600, 53);
-    physicsObjects[0].flags = 0;
+	initPhysicsObjects(physicsObjects);
 
-    //  (player 0)
-    physicsObjects[1].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[1].pos = vec2(150, 536);
-    physicsObjects[1].oldPos = physicsObjects[1].pos;
-    physicsObjects[1].extents = vec2(32, 64);
-    physicsObjects[1].flags = DYNAMIC | PLAYER;
-    //  (player 1)
-    physicsObjects[2].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[2].pos = vec2(316.6666666666666666666666666666f, 536);
-    physicsObjects[2].oldPos = physicsObjects[2].pos;
-    physicsObjects[2].extents = vec2(32, 64);
-    physicsObjects[2].flags = DYNAMIC | PLAYER;
-
-    //  (player 2)
-    physicsObjects[3].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[3].pos = vec2(483.33333333333333333333333333334f, 536);
-    physicsObjects[3].oldPos = physicsObjects[3].pos;
-    physicsObjects[3].extents = vec2(32, 64);
-    physicsObjects[3].flags = DYNAMIC | PLAYER;
-
-    //  (player 3)
-    physicsObjects[4].acceleration = vec2(0.f, -982.0f);
-    physicsObjects[4].pos = vec2(650, 536);
-    physicsObjects[4].oldPos = physicsObjects[4].pos;
-    physicsObjects[4].extents = vec2(32, 64);
-    physicsObjects[4].flags = DYNAMIC | PLAYER;
+	playersObject[0].physics = &physicsObjects[1];
+    playersObject[1].physics = &physicsObjects[2];
+ 	playersObject[2].physics = &physicsObjects[3];
+    playersObject[3].physics = &physicsObjects[4];
  
 	/* Initialize SDL_net */
 	if (SDLNet_Init() < 0)
@@ -144,13 +120,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
 	}
-
-	memset(pSent->data, 0, 250);
 	
-	playersObject[0].physics = &physicsObjects[1];
-    playersObject[1].physics = &physicsObjects[2];
- 	playersObject[2].physics = &physicsObjects[3];
-    playersObject[3].physics = &physicsObjects[4];
 	struct timespec t1, t2, timeToDoPhysics = {0,0};
 
 	int executePhysicsAmount = 0;
@@ -246,6 +216,7 @@ int main(int argc, char **argv)
 					if(!newPlayer) 
 					{
 						memcpy((void*)&playerInputs[ifNotNewWhichIndex].keyState,pReceive->data+1,32);
+						//	maybe we should send to other clients
 					}
 					break;
 				case DISCONNECTING:
@@ -265,26 +236,28 @@ int main(int argc, char **argv)
 		
 		while (executePhysicsAmount > 0)
 		{
-		
+
+			//  code for testing winning the game
 			for (int i = 0; i < 4; i++)
 			{
-				handlePlayerInputs(&playersObject[i], (1.f/240.0f), &playerInputs[i]);
-
-				//	temporary solution for flip 
-				if (getKeyboardKey(&playerInputs[i], SDL_SCANCODE_A)) 
+				if(getKeyboardKey(&playerInputs[i], SDL_SCANCODE_K)) 
 				{
-					playerFlip[i] = 1;
+					for (int j = 0; j < 4; j++)
+					{
+						if(j != i) 
+						{
+							playersObject[j].lives = 0;
+						}
+					}
+					
 				}
-
-				if (getKeyboardKey(&playerInputs[i], SDL_SCANCODE_D)) 
-				{
-					playerFlip[i] = 0;
-				}			
 			}
-
+			
+			handlePlayerInputsServer(playersObject, playerInputs, playerFlip);
+			
 			lightPunchServer(playersObject, playerFlip, playerInputs);
 			handlePlayerAnimationServer(playersObject);
-			handlePlayerLives(playersObject);
+			handlePlayerLivesServer(playersObject);
 			
 			for (int i = 0; i < amountOfPhysicalObjects; i++)
             {
@@ -300,15 +273,14 @@ int main(int argc, char **argv)
 
 			if(executePhysicsAmount == 1) 
 			{
-				if (amountOfPlayers > 1)
-				{
-					// Enable line(s) below when properly initilizing player lives
-					// char nWinner = checkWinner(amountOfPlayers, playersObject, takenPlayerSlots);
-					//if (nWinner) 
-					//{
-					//	memcpy(pSent->data+201, (void*)&nWinner, 1);	
-					//}
-				}	
+				// if (amountOfPlayers > 1)
+				// {
+					//Enable line(s) below when properly initilizing player lives
+					char nWinner = checkWinner(amountOfPlayers, playersObject, takenPlayerSlots);
+					
+					memcpy(pSent->data+201, (void*)&nWinner, 1);	
+					
+				//}	
 
 				messageType = PHYSICS_INFO;
 				memcpy(pSent->data,  (void*)&messageType, 1);

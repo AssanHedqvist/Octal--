@@ -43,55 +43,56 @@ void handlePlayerInputsServer(Player player[4], KeyboardStates keyboardInputs[4]
 {
     for (int i = 0; i < 4; i++)
 	{
-        if (getKeyboardKey(&keyboardInputs[i], SDL_SCANCODE_A))
-        {
-            player[i].physics->oldPos = vsum(player[i].physics->oldPos, vsmul(vec2(100.0f, 0.f), DT));
-            playerFlip[i] = 1;
-        }
-
-        if (getKeyboardKey(&keyboardInputs[i], SDL_SCANCODE_D))
-        {
-            player[i].physics->oldPos = vsum(player[i].physics->oldPos, vsmul(vec2(-100.0f, 0.f), DT));
-            playerFlip[i] = 0;
-        }
-
         if (flagGet(player[i].physics->flags, DOWN) && player[i].timeSinceLastJump >= JUMP_COOLDOWN)
         {
             player[i].amountOfJumpsLeft = 2;
         }
 
-        if (getKeyboardKey(&keyboardInputs[i], SDL_SCANCODE_SPACE) && player[i].timeSinceLastJump >= JUMP_COOLDOWN)
+        if (getKeyboardKey(&keyboardInputs[i], SDL_SCANCODE_B))
         {
-
-            if (player[i].amountOfJumpsLeft > 0)
-            {
-                player[i].animationState = JUMP_0;
-
-                player[i].physics->oldPos.y = player[i].physics->pos.y - 450.f * DT; 
-
-                player[i].amountOfJumpsLeft--;
-                player[i].timeSinceLastJump = 0.f;
+            if(player[i].animationState < BLOCK_0 || BLOCK_16 < player[i].animationState) {
+                player[i].animationState = BLOCK_0;
             }
         }
+        else {
+            
+            if(BLOCK_0 <= player[i].animationState && player[i].animationState <= BLOCK_16) {
+                player[i].animationState = IDLE_0;
+            }
+
+            if (getKeyboardKey(&keyboardInputs[i], SDL_SCANCODE_A))
+            {
+                player[i].physics->oldPos = vsum(player[i].physics->oldPos, vsmul(vec2(75.0f, 0.f), DT));
+                playerFlip[i] = 1;
+            }
+
+            if (getKeyboardKey(&keyboardInputs[i], SDL_SCANCODE_D))
+            {
+                player[i].physics->oldPos = vsum(player[i].physics->oldPos, vsmul(vec2(-75.0f, 0.f), DT));
+                playerFlip[i] = 0;
+            }
+
+            if (getKeyboardKey(&keyboardInputs[i], SDL_SCANCODE_SPACE) && player[i].timeSinceLastJump >= JUMP_COOLDOWN)
+            {
+
+                if (player[i].amountOfJumpsLeft > 0)
+                {
+                    player[i].animationState = JUMP_0;
+
+                    player[i].physics->oldPos.y = player[i].physics->pos.y - 300.f * DT; 
+
+                    player[i].amountOfJumpsLeft--;
+                    player[i].timeSinceLastJump = 0.f;
+                }
+            }
+        }
+
         player[i].timeSinceLastJump += TOTAL_TIME_PASSED;
     }
 }
 
 void handlePlayerInputsClient(Player *player, KeyboardStates *keyboardInputs, SoundEffect soundEffect)
 {
-    if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_A))
-    {
-        player->render->flip = 1;
-        player->physics->oldPos = vsum(player->physics->oldPos, vsmul(vec2(100.0f, 0.f), DT));
-        
-    }
-
-    if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_D))
-    {
-        player->render->flip = 0;
-        player->physics->oldPos = vsum(player->physics->oldPos, vsmul(vec2(-100.0f, 0.f), DT));
-    }
-
     if (flagGet(player->physics->flags, DOWN) && player->timeSinceLastJump >= JUMP_COOLDOWN)
     {
         if (player->amountOfJumpsLeft < 2)
@@ -101,21 +102,49 @@ void handlePlayerInputsClient(Player *player, KeyboardStates *keyboardInputs, So
         player->amountOfJumpsLeft = 2;
     }
 
-    if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_SPACE) && player->timeSinceLastJump >= JUMP_COOLDOWN)
+    if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_B))
     {
+        if(player->animationState < BLOCK_0 || BLOCK_16 < player->animationState) {
+            player->animationState = BLOCK_0;
+        }
+        // should we add this??
+        // Mix_PlayChannel(-1,soundEffect.block,0);
+    }
+    else {
+         
+        if(BLOCK_0 <= player->animationState && player->animationState <= BLOCK_16) {
+            player->animationState = IDLE_0;
+        }
 
-        if (player->amountOfJumpsLeft > 0)
+         if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_A))
         {
-            player->animationState = JUMP_0;
+            player->render->flip = 1;
+            player->physics->oldPos = vsum(player->physics->oldPos, vsmul(vec2(100.0f, 0.f), DT));  
+        }
 
-            player->physics->oldPos.y = player->physics->pos.y - 450.f * DT; 
+        if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_D))
+        {
+            player->render->flip = 0;
+            player->physics->oldPos = vsum(player->physics->oldPos, vsmul(vec2(-100.0f, 0.f), DT));
+        }
 
-            Mix_PlayChannel(-1, soundEffect.jump, 0);
+        if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_SPACE) && player->timeSinceLastJump >= JUMP_COOLDOWN)
+        {
 
-            player->amountOfJumpsLeft--;
-            player->timeSinceLastJump = 0.f;
+            if (player->amountOfJumpsLeft > 0)
+            {
+                player->animationState = JUMP_0;
+
+                player->physics->oldPos.y = player->physics->pos.y - 450.f * DT; 
+
+                Mix_PlayChannel(-1, soundEffect.jump, 0);
+
+                player->amountOfJumpsLeft--;
+                player->timeSinceLastJump = 0.f;
+            }
         }
     }
+
     player->timeSinceLastJump += TOTAL_TIME_PASSED;
 }
 
@@ -198,6 +227,11 @@ void handlePlayerAnimationServer(Player player[4])
                 player[i].animationState = IDLE_0;
             }
             break;
+        case BLOCK_0 ... BLOCK_16:
+            if(player[i].animationState == BLOCK_16) {
+                player[i].animationState = BLOCK_15;
+            }
+            break;
         default:
             break;
         }
@@ -255,6 +289,11 @@ void handlePlayerAnimationClient(Player player[4])
                 player[i].animationState = IDLE_0;
             }
             break;
+        case BLOCK_0 ... BLOCK_16:
+            if(player[i].animationState == BLOCK_16) {
+                player[i].animationState = BLOCK_15;
+            }
+            break;
         default:
             break;
         }
@@ -265,27 +304,9 @@ void handlePlayerAnimationClient(Player player[4])
 void updatePlayerRenderWithAnimation(Player player[4]) 
 {
     for (int i = 0; i < 4; i++)
-    {
-        switch (player[i].animationState)
-        {
-        case IDLE_0 ... IDLE_16: 
-            player[i].render->imageExtents.y = 0;
-            player[i].render->imageExtents.x = (player[i].animationState - IDLE_1) * 128;
-            break;
-        case RUN_0 ... RUN_16:  
-            player[i].render->imageExtents.y = 256;
-            player[i].render->imageExtents.x = (player[i].animationState - RUN_1) * 128;
-            break;
-        case JUMP_0 ... JUMP_16:
-            player[i].render->imageExtents.y = 512;
-            player[i].render->imageExtents.x = (player[i].animationState - JUMP_1) * 128;
-            break;
-        case PUNCH_0 ... PUNCH_16:
-            player[i].render->imageExtents.y = 768;
-            player[i].render->imageExtents.x = (player[i].animationState - PUNCH_1) * 128;
-            break;
-        default:
-            break;
-        }
+    {  
+        //  Don't ask XD --Damien
+        player[i].render->imageExtents.y = ((player[i].animationState / 17) << 8);
+        player[i].render->imageExtents.x = (((player[i].animationState % 17) - 1) << 7);
     }
 }

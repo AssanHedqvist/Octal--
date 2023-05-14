@@ -289,11 +289,6 @@ int main(int argv, char **args)
                 }
             }
 
-            if (getKeyboardKey(&keyboardInputs, SDL_SCANCODE_P))
-            {
-                // togglePlay();                           //press p to toggle music
-            }
-
             if (getKeyboardKey(&keyboardInputs, SDL_SCANCODE_ESCAPE) && wentIntoMenu == 0)
             {
                 inGameMenuOpen = !inGameMenuOpen;

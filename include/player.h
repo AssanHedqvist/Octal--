@@ -18,6 +18,8 @@ typedef struct {
     float timeSinceLastJump;
     float timeSinceLastPunch;
     float timeSinceHit;
+    float timeBlockHeld;
+    float timeSinceLastBlock;
     //  add more
 } Player;
 

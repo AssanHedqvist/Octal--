@@ -16,25 +16,25 @@ void initRenderObjects(RenderObject objects[], SDL_Renderer *renderer)
     objects[1].flip = 0;
 
     objects[2].order = 2;
-    objects[2].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesAlpha.png");
+    objects[2].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesNew.png");
     objects[2].imageExtents = (SDL_Rect){0, 0, 128, 256};
     objects[2].screenExtents = (SDL_Rect){400, 300, 32, 64};
     objects[2].flip = 0;
 
     objects[3].order = 2;
-    objects[3].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesAlpha.png");
+    objects[3].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesNew.png");
     objects[3].imageExtents = (SDL_Rect){0, 0, 128, 256};
     objects[3].screenExtents = (SDL_Rect){300, 300, 32, 64};
     objects[3].flip = 0;
 
     objects[4].order = 2;
-    objects[4].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesAlpha.png");
+    objects[4].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesNew.png");
     objects[4].imageExtents = (SDL_Rect){0, 0, 128, 256};
     objects[4].screenExtents = (SDL_Rect){300, 300, 32, 64};
     objects[4].flip = 0;
 
     objects[5].order = 2;
-    objects[5].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesAlpha.png");
+    objects[5].texture = IMG_LoadTexture(renderer, "resources/gridnetForSpritesNew.png");
     objects[5].imageExtents = (SDL_Rect){0, 0, 128, 256};
     objects[5].screenExtents = (SDL_Rect){300, 300, 32, 64};
     objects[5].flip = 0;
