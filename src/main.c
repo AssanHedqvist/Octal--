@@ -110,7 +110,11 @@ int main(int argv, char **args)
     //  server connecting code
 
     unsigned char messageType;
-    while(1) 
+	int tick = SDL_GetTicks();
+	int connectionSuccessful = 0;
+	printf("Connecting to server...\n");
+
+    while((SDL_GetTicks() - tick) < 10000)
     {
         toServer->address.host = serverAddress.host;
         toServer->address.port = serverAddress.port;
@@ -123,15 +127,23 @@ int main(int argv, char **args)
 
         SDLNet_UDP_Send(sd, -1, toServer);
 
-        if(SDLNet_UDP_Recv(sd, fromServer)==1) 
-        {
-            if(fromServer->data[0] == JOIN_ANSWER) 
-            {
-                memcpy((void *)&thisComputersPlayerIndex, fromServer->data+1, 1);
-                break;
-            }
-        }
+		if(SDLNet_UDP_Recv(sd, fromServer) == 1) 
+		{
+			if(fromServer->data[0] == JOIN_ANSWER) 
+			{
+				memcpy((void*) &thisComputersPlayerIndex, fromServer->data + 1, 1);
+				connectionSuccessful = 1;
+				break;
+			}
+		}
+		SDL_Delay(100);
     }
+
+	if(!connectionSuccessful)
+	{
+		printf("Connection timeout\n");
+		return 2;
+	}
 
     printf("Client: %d\n", thisComputersPlayerIndex);
 
