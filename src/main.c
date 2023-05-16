@@ -32,12 +32,6 @@ void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int
 #define SUB_STEPS 4
 #define DT (1.0f / (60.0f * (float)SUB_STEPS))
 
-#define BUTTON_X 140
-#define BUTTON_Y 210
-#define BUTTON_WIDTH 120
-#define BUTTON_HEIGHT 40
-#define BUTTON_GAP 60
-
 typedef enum 
 {
     MENU,
@@ -81,14 +75,14 @@ int main(int argv, char **args)
 
     if (SDLNet_Init() < 0)
     {
-        // fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
+        //fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
 
     //   open socket
     if (!(sd = SDLNet_UDP_Open(0)))
     {
-        // fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+        //fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
 
@@ -102,11 +96,11 @@ int main(int argv, char **args)
     //   Allocates space for packet
     if (!((toServer = SDLNet_AllocPacket(250)) && (fromServer = SDLNet_AllocPacket(250))))
     {
-        // fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+        //fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
 
-    // printf("%u.%u.%u.%u\n", address->host & 0xFF, (( address->host >> 8) & 0xFF),  (( address->host >> 16) & 0xFF), ((address->host >> 24) & 0xFF));
+    //printf("%u.%u.%u.%u\n", address->host & 0xFF, (( address->host >> 8) & 0xFF),  (( address->host >> 16) & 0xFF), ((address->host >> 24) & 0xFF));
 
     unsigned char thisComputersPlayerIndex = 0;
 
@@ -154,13 +148,13 @@ int main(int argv, char **args)
 
     SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
-    
+
     TTF_Font *font = TTF_OpenFont("./resources/fonts/moiser.ttf", 100);
 
     SDL_Event event;
 
-    Mix_Init(0);
-    // initialize SDL_mixer
+    //  initialize SDL_mixer
+    Mix_Init(0); 
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 
     Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/tempMusicWhatIsLove.mp3");
@@ -400,6 +394,7 @@ int main(int argv, char **args)
             //sprintf(winnerEndScreen, "resources/endscreens/p%dEndScreen.png", nWinner);
             //SDL_Texture *backgroundTexture = IMG_LoadTexture(renderer, winnerEndScreen);
             //printf("Player %d won!\n", nWinner);
+
             SDL_RenderClear(renderer);
             SDL_RenderCopyEx(renderer, endScreenTexture, NULL, &backgroundRect, 0.0, NULL, 0);
             SDL_RenderPresent(renderer);

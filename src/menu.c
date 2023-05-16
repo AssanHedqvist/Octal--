@@ -1,11 +1,10 @@
+#include "../include/menu.h"
+
 #define BUTTON_X 140
 #define BUTTON_Y 210
 #define BUTTON_WIDTH 120
 #define BUTTON_HEIGHT 40
 #define BUTTON_GAP 60
-
-#include "../include/menu.h"
-
 
 void renderMenu(SDL_Renderer* renderer, SDL_Texture* backgroundTexture, SDL_Rect backgroundRect, MenuButton* buttons)
 {
@@ -16,7 +15,6 @@ void renderMenu(SDL_Renderer* renderer, SDL_Texture* backgroundTexture, SDL_Rect
         SDL_RenderCopyEx(renderer, buttons[i].texture, NULL, &buttons[i].rect, 0.0, NULL, 0);
     }
 }
-
 
 void createButtons(SDL_Renderer* renderer, MenuButton* buttons, TTF_Font* font)
 {   
@@ -59,6 +57,7 @@ void renderIngameMenu(SDL_Renderer* renderer, SDL_Rect backgroundRect, MenuButto
     SDL_RenderCopyEx(renderer, buttons[3].texture, NULL, &buttons[3].rect, 0.0, NULL, 0);
     SDL_RenderCopyEx(renderer, buttons[4].texture, NULL, &buttons[4].rect, 0.0, NULL, 0);
 }
+
 void freeButtons(MenuButton* buttons, int amountOfButtons)
 {
     for(int i = 0; i < amountOfButtons; i++)
