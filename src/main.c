@@ -69,7 +69,10 @@ int main(int argv, char **args)
 
     Text playerHealthText[4];
 
-    SDL_Init(SDL_INIT_EVERYTHING);
+    if(SDL_Init(SDL_INIT_EVERYTHING) < 0) 
+    {
+        exit(EXIT_FAILURE);
+    }
 
     if (TTF_Init() < 0)
     {
@@ -151,12 +154,15 @@ int main(int argv, char **args)
 
     SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
+    
     TTF_Font *font = TTF_OpenFont("./resources/fonts/moiser.ttf", 100);
 
     SDL_Event event;
 
+    Mix_Init(0);
     // initialize SDL_mixer
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+
     Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/tempMusicWhatIsLove.mp3");
 
     SDL_Texture *endScreenTexture = IMG_LoadTexture(renderer, "resources/endscreens/p1EndScreen.png");
@@ -421,18 +427,26 @@ int main(int argv, char **args)
 
     SDLNet_UDP_Send(sd, -1, toServer);
 
+
     SDLNet_FreePacket(toServer);    
     SDLNet_FreePacket(fromServer);
 
     SDLNet_Quit();
+
     
     TTF_CloseFont(font);
 
     TTF_Quit();
 
+
     Mix_FreeMusic(backgroundMusic);
+
     freeSoundEffects(&soundEffect);
+
     Mix_CloseAudio();
+
+    Mix_Quit();
+
 
     for (int i = 0; i < amountOfRenderObjects; i++)
     {
