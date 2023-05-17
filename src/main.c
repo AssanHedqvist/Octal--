@@ -116,42 +116,7 @@ int main(int argv, char **args)
     unsigned char messageType;
 	int tick = SDL_GetTicks();
 	int connectionSuccessful = 0;
-	printf("Connecting to server...\n");
 
-    while((SDL_GetTicks() - tick) < 10000)
-    {
-        toServer->address.host = serverAddress.host;
-        toServer->address.port = serverAddress.port;
-
-        messageType = JOIN_REQUEST;
-
-        memcpy(toServer->data, (void *)&messageType, 1);
-
-        toServer->len = 1;
-
-        SDLNet_UDP_Send(sd, -1, toServer);
-
-		if(SDLNet_UDP_Recv(sd, fromServer) == 1) 
-		{
-			if(fromServer->data[0] == JOIN_ANSWER) 
-			{
-				memcpy((void*) &thisComputersPlayerIndex, fromServer->data + 1, 1);
-				connectionSuccessful = 1;
-				break;
-			}
-		}
-		SDL_Delay(100);
-    }
-
-	if(!connectionSuccessful)
-	{
-		printf("Connection timeout\n");
-		return 2;
-	}
-
-    printf("Client: %d\n", thisComputersPlayerIndex);
-
-    //  server connecting code
    
     SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
@@ -214,6 +179,15 @@ int main(int argv, char **args)
     int wentIntoMenu = 0;
     int nWinner = 0;
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    int ipLength = 0;
+    SDL_Rect ipAddressRect = {150, 260, 100, 30};
+    SDL_Color ipAddressColor = {0, 0, 0};
+    char ipAddressText[16] = {0}; // Buffer to store the typed IP address
+    SDL_Surface* ipAdressSurface = NULL;
+    SDL_Texture* ipAdressTexture = NULL;
+    IPaddress enteredIP;
+
     while (currentGameState != CLOSED)
     {
         clock_gettime(CLOCK_MONOTONIC, &t1);
@@ -228,6 +202,11 @@ int main(int argv, char **args)
 
                 break;
             case SDL_KEYDOWN:
+                if(event.key.keysym.sym == SDLK_BACKSPACE && ipLength > 0 && currentGameState == MENU)
+                    {
+                        ipAddressText[ipLength - 1] = '\0'; 
+                        ipLength--;
+                    }
             case SDL_KEYUP:
                 setKeyboardKey(&keyboardInputs, event.key.keysym.scancode, event.type);
                 break;
@@ -238,14 +217,30 @@ int main(int argv, char **args)
             case SDL_MOUSEBUTTONUP:
                 setMouseKey(&mouseInputs, event.button.button, event.type);
                 break;
+            case SDL_TEXTINPUT:
+                if (currentGameState == MENU && strlen(ipAddressText) < 15)
+                {
+                    strcat(ipAddressText, event.text.text);
+                    ipLength += strlen(event.text.text);
+                }
+                break;
             }
         }
         switch (currentGameState)
         {
         case MENU:
-            if (getMouseKey(&mouseInputs, SDL_BUTTON_LEFT))
+           //fungerar inte, don't know why
+            /**
+            if(getKeyboardKey(&keyboardInputs, SDLK_BACKSPACE) && ipLength > 0)
             {
-                for (int i = 0; i < 3; i++)
+                 
+                ipAddressText[ipLength - 1] = '\0'; 
+                ipLength--;
+            }
+            */
+              if (getMouseKey(&mouseInputs, SDL_BUTTON_LEFT))
+            {
+                for (int i = 1; i < 3; i++)
                 {
                     if (getMouseX(&mouseInputs) >= buttons[i].rect.x &&
                         getMouseX(&mouseInputs) <= buttons[i].rect.x + buttons[i].rect.w &&
@@ -254,14 +249,54 @@ int main(int argv, char **args)
                     {
                         switch (i)
                         {
-                        case 0:
-                            currentGameState = RUNNING;
-                            Mix_PlayChannel(-1, soundEffect.buttonClick,0);
-                            // Mix_PlayMusic(backgroundMusic,-1); // music plays when game starts
-                            break;
                         case 1:
                             Mix_PlayChannel(-1, soundEffect.buttonClick,0);
-                            break;
+                            if (SDLNet_ResolveHost(&enteredIP, ipAddressText, 0) == -1) 
+                            {
+                                printf("Failed to resolve entered IP address: %s\n", SDLNet_GetError());
+                                return 2;
+                            }
+                        
+                            if(enteredIP.host == serverAddress.host)
+                            {
+                                tick = SDL_GetTicks();
+	                            printf("Connecting to server...\n");
+
+                                while((SDL_GetTicks() - tick) < 10000)
+                                {
+                                    toServer->address.host = serverAddress.host;
+                                    toServer->address.port = serverAddress.port;
+
+                                    messageType = JOIN_REQUEST;
+
+                                    memcpy(toServer->data, (void *)&messageType, 1);
+
+                                    toServer->len = 1;
+
+                                    SDLNet_UDP_Send(sd, -1, toServer);
+
+		                            if(SDLNet_UDP_Recv(sd, fromServer) == 1) 
+		                            {
+			                            if(fromServer->data[0] == JOIN_ANSWER) 
+			                            {
+				                            memcpy((void*) &thisComputersPlayerIndex, fromServer->data + 1, 1);
+				                            connectionSuccessful = 1;
+                                            strcpy(ipAddressText, "");
+                                            ipLength = 0;
+                                            currentGameState = RUNNING;
+				                            break;
+			                            }
+		                            }
+		                            SDL_Delay(100);
+                                }
+                            }
+	                        if(!connectionSuccessful)
+	                        {
+		                        strcpy(ipAddressText, "");
+                                ipLength = 0;
+	                        }   
+                            printf("Client: %d\n", thisComputersPlayerIndex);
+                            break;   
                         case 2:
                             Mix_PlayChannel(-1, soundEffect.buttonClick,0);
                             currentGameState = CLOSED;
@@ -273,9 +308,12 @@ int main(int argv, char **args)
                     }
                 }
             }
-            
             SDL_RenderClear(renderer);
             renderMenu(renderer, backgroundTexture, backgroundRect, buttons);
+            ipAdressSurface = TTF_RenderText_Solid(font, ipAddressText, ipAddressColor);
+            ipAdressTexture = SDL_CreateTextureFromSurface(renderer,ipAdressSurface);
+            SDL_FreeSurface(ipAdressSurface);
+            SDL_RenderCopyEx(renderer, ipAdressTexture, NULL, &ipAddressRect, 0.0, NULL, 0);
             SDL_RenderPresent(renderer);
             break;
         case RUNNING:

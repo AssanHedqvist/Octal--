@@ -15,20 +15,19 @@ void renderMenu(SDL_Renderer* renderer, SDL_Texture* backgroundTexture, SDL_Rect
         SDL_RenderCopyEx(renderer, buttons[i].texture, NULL, &buttons[i].rect, 0.0, NULL, 0);
     }
 }
-
 void createButtons(SDL_Renderer* renderer, MenuButton* buttons, TTF_Font* font)
 {   
-    buttons[0].text.string = "Play";
+    buttons[0].text.string = " IP-Adress: ";
     buttons[0].text.color = (SDL_Color){255, 255, 255, 155};
-    buttons[0].rect = (SDL_Rect){BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT};
+    buttons[0].rect = (SDL_Rect){BUTTON_X, BUTTON_Y+10, BUTTON_WIDTH, BUTTON_HEIGHT};
 
     buttons[1].text.string = "Connect";
     buttons[1].text.color = (SDL_Color){255, 255, 255, 155};
-    buttons[1].rect = (SDL_Rect){BUTTON_X, BUTTON_Y + BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT};
+    buttons[1].rect = (SDL_Rect){BUTTON_X, BUTTON_Y+110, BUTTON_WIDTH, BUTTON_HEIGHT};
 
     buttons[2].text.string = "Quit";
     buttons[2].text.color = (SDL_Color){255, 255, 255, 155};
-    buttons[2].rect = (SDL_Rect){BUTTON_X, BUTTON_Y + 2 * BUTTON_GAP, BUTTON_WIDTH, BUTTON_HEIGHT};
+    buttons[2].rect = (SDL_Rect){BUTTON_X, BUTTON_Y + BUTTON_GAP+110, BUTTON_WIDTH, BUTTON_HEIGHT};
 
     buttons[3].text.string = "Return to Game";
     buttons[3].text.color = (SDL_Color){255, 255, 255, 255};
@@ -65,3 +64,4 @@ void freeButtons(MenuButton* buttons, int amountOfButtons)
         SDL_DestroyTexture(buttons[i].texture);
     }
 }
+
