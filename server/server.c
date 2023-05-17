@@ -77,13 +77,13 @@ int main(int argc, char **argv)
 	UDPpacket *pSent;
 	
 	unsigned char takenPlayerSlots[4] = {0};
+	unsigned char playerFlip[4] = {0};
 	IPaddress playersIP[4] = {{0,0}};
+	KeyboardStates playerInputs[4] = {{{0}}};
 	Player playersObject[4];
 	
 	initPlayers(playersObject);
-
-	KeyboardStates playerInputs[4] = {{{0}}};
-	unsigned char playerFlip[4] = {0};
+	
 	int amountOfPlayers = 0;
 
 	int soundsToPlay = 0;
@@ -190,6 +190,7 @@ int main(int argc, char **argv)
 							SDLNet_UDP_Send(sd, -1, pSent);
 
 							takenPlayerSlots[ifNewWhichIndex] = 1;
+							playersObject[ifNewWhichIndex].physics->flags |= PHYSICS_ACTIVE;
 
 							printf("Player connected assigned number: %d\n", ifNewWhichIndex);
 
@@ -226,6 +227,8 @@ int main(int argc, char **argv)
 						playersIP[ifNotNewWhichIndex].host = 0;
 						playersIP[ifNotNewWhichIndex].port = 0;
 						takenPlayerSlots[ifNotNewWhichIndex] = 0;
+						playersObject[ifNotNewWhichIndex].physics->flags &= (~PHYSICS_ACTIVE);
+						
 						printf("Disconnecting Player: %d\n", ifNotNewWhichIndex);
 					}
 					break;
@@ -237,27 +240,27 @@ int main(int argc, char **argv)
 		while (executePhysicsAmount > 0)
 		{
 
-			//  code for testing winning the game
-			for (int i = 0; i < 4; i++)
-			{
-				if(getKeyboardKey(&playerInputs[i], SDL_SCANCODE_K)) 
-				{
-					for (int j = 0; j < 4; j++)
-					{
-						if(j != i) 
-						{
-							playersObject[j].lives = 0;
-						}
-					}
-					
-				}
-			}
-			
 			handlePlayerInputsServer(playersObject, playerInputs, playerFlip);
 			
 			lightPunchServer(playersObject, playerFlip, playerInputs);
 			handlePlayerAnimationServer(playersObject);
 			handlePlayerLivesServer(playersObject);
+
+			for (int i = 0; i < 4; i++)
+			{
+				if(getKeyboardKey(&playerInputs[i],SDL_SCANCODE_K)) 
+				{
+					playersObject[(i + 1) % 4].lives = 0;
+				}
+			}
+			
+			for (int i = 0; i < 4; i++)
+			{
+				if(playersObject[i].lives == 0) {
+					playersObject[i].physics->flags &= (~PHYSICS_ACTIVE);
+				}
+			}
+			
 			
 			for (int i = 0; i < amountOfPhysicalObjects; i++)
             {

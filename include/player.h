@@ -14,7 +14,7 @@ typedef struct {
     char lives;
     unsigned char recentlyHit;
     unsigned char animationState;
-
+    
     float timeSinceLastJump;
     float timeSinceLastPunch;
     float timeSinceHit;

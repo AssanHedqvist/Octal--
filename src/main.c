@@ -26,6 +26,15 @@ void updateRenderWithPhysics(RenderObject render[], PhysicsObject physics[], int
         //  just 1 for now because the difference is 1 right now
         render[i + 1].screenExtents.x = (int)physics[i].pos.x;
         render[i + 1].screenExtents.y = (int)(600.0f - (physics[i].pos.y + physics[i].extents.y));
+
+        if((physics[i].flags & PHYSICS_ACTIVE) > 0) 
+        {
+            render[i + 1].flags |= RENDER_ACTIVE;
+        }
+        else 
+        {
+            render[i + 1].flags &= (~RENDER_ACTIVE);
+        }
     }
 }
 
@@ -60,8 +69,6 @@ int main(int argv, char **args)
     Player players[4];
 
     initPlayers(players);
-
-    Text playerHealthText[4];
 
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0) 
     {
@@ -145,7 +152,7 @@ int main(int argv, char **args)
     printf("Client: %d\n", thisComputersPlayerIndex);
 
     //  server connecting code
-
+   
     SDL_Window *window = SDL_CreateWindow("Hello Octal--!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, 0);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
 
@@ -160,6 +167,12 @@ int main(int argv, char **args)
     Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/tempMusicWhatIsLove.mp3");
 
     SDL_Texture *endScreenTexture = IMG_LoadTexture(renderer, "resources/endscreens/p1EndScreen.png");
+
+    SDL_Texture *livesIcon[4];
+    livesIcon[0] = IMG_LoadTexture(renderer, "resources/lives.green.png");
+    livesIcon[1] = IMG_LoadTexture(renderer, "resources/lives.red.png");
+    livesIcon[2] = IMG_LoadTexture(renderer, "resources/lives.cyan.png");
+    livesIcon[3] = IMG_LoadTexture(renderer, "resources/lives.yellow.png");
 
     SoundEffect soundEffect;
     loadSoundEffects(&soundEffect);
@@ -260,7 +273,7 @@ int main(int argv, char **args)
                     }
                 }
             }
-
+            
             SDL_RenderClear(renderer);
             renderMenu(renderer, backgroundTexture, backgroundRect, buttons);
             SDL_RenderPresent(renderer);
@@ -315,9 +328,9 @@ int main(int argv, char **args)
             if (!inGameMenuOpen)
             {
                 handlePlayerInputsClient(&players[thisComputersPlayerIndex], &keyboardInputs, soundEffect);
+                lightPunchClient(players, &keyboardInputs, thisComputersPlayerIndex, soundEffect);
             }
-
-            lightPunchClient(players, &keyboardInputs, thisComputersPlayerIndex, soundEffect);
+            
             handlePlayerAnimationClient(players);
             handlePlayerLivesClient(players, soundEffect);
 
@@ -361,16 +374,17 @@ int main(int argv, char **args)
                     memcpy((void*)&players[2].animationState,fromServer->data+195, 1);
                     memcpy((void*)&players[3].animationState,fromServer->data+196, 1);
 
-                    memcpy((void*)&players[0].render->flip,fromServer->data+197, 1);
-                    memcpy((void*)&players[1].render->flip,fromServer->data+198, 1);
-                    memcpy((void*)&players[2].render->flip,fromServer->data+199, 1);
-                    memcpy((void*)&players[3].render->flip,fromServer->data+200, 1);
+                    memcpy((void*)&players[0].render->flags,fromServer->data+197, 1);
+                    memcpy((void*)&players[1].render->flags,fromServer->data+198, 1);
+                    memcpy((void*)&players[2].render->flags,fromServer->data+199, 1);
+                    memcpy((void*)&players[3].render->flags,fromServer->data+200, 1);
 
                     memcpy((void*)&nWinner, fromServer->data+201, 1);
                 }       
             }
 
             updatePlayerRenderWithAnimation(players);
+
             if (nWinner) 
             {   
                 currentGameState = ENDSCREEN;
@@ -449,6 +463,11 @@ int main(int argv, char **args)
     }
 
     freeButtons(buttons, 5);
+
+    for (int i = 0; i < 4; i++)
+    {
+        SDL_DestroyTexture(livesIcon[i]);
+    }
 
     SDL_DestroyTexture(endScreenTexture);
     SDL_DestroyTexture(backgroundTexture);

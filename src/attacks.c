@@ -3,7 +3,7 @@
 #include "../include/player.h"
 #include <math.h>
 
-#define PUNCH_COOLDOWN 0.13333333333333333333333333333333f
+#define PUNCH_COOLDOWN 0.26666666666666666666666666666667f
 
 
 void lightPunchServer(Player players[4], unsigned char playerFlip[4], KeyboardStates keyboardInputs[4]) 
@@ -17,7 +17,9 @@ void lightPunchServer(Player players[4], unsigned char playerFlip[4], KeyboardSt
     {
         if (getKeyboardKey(&keyboardInputs[i], SDL_SCANCODE_J) && 
             !getKeyboardKey(&keyboardInputs[i], SDL_SCANCODE_B) &&
-            players[i].timeSinceLastPunch >= PUNCH_COOLDOWN) 
+            players[i].timeSinceLastPunch >= PUNCH_COOLDOWN &&
+            flagPhysicsGet(players[i].physics->flags, PHYSICS_ACTIVE)
+            ) 
         {   
             players[i].animationState = PUNCH_0;
 
@@ -34,7 +36,7 @@ void lightPunchServer(Player players[4], unsigned char playerFlip[4], KeyboardSt
             }
             for (int j = 0; j < 4; j++)
             {
-                if(j != i) 
+                if(j != i && flagPhysicsGet(players[j].physics->flags, PHYSICS_ACTIVE)) 
                 {
                     minCorner2 = players[j].physics->pos;
                     maxCorner2 = vsum(players[j].physics->pos,players[j].physics->extents);
@@ -84,11 +86,13 @@ void lightPunchClient(Player players[4], KeyboardStates* keyboardInputs, unsigne
     
     if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_J) &&  
        !getKeyboardKey(keyboardInputs, SDL_SCANCODE_B) &&
-       players[clientIndex].timeSinceLastPunch >= PUNCH_COOLDOWN) 
+       players[clientIndex].timeSinceLastPunch >= PUNCH_COOLDOWN &&
+       flagPhysicsGet(players[clientIndex].physics->flags, PHYSICS_ACTIVE)
+       ) 
     {   
         players[clientIndex].animationState = PUNCH_0;
 
-        if(players[clientIndex].render->flip == 1) {
+        if(flagRenderGet(players[clientIndex].render->flags, FLIP) == 1) {
             minCorner1 = vsum(players[clientIndex].physics->pos, vec2(-players[clientIndex].physics->extents.x,0.f));
             maxCorner1 = vsum(players[clientIndex].physics->pos, vec2(0.f,players[clientIndex].physics->extents.y));
             sign = 1.0f;
@@ -101,7 +105,7 @@ void lightPunchClient(Player players[4], KeyboardStates* keyboardInputs, unsigne
         }
         for (int j = 0; j < 4; j++)
         {
-            if(j != clientIndex) 
+            if(j != clientIndex && flagPhysicsGet(players[j].physics->flags, PHYSICS_ACTIVE)) 
             {
                 minCorner2 = players[j].physics->pos;
                 maxCorner2 = vsum(players[j].physics->pos,players[j].physics->extents);
@@ -147,81 +151,4 @@ void lightPunchClient(Player players[4], KeyboardStates* keyboardInputs, unsigne
     {
         players[i].timeSinceHit += 1.0f / (60.0f);
     }
-}
-
-//  server shall handle this function later when that is done change keyboardStates to a array instead of pointer
-void oldLightPunch(Player players[], int amountOfPlayers, KeyboardStates *keyboardInputs, SoundEffect soundEffect)
-{
-    if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_J) && players[0].timeSinceLastPunch >= PUNCH_COOLDOWN)
-    {
-        //players[0].animationState = PUNCH;
-        //Mix_PlayChannel(-1, soundEffect.punch,0);
-        for (int i = 1; i < 4; i++)
-        {
-            //   I'll keep those here to clarify the math for myself. Will delete in a week or so.
-
-            // int yDist = players[0].physics->pos.y - players[i].physics->pos.y;
-            // int xDist = players[0].physics->pos.x - players[i].physics->pos.x;
-            // int playerWidth = players->render->screenExtents.w;
-            // int playerHeight = players->render->screenExtents.h;
-
-            //   check if player to the right
-            if ((players[0].physics->pos.x - players[i].physics->pos.x) +
-                        (players->render->screenExtents.w * 0.2) >=
-                    -(players->render->screenExtents.w) &&
-                (players[0].physics->pos.x - players[i].physics->pos.x) <= 0 &&
-                (players[0].physics->pos.y - players[i].physics->pos.y) <= (players->render->screenExtents.h / 2) &&
-                (players[0].physics->pos.y - players[i].physics->pos.y) >= -(players->render->screenExtents.h / 2) &&
-                players[0].render->flip == 0)
-            {
-                players[i].health += 10;
-                players[i].recentlyHit++;
-                if (players[i].timeSinceHit < 0.5)
-                {
-                    if (players[i].recentlyHit >= 3)
-                    {
-                        players[i].physics->oldPos.x -= pow(1.03,players[i].health);
-                    }
-                }
-                else
-                {
-                    players[i].recentlyHit = 0;
-                }
-                players[i].timeSinceHit = 0.0f;
-            }
-
-            //   Check if player to the left
-            else if ((players[0].physics->pos.x - players[i].physics->pos.x) -
-                             (players->render->screenExtents.w * 0.2) <=
-                         (players->render->screenExtents.w) &&
-                     (players[0].physics->pos.x - players[i].physics->pos.x) >= 0 &&
-                     (players[0].physics->pos.y - players[i].physics->pos.y) <= (players->render->screenExtents.h / 2) &&
-                     (players[0].physics->pos.y - players[i].physics->pos.y) >= -(players->render->screenExtents.h / 2) &&
-                     players[0].render->flip == 1)
-            {
-                players[i].health += 10;
-                players[i].recentlyHit++;
-                if (players[i].timeSinceHit < 0.5)
-                {
-                    if (players[i].recentlyHit >= 3)
-                    {
-                        players[i].physics->oldPos.x += pow(1.03,players[i].health);
-                    }
-                }
-                else
-                {
-                    players[i].recentlyHit = 0;
-                }
-                players[i].timeSinceHit = 0.0f;
-            }
-        }
-        players->render->imageExtents.x = 96;
-        players[0].timeSinceLastPunch = 0.0f;
-    }
-    for (int i = 0; i < 4; i++)
-    {
-        // printf("player %d time: %f hitting: %d\n", i, players[i].timeSinceHit, players[i].recentlyHit);
-        players[i].timeSinceHit += 1.0f / (60.0f);
-    }
-    players[0].timeSinceLastPunch += 1.0f / (60.0f);
 }

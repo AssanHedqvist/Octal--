@@ -10,8 +10,18 @@ typedef struct
     SDL_Texture* texture;
     SDL_Rect imageExtents;
     SDL_Rect screenExtents;
-    unsigned char flip;
+    unsigned char flags;
 } RenderObject;
+
+typedef enum {
+    FLIP = 0b00000001,
+    RENDER_ACTIVE = 0b00001000
+} renderFlags;
+
+static inline unsigned char flagRenderGet(unsigned char objFlags, unsigned char renderFlagToCheck) 
+{
+    return ((objFlags & renderFlagToCheck) > 0);
+}
 
 void initRenderObjects(RenderObject objects[], SDL_Renderer *renderer);
 

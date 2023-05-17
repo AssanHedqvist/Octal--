@@ -3,17 +3,6 @@
 
 #include "../include/vec2.h"
 
-typedef enum {
-    ACTIVE = 0b00000001,
-    DYNAMIC = 0b00000010,
-    PLAYER = 0b00000100,
-    PASSABLE_PLATFORM = 0b00001000,
-    UP =    0b00010000,
-    RIGHT = 0b00100000,
-    DOWN =  0b01000000,
-    LEFT =  0b10000000
-} flags;
-
 //  Verlet integration
 typedef struct
 {
@@ -24,18 +13,24 @@ typedef struct
     unsigned char flags; //  flags about physicsObject
 } PhysicsObject;
 
-static inline unsigned char flagGet(unsigned char objFlags, unsigned char physicsFlagToCheck) 
+typedef enum {
+    DYNAMIC = 0b00000010,
+    PLAYER = 0b00000100,
+    PHYSICS_ACTIVE = 0b00001000,
+    UP =    0b00010000,
+    RIGHT = 0b00100000,
+    DOWN =  0b01000000,
+    LEFT =  0b10000000
+} physicsFlags;
+
+static inline unsigned char flagPhysicsGet(unsigned char objFlags, unsigned char physicsFlagToCheck) 
 {
     return ((objFlags & physicsFlagToCheck) > 0);
 }
 
 void initPhysicsObjects(PhysicsObject objects[]);
 
-void updatePosition(PhysicsObject* obj, float dt);
-
 void updatePositions(PhysicsObject objects[], int length, const float dt);
-
-void aabbTest(PhysicsObject* obj, PhysicsObject* obj2);
 
 void constraintSolve(PhysicsObject objects[], int length);
 
