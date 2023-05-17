@@ -196,17 +196,11 @@ int main(int argv, char **args)
             switch (event.type)
             {
             case SDL_QUIT:
-
                 currentGameState = CLOSED;
                 messageType = DISCONNECTING;
-
                 break;
             case SDL_KEYDOWN:
-                if(event.key.keysym.sym == SDLK_BACKSPACE && ipLength > 0 && currentGameState == MENU)
-                    {
-                        ipAddressText[ipLength - 1] = '\0'; 
-                        ipLength--;
-                    }
+                break;
             case SDL_KEYUP:
                 setKeyboardKey(&keyboardInputs, event.key.keysym.scancode, event.type);
                 break;
@@ -229,9 +223,8 @@ int main(int argv, char **args)
         switch (currentGameState)
         {
         case MENU:
-           //fungerar inte, don't know why
-            /**
-            if(getKeyboardKey(&keyboardInputs, SDLK_BACKSPACE) && ipLength > 0)
+      
+            if(getKeyboardKey(&keyboardInputs, SDL_SCANCODE_BACKSPACE) && ipLength > 0)
             {
                  
                 ipAddressText[ipLength - 1] = '\0'; 
