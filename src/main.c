@@ -230,7 +230,7 @@ int main(int argv, char **args)
                 ipAddressText[ipLength - 1] = '\0'; 
                 ipLength--;
             }
-            */
+
               if (getMouseKey(&mouseInputs, SDL_BUTTON_LEFT))
             {
                 for (int i = 1; i < 3; i++)
