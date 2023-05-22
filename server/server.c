@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Open a socket */
-	if (!(sd = SDLNet_UDP_Open(31929)))
+	if (!(sd = SDLNet_UDP_Open(57000)))
 	{
 		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
 		exit(EXIT_FAILURE);
@@ -217,7 +217,6 @@ int main(int argc, char **argv)
 					if(!newPlayer) 
 					{
 						memcpy((void*)&playerInputs[ifNotNewWhichIndex].keyState,pReceive->data+1,32);
-						//	maybe we should send to other clients
 					}
 					break;
 				case DISCONNECTING:
@@ -245,14 +244,6 @@ int main(int argc, char **argv)
 			lightPunchServer(playersObject, playerFlip, playerInputs);
 			handlePlayerAnimationServer(playersObject);
 			handlePlayerLivesServer(playersObject);
-
-			for (int i = 0; i < 4; i++)
-			{
-				if(getKeyboardKey(&playerInputs[i],SDL_SCANCODE_K)) 
-				{
-					playersObject[(i + 1) % 4].lives = 0;
-				}
-			}
 			
 			for (int i = 0; i < 4; i++)
 			{

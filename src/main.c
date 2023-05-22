@@ -63,7 +63,6 @@ typedef enum  {
 int main(int argv, char **args)
 {
     UDPsocket sd;
-    IPaddress serverAddress;
     UDPpacket *toServer;
     UDPpacket *fromServer;
     Player players[4];
@@ -93,19 +92,14 @@ int main(int argv, char **args)
         exit(EXIT_FAILURE);
     }
 
-    //   Resolve server name
-    if (SDLNet_ResolveHost(&serverAddress, "127.0.0.1", 31929) == -1)
-    {
-        fprintf(stderr, "Resolve Host Error:%s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);
-    }
-
     //   Allocates space for packet
     if (!((toServer = SDLNet_AllocPacket(250)) && (fromServer = SDLNet_AllocPacket(250))))
     {
         //fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
         exit(EXIT_FAILURE);
     }
+
+    
 
     //printf("%u.%u.%u.%u\n", address->host & 0xFF, (( address->host >> 8) & 0xFF),  (( address->host >> 16) & 0xFF), ((address->host >> 24) & 0xFF));
 
@@ -114,7 +108,6 @@ int main(int argv, char **args)
     //  server connecting code
 
     unsigned char messageType;
-	int tick = SDL_GetTicks();
 	int connectionSuccessful = 0;
 
    
@@ -186,7 +179,7 @@ int main(int argv, char **args)
     char ipAddressText[16] = {0}; // Buffer to store the typed IP address
     SDL_Surface* ipAdressSurface = NULL;
     SDL_Texture* ipAdressTexture = NULL;
-    IPaddress enteredIP;
+    IPaddress enteredIP;        
 
     while (currentGameState != CLOSED)
     {
@@ -200,7 +193,6 @@ int main(int argv, char **args)
                 messageType = DISCONNECTING;
                 break;
             case SDL_KEYDOWN:
-                break;
             case SDL_KEYUP:
                 setKeyboardKey(&keyboardInputs, event.key.keysym.scancode, event.type);
                 break;
@@ -231,7 +223,7 @@ int main(int argv, char **args)
                 ipLength--;
             }
 
-              if (getMouseKey(&mouseInputs, SDL_BUTTON_LEFT))
+            if (getMouseKey(&mouseInputs, SDL_BUTTON_LEFT))
             {
                 for (int i = 1; i < 3; i++)
                 {
@@ -243,23 +235,20 @@ int main(int argv, char **args)
                         switch (i)
                         {
                         case 1:
-                            Mix_PlayChannel(-1, soundEffect.buttonClick,0);
-                            if (SDLNet_ResolveHost(&enteredIP, ipAddressText, 0) == -1) 
+                            connectionSuccessful = 0;
+                            //Mix_PlayChannel(-1, soundEffect.buttonClick,0);
+                            if (SDLNet_ResolveHost(&enteredIP, ipAddressText, 57000) == -1) 
                             {
-                                printf("Failed to resolve entered IP address: %s\n", SDLNet_GetError());
-                                return 2;
+                                printf("Incorrect IP format\n");
                             }
-                        
-                            if(enteredIP.host == serverAddress.host)
-                            {
-                                tick = SDL_GetTicks();
-	                            printf("Connecting to server...\n");
+                            else {
+	                            printf("Trying to connect...\n");
 
-                                while((SDL_GetTicks() - tick) < 10000)
+                                toServer->address.host = enteredIP.host;
+                                toServer->address.port = enteredIP.port;                              
+
+                                for (int i = 0; i < 10; i++)
                                 {
-                                    toServer->address.host = serverAddress.host;
-                                    toServer->address.port = serverAddress.port;
-
                                     messageType = JOIN_REQUEST;
 
                                     memcpy(toServer->data, (void *)&messageType, 1);
@@ -268,7 +257,8 @@ int main(int argv, char **args)
 
                                     SDLNet_UDP_Send(sd, -1, toServer);
 
-		                            if(SDLNet_UDP_Recv(sd, fromServer) == 1) 
+                                    SDL_Delay(1);
+                                    if (SDLNet_UDP_Recv(sd, fromServer) == 1) 
 		                            {
 			                            if(fromServer->data[0] == JOIN_ANSWER) 
 			                            {
@@ -280,15 +270,19 @@ int main(int argv, char **args)
 				                            break;
 			                            }
 		                            }
-		                            SDL_Delay(100);
                                 }
+
                             }
-	                        if(!connectionSuccessful)
+	                        if(connectionSuccessful)
 	                        {
+                                printf("Client: %d\n", thisComputersPlayerIndex);
+	                        }   
+                            else
+                            {
+                                printf("Couldn't connect\n");
 		                        strcpy(ipAddressText, "");
                                 ipLength = 0;
-	                        }   
-                            printf("Client: %d\n", thisComputersPlayerIndex);
+                            }  
                             break;   
                         case 2:
                             Mix_PlayChannel(-1, soundEffect.buttonClick,0);
