@@ -8,6 +8,8 @@ typedef struct
     unsigned int keyState[8];
 } KeyboardStates;
 
+void initKeyboardStates(KeyboardStates* states);
+
 void setKeyboardKey(KeyboardStates* states, SDL_Scancode keyCode, int eventType);
 
 char getKeyboardKey(KeyboardStates* states, SDL_Scancode keyCode);

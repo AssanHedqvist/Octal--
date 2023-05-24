@@ -10,6 +10,8 @@ typedef struct
     unsigned char state;
 } MouseState;
 
+void initMouse(MouseState* mouseState);
+
 int getMouseX(MouseState* mouseState);
 
 int getMouseY(MouseState* mouseState);

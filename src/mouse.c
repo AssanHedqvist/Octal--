@@ -1,5 +1,13 @@
 #include "../include/mouse.h"
 
+void initMouse(MouseState* mouseState) 
+{
+
+    mouseState->x = 0;
+    mouseState->y = 0;
+    mouseState->state = 0;
+}
+
 int getMouseX(MouseState* mouseState) 
 {
     return mouseState->x;

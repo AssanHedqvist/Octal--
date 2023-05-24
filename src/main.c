@@ -162,8 +162,11 @@ int main(int argv, char **args)
     MenuButton buttons[5];
     createButtons(renderer, buttons, font);
 
-    KeyboardStates keyboardInputs = {{0}};
-    MouseState mouseInputs = {0,0,0};
+    KeyboardStates keyboardInputs;
+    initKeyboardStates(&keyboardInputs);
+
+    MouseState mouseInputs;
+    initMouse(&mouseInputs);
 
     struct timespec t1, t2;
 
@@ -419,7 +422,7 @@ int main(int argv, char **args)
 
             SDL_RenderClear(renderer);
             render(renderer, renderObjects, amountOfRenderObjects);
-            renderPlayerHealth(players, 4, renderer, font, 100, 550);
+            renderPlayerHealth(players, renderer, font, livesIcon);
             if (inGameMenuOpen)
             {
                 renderIngameMenu(renderer, backgroundRect, buttons);

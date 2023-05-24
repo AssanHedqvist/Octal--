@@ -11,7 +11,7 @@ typedef struct text
     SDL_Color color;
 }Text;
 
-void renderPlayerHealth(Player players[], int amountOfPlayers, SDL_Renderer* renderer, TTF_Font* font, int x, int y);
+void renderPlayerHealth(Player players[4], SDL_Renderer* renderer, TTF_Font* font, SDL_Texture* livesIcon[4]);
 
 #endif
 

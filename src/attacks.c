@@ -3,7 +3,7 @@
 #include "../include/player.h"
 #include <math.h>
 
-#define PUNCH_COOLDOWN 0.26666666666666666666666666666667f
+#define PUNCH_COOLDOWN 0.26833333333333333333333333333333f
 
 
 void lightPunchServer(Player players[4], unsigned char playerFlip[4], KeyboardStates keyboardInputs[4]) 
@@ -21,7 +21,9 @@ void lightPunchServer(Player players[4], unsigned char playerFlip[4], KeyboardSt
             flagPhysicsGet(players[i].physics->flags, PHYSICS_ACTIVE)
             ) 
         {   
+            players[i].timeSinceLastPunch = 0.0f;
             players[i].animationState = PUNCH_0;
+            
 
             if(playerFlip[i] == 1) {
                 minCorner1 = vsum(players[i].physics->pos, vec2(-players[i].physics->extents.x,0.f));
@@ -34,6 +36,8 @@ void lightPunchServer(Player players[4], unsigned char playerFlip[4], KeyboardSt
                 maxCorner1 = vsum(players[i].physics->pos, vec2(players[i].physics->extents.x*2.0f,players[i].physics->extents.y));
                 sign = -1.0f;
             }
+
+
             for (int j = 0; j < 4; j++)
             {
                 if(j != i && flagPhysicsGet(players[j].physics->flags, PHYSICS_ACTIVE)) 
@@ -44,29 +48,33 @@ void lightPunchServer(Player players[4], unsigned char playerFlip[4], KeyboardSt
                     if(minCorner1.x <= maxCorner2.x &&
                        minCorner1.y <= maxCorner2.y &&
                        minCorner2.x <= maxCorner1.x &&
-                       minCorner2.y <= maxCorner1.y && 
-                     !(players[j].animationState >= BLOCK_10 && 
-                       players[j].animationState <= BLOCK_16)) 
+                       minCorner2.y <= maxCorner1.y) 
                     {
-                        players[j].health += 10;
-                        players[j].recentlyHit++;
-                        if (players[j].timeSinceHit < 0.5f)
+                        if(players[j].animationState >= BLOCK_10 && players[j].animationState <= BLOCK_16) 
                         {
-                            if (players[j].recentlyHit >= 3)
+                            players[i].timeSinceLastPunch = -PUNCH_COOLDOWN;
+                        }
+                        else {
+                            players[j].health += 10;
+                            players[j].recentlyHit++;
+                            if (players[j].timeSinceHit < 0.5f)
+                            {
+                                if (players[j].recentlyHit >= 3)
+                                {
+                                    players[j].recentlyHit = 0;
+                                    players[j].physics->oldPos.x += sign * pow(200.2f,players[i].health);
+                                }
+                            }
+                            else
                             {
                                 players[j].recentlyHit = 0;
-                                players[j].physics->oldPos.x += sign * pow(200.2f,players[i].health);
                             }
+                            players[j].timeSinceHit = 0.0f;  
                         }
-                        else
-                        {
-                            players[j].recentlyHit = 0;
-                        }
-                        players[j].timeSinceHit = 0.0f;      
                     }
                 }
             }
-            players[i].timeSinceLastPunch = 0.0f;
+            
         }
         players[i].timeSinceLastPunch += 1.0f / (60.0f);
     }
@@ -90,6 +98,7 @@ void lightPunchClient(Player players[4], KeyboardStates* keyboardInputs, unsigne
        flagPhysicsGet(players[clientIndex].physics->flags, PHYSICS_ACTIVE)
        ) 
     {   
+        players[clientIndex].timeSinceLastPunch = 0.0f;
         players[clientIndex].animationState = PUNCH_0;
 
         if(flagRenderGet(players[clientIndex].render->flags, FLIP) == 1) {
@@ -113,37 +122,40 @@ void lightPunchClient(Player players[4], KeyboardStates* keyboardInputs, unsigne
                 if(minCorner1.x <= maxCorner2.x &&
                    minCorner1.y <= maxCorner2.y &&
                    minCorner2.x <= maxCorner1.x &&
-                   minCorner2.y <= maxCorner1.y && 
-                 !(players[j].animationState >= BLOCK_10 && 
-                   players[j].animationState <= BLOCK_16)) 
+                   minCorner2.y <= maxCorner1.y) 
                 {
-                    players[j].health += 10;
-                    if(players[j].health > 100) 
+                    if(players[j].animationState >= BLOCK_10 && players[j].animationState <= BLOCK_16) 
                     {
-                        Mix_PlayChannel(-1, soundEffect.death, 0);
-                        players[j].lives -= 1;
-                        players[j].health = 0; 
-                        players[j].physics->oldPos = vec2(150.f + j * 166.6666718f, 450);
-                        players[j].physics->pos = vec2(150.f + j * 166.6666718f, 450);
+                        players[clientIndex].timeSinceLastPunch = -PUNCH_COOLDOWN;
                     }
-                    players[j].recentlyHit++;
-                    if (players[j].timeSinceHit < 0.5f)
-                    {
-                        if (players[j].recentlyHit >= 3)
+                    else {
+                        players[j].health += 10;
+                        if(players[j].health > 100) 
+                        {
+                            Mix_PlayChannel(-1, soundEffect.death, 0);
+                            players[j].lives -= 1;
+                            players[j].health = 0; 
+                            players[j].physics->oldPos = vec2(150.f + j * 166.6666718f, 450);
+                            players[j].physics->pos = vec2(150.f + j * 166.6666718f, 450);
+                        }
+                        players[j].recentlyHit++;
+                        if (players[j].timeSinceHit < 0.5f)
+                        {
+                            if (players[j].recentlyHit >= 3)
+                            {
+                                players[j].recentlyHit = 0;
+                                players[j].physics->oldPos.x += sign * pow(200.2f,players[clientIndex].health);
+                            }
+                        }
+                        else
                         {
                             players[j].recentlyHit = 0;
-                            players[j].physics->oldPos.x += sign * pow(200.2f,players[clientIndex].health);
                         }
+                        players[j].timeSinceHit = 0.0f;      
                     }
-                    else
-                    {
-                        players[j].recentlyHit = 0;
-                    }
-                    players[j].timeSinceHit = 0.0f;      
                 }
             }
         }
-        players[clientIndex].timeSinceLastPunch = 0.0f;
         Mix_PlayChannel(-1, soundEffect.punch,0);
     }
     players[clientIndex].timeSinceLastPunch += 1.0f / (60.0f);

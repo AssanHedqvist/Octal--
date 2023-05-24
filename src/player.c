@@ -1,6 +1,7 @@
 #include "../include/player.h"
 
 #define JUMP_COOLDOWN 0.1f
+#define BLOCK_COOLDOWN 0.4f
 #define DT (1.0/240.0f)
 #define TOTAL_TIME_PASSED (1.0/60.0f)
 
@@ -13,6 +14,8 @@ void initPlayers(Player players[])
     players[0].timeSinceHit = 0.f;
     players[0].timeSinceLastJump = 0.f;
     players[0].timeSinceLastPunch = 0.f;
+    players[0].timeSinceLastBlock = 0.f;
+    players[0].timeBlockHeld = 0.f;
 
     players[1].health = 0;
     players[1].lives = 4;
@@ -21,6 +24,8 @@ void initPlayers(Player players[])
     players[1].timeSinceHit = 0.f;
     players[1].timeSinceLastJump = 0.f;
     players[1].timeSinceLastPunch = 0.f;
+    players[1].timeSinceLastBlock = 0.f;
+    players[1].timeBlockHeld = 0.f;
 
     players[2].health = 0;
     players[2].lives = 4;
@@ -29,6 +34,8 @@ void initPlayers(Player players[])
     players[2].timeSinceHit = 0.f;
     players[2].timeSinceLastJump = 0.f;
     players[2].timeSinceLastPunch = 0.f;
+    players[2].timeSinceLastBlock = 0.f;
+    players[2].timeBlockHeld = 0.f;
 
     players[3].health = 0;
     players[3].lives = 4;
@@ -37,6 +44,8 @@ void initPlayers(Player players[])
     players[3].timeSinceHit = 0.f;
     players[3].timeSinceLastJump = 0.f;
     players[3].timeSinceLastPunch = 0.f;
+    players[3].timeSinceLastBlock = 0.f;
+    players[3].timeBlockHeld = 0.f;
 }
 
 void handlePlayerInputsServer(Player player[4], KeyboardStates keyboardInputs[4], unsigned char playerFlip[4])
@@ -50,18 +59,24 @@ void handlePlayerInputsServer(Player player[4], KeyboardStates keyboardInputs[4]
                 player[i].amountOfJumpsLeft = 2;
             }
 
-            if (getKeyboardKey(&keyboardInputs[i], SDL_SCANCODE_B))
+            if (getKeyboardKey(&keyboardInputs[i], SDL_SCANCODE_B) && player[i].timeSinceLastBlock >= BLOCK_COOLDOWN)
             {
                 if(player[i].animationState < BLOCK_0 || BLOCK_16 < player[i].animationState) 
                 {
+                    player[i].timeBlockHeld = 0.f;
                     player[i].animationState = BLOCK_0;
                 }
+                if(player[i].timeBlockHeld >= 3.0f) 
+                {
+                    player[i].timeSinceLastBlock = 0.f;
+                }
+                player[i].timeBlockHeld += TOTAL_TIME_PASSED;
             }
             else {
 
                 if(BLOCK_0 <= player[i].animationState && player[i].animationState <= BLOCK_16) 
                 {
-                    player[i].animationState = IDLE_0;
+                    player[i].animationState = IDLE_0;  
                 }
 
                 if (getKeyboardKey(&keyboardInputs[i], SDL_SCANCODE_A))
@@ -89,6 +104,8 @@ void handlePlayerInputsServer(Player player[4], KeyboardStates keyboardInputs[4]
                         player[i].timeSinceLastJump = 0.f;
                     }
                 }
+
+                player[i].timeSinceLastBlock += TOTAL_TIME_PASSED;
             }
 
             player[i].timeSinceLastJump += TOTAL_TIME_PASSED;
@@ -110,14 +127,20 @@ void handlePlayerInputsClient(Player *player, KeyboardStates *keyboardInputs, So
             player->amountOfJumpsLeft = 2;
         }
     
-        if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_B))
+        if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_B) && player->timeSinceLastBlock >= BLOCK_COOLDOWN)
         {
             if(player->animationState < BLOCK_0 || BLOCK_16 < player->animationState) 
             {
+                player->timeBlockHeld = 0.f;
                 player->animationState = BLOCK_0;
+            }
+            if(player->timeBlockHeld >= 3.0f) 
+            {
+                player->timeSinceLastBlock = 0.f;
             }
             // should we add this??
             // Mix_PlayChannel(-1,soundEffect.block,0);
+            player->timeBlockHeld += TOTAL_TIME_PASSED;
         }
         else {
              
@@ -153,9 +176,9 @@ void handlePlayerInputsClient(Player *player, KeyboardStates *keyboardInputs, So
                     player->timeSinceLastJump = 0.f;
                 }
             }
+            player->timeSinceLastBlock += TOTAL_TIME_PASSED;
         }
-    
-        player->timeSinceLastBlock += TOTAL_TIME_PASSED;
+
         player->timeSinceLastJump += TOTAL_TIME_PASSED;
     }
 }
