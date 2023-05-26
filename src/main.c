@@ -484,7 +484,6 @@ int main(int argv, char **args)
 
     Mix_Quit();
 
-
     for (int i = 0; i < amountOfRenderObjects; i++)
     {
         SDL_DestroyTexture(renderObjects[i].texture);
