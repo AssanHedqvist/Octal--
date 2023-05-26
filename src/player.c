@@ -152,13 +152,13 @@ void handlePlayerInputsClient(Player *player, KeyboardStates *keyboardInputs, So
             if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_A))
             {
                 player->render->flags |= FLIP;
-                player->physics->oldPos = vsum(player->physics->oldPos, vsmul(vec2(100.0f, 0.f), DT));  
+                player->physics->oldPos = vsum(player->physics->oldPos, vsmul(vec2(75.0f, 0.f), DT));  
             }
     
             if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_D))
             {
                 player->render->flags &= ~FLIP;
-                player->physics->oldPos = vsum(player->physics->oldPos, vsmul(vec2(-100.0f, 0.f), DT));
+                player->physics->oldPos = vsum(player->physics->oldPos, vsmul(vec2(-75.0f, 0.f), DT));
             }
     
             if (getKeyboardKey(keyboardInputs, SDL_SCANCODE_SPACE) && player->timeSinceLastJump >= JUMP_COOLDOWN)
@@ -168,7 +168,7 @@ void handlePlayerInputsClient(Player *player, KeyboardStates *keyboardInputs, So
                 {
                     player->animationState = JUMP_0;
     
-                    player->physics->oldPos.y = player->physics->pos.y - 450.f * DT; 
+                    player->physics->oldPos.y = player->physics->pos.y - 300.f * DT; 
     
                     Mix_PlayChannel(-1, soundEffect.jump, 0);
     
