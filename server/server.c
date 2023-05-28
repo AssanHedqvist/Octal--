@@ -58,7 +58,7 @@ char checkWinner(int amountOfPlayers, Player players[4], unsigned char takenPlay
 
 	for (int x = 0; x < 4; x++) 
 	{
-		if (/*takenPlayerSlots[x] &&*/ players[x].lives > 0)
+		if (takenPlayerSlots[x] && players[x].lives > 0)
 		{
 			nAlive++;
 			nWinner = x;
@@ -267,14 +267,14 @@ int main(int argc, char **argv)
 
 			if(executePhysicsAmount == 1) 
 			{
-				// if (amountOfPlayers > 1)
-				// {
+				if (amountOfPlayers > 1)
+				{
 					//Enable line(s) below when properly initilizing player lives
 					char nWinner = checkWinner(amountOfPlayers, playersObject, takenPlayerSlots);
 					
 					memcpy(pSent->data+201, (void*)&nWinner, 1);	
 					
-				//}	
+				}	
 
 				messageType = PHYSICS_INFO;
 				memcpy(pSent->data,  (void*)&messageType, 1);

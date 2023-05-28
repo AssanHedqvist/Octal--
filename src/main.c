@@ -124,7 +124,7 @@ int main(int argv, char **args)
 
     Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/tempMusicWhatIsLove.mp3");
 
-    SDL_Texture *endScreenTexture = IMG_LoadTexture(renderer, "resources/endscreens/p1EndScreen.png");
+    SDL_Texture *endScreenTexture = IMG_LoadTexture(renderer, "resources/endscreens/endscreen.png");
 
     SDL_Texture *livesIcon[4];
     livesIcon[0] = IMG_LoadTexture(renderer, "resources/lives.green.png");
@@ -437,8 +437,23 @@ int main(int argv, char **args)
             //SDL_Texture *backgroundTexture = IMG_LoadTexture(renderer, winnerEndScreen);
             //printf("Player %d won!\n", nWinner);
 
+            players[nWinner-1].render->screenExtents.x = 368;
+            players[nWinner-1].render->screenExtents.y = 325;
+            players[nWinner-1].render->screenExtents.w = 63;
+            players[nWinner-1].render->screenExtents.h = 127;
+            players[nWinner-1].render->imageExtents.x = 0;
+            players[nWinner-1].render->imageExtents.y = 0;
+
             SDL_RenderClear(renderer);
             SDL_RenderCopyEx(renderer, endScreenTexture, NULL, &backgroundRect, 0.0, NULL, 0);
+            SDL_RenderCopyEx(renderer, 
+            players[nWinner-1].render->texture, 
+            &players[nWinner-1].render->imageExtents, 
+            &players[nWinner-1].render->screenExtents, 
+            0.0, 
+            NULL,
+            0
+            );
             SDL_RenderPresent(renderer);
             
             break;
