@@ -122,7 +122,7 @@ int main(int argv, char **args)
     Mix_Init(0); 
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 
-    Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/backmusic.mp3");
+    Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/winMusic.mp3");
 
     SDL_Texture *endScreenTexture = IMG_LoadTexture(renderer, "resources/endscreens/endscreen.png");
 
@@ -432,6 +432,7 @@ int main(int argv, char **args)
             break;
         case ENDSCREEN:
         {
+
             //char winnerEndScreen[50];
             //sprintf(winnerEndScreen, "resources/endscreens/p%dEndScreen.png", nWinner);
             //SDL_Texture *backgroundTexture = IMG_LoadTexture(renderer, winnerEndScreen);
@@ -443,6 +444,7 @@ int main(int argv, char **args)
             players[nWinner-1].render->screenExtents.h = 127;
             players[nWinner-1].render->imageExtents.x = 0;
             players[nWinner-1].render->imageExtents.y = 0;
+            Mix_PlayMusic(backgroundMusic, -1);
 
             SDL_RenderClear(renderer);
             SDL_RenderCopyEx(renderer, endScreenTexture, NULL, &backgroundRect, 0.0, NULL, 0);
