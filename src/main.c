@@ -122,7 +122,7 @@ int main(int argv, char **args)
     Mix_Init(0); 
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 
-    Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/tempMusicWhatIsLove.mp3");
+    Mix_Music *backgroundMusic = Mix_LoadMUS("resources/music/backmusic.mp3");
 
     SDL_Texture *endScreenTexture = IMG_LoadTexture(renderer, "resources/endscreens/endscreen.png");
 

@@ -20,6 +20,8 @@ void loadSoundEffects(SoundEffect *soundEffect)
     soundEffect->punch = Mix_LoadWAV("resources/sounds/punch3.wav");
     soundEffect->knockback = Mix_LoadWAV("resources/sounds/punch2.wav");
     soundEffect->death = Mix_LoadWAV("resources/sounds/windowsGoodbye.wav");
+    soundEffect->shield = Mix_LoadWAV("resources/sounds/shield.wav");
+    soundEffect->block = Mix_LoadWAV("resources/sounds/block.wav");
 }
 
 void freeSoundEffects(SoundEffect *soundEffect)

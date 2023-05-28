@@ -145,6 +145,7 @@ void lightPunchClient(Player players[4], KeyboardStates* keyboardInputs, unsigne
                             {
                                 players[j].recentlyHit = 0;
                                 players[j].physics->oldPos.x += sign * pow(200.2f,players[clientIndex].health);
+                                Mix_PlayChannel(-1, soundEffect.knockback,0);
                             }
                         }
                         else

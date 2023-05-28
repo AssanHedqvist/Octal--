@@ -17,6 +17,8 @@ typedef struct
     Mix_Chunk *run;
     Mix_Chunk *death;
     Mix_Chunk *buttonClick;
+    Mix_Chunk *shield;
+    Mix_Chunk *block;
 } SoundEffect;
 
 void loadSoundEffects(SoundEffect *sounds);
