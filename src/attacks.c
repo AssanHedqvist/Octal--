@@ -62,7 +62,7 @@ void lightPunchServer(Player players[4], unsigned char playerFlip[4], KeyboardSt
                                 if (players[j].recentlyHit >= 3)
                                 {
                                     players[j].recentlyHit = 0;
-                                    players[j].physics->oldPos.x += sign * pow(200.2f,players[i].health);
+                                    players[j].physics->oldPos.x += sign * (powf(500.2f,players[i].health) * (1.0f/240.0f));
                                 }
                             }
                             else

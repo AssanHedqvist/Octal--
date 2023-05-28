@@ -86,8 +86,6 @@ int main(int argc, char **argv)
 	
 	int amountOfPlayers = 0;
 
-	int soundsToPlay = 0;
-	
     int quit = 0;
 	
 	int amountOfPhysicalObjects = 5;
@@ -271,7 +269,7 @@ int main(int argc, char **argv)
 				{
 					//Enable line(s) below when properly initilizing player lives
 					char nWinner = checkWinner(amountOfPlayers, playersObject, takenPlayerSlots);
-					
+
 					memcpy(pSent->data+201, (void*)&nWinner, 1);	
 					
 				}	

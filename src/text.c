@@ -40,7 +40,7 @@ void renderPlayerHealth(Player players[4], SDL_Renderer* renderer, TTF_Font* fon
     }
 
     SDL_Rect healthRect = {x, 550, 100, 50};
-    SDL_Rect lifeRect = {x, 525, 25, 25}; 
+    
 
     for(int i = 0; i < 4; i++)
     {
@@ -54,8 +54,8 @@ void renderPlayerHealth(Player players[4], SDL_Renderer* renderer, TTF_Font* fon
 
             for (int j = 0; j < players[i].lives; j++)
             {
+                SDL_Rect lifeRect = {healthRect.x + j * 25, 525, 25, 25}; 
                 SDL_RenderCopyEx(renderer, livesIcon[i], NULL, &lifeRect, 0.0, NULL, 0);
-                lifeRect.x += 25;
             }
             
             SDL_RenderCopyEx(renderer, texture, NULL, &healthRect, 0.0, NULL, 0);
@@ -65,7 +65,6 @@ void renderPlayerHealth(Player players[4], SDL_Renderer* renderer, TTF_Font* fon
             SDL_DestroyTexture(texture);
 
             healthRect.x += alignment;
-            lifeRect.x += (alignment - 100);
         }
     }
 }

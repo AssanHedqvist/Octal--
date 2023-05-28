@@ -191,8 +191,8 @@ void handlePlayerLivesServer(Player player[4])
         {
             player[i].lives -= 1;
             player[i].health = 0;
-            player[i].physics->oldPos = vec2(150.f + i * 166.6666718f, 450);
-            player[i].physics->pos = vec2(150.f + i * 166.6666718f, 450);
+            player[i].physics->oldPos = vec2(384, 450);
+            player[i].physics->pos = vec2(384, 450);
         }
     }
 }
@@ -206,8 +206,8 @@ void handlePlayerLivesClient(Player player[4], SoundEffect soundEffect)
             Mix_PlayChannel(-1, soundEffect.death, 0);
             player[i].lives -= 1;
             player[i].health = 0; 
-            player[i].physics->oldPos = vec2(150.f + i * 166.6666718f, 450);
-            player[i].physics->pos = vec2(150.f + i * 166.6666718f, 450);
+            player[i].physics->oldPos = vec2(384, 450);
+            player[i].physics->pos = vec2(384, 450);
         }
     }
 }
